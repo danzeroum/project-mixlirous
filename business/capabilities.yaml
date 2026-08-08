@@ -1,9 +1,109 @@
-﻿# Capacidades de negócio com rastreabilidade física: cada capacidade aponta para código e teste
-# reais. IDs estáveis (CAP-...) formam as arestas duráveis do grafo.
-# Schema: harness/schemas/capabilities.schema.json
-schema_version: "1.0"
-metadata_version: "1.0"
-source_of_truth: true
-generated_from: null
-
-capabilities: []
+schema_version: '1.0'
+metadata_version: '1.0'
+source_of_truth: false
+generated_from: ingerir ING-04-NEGOCIO
+capabilities:
+- id: CAP-DSP-ENGINE
+  name: Motor de DSP para remixagem de áudio
+  status: implemented
+  owners:
+    business_owner: product
+    technical_owner: engineering
+  risk_level: pending_judgment
+  source_paths:
+  - workspace/target/crates/audio_core/src/domain
+  - workspace/target/crates/audio_core/src/dsp
+  - workspace/target/crates/audio_core/src/io
+  - workspace/target/crates/audio_core/src/ports
+  test_paths:
+  - workspace/target/crates/audio_core/tests/aliasing.rs
+  - workspace/target/crates/audio_core/tests/crossfade_properties.rs
+  - workspace/target/crates/audio_core/tests/dc_offset.proptest-regressions
+  - workspace/target/crates/audio_core/tests/dc_offset.rs
+  - workspace/target/crates/audio_core/tests/fixtures_manifest.rs
+  - workspace/target/crates/audio_core/tests/generators.rs
+  - workspace/target/crates/audio_core/tests/homogeneity.rs
+  - workspace/target/crates/audio_core/tests/idempotence.rs
+  - workspace/target/crates/audio_core/tests/latency.rs
+  - workspace/target/crates/audio_core/tests/neutral_bypass.rs
+  - workspace/target/crates/audio_core/tests/thd.rs
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: audio_core-dominio-dsp
+- id: CAP-AGENT-ORCHESTRATION
+  name: Orquestração cognitiva do agente de IA (ReAct)
+  status: proposed
+  owners:
+    business_owner: product
+    technical_owner: engineering
+  risk_level: pending_judgment
+  source_paths:
+  - workspace/target/crates/audio_agent/src
+  test_paths: []
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: audio_agent-orquestracao-cognitiva
+- id: CAP-HTTP-TRANSPORT
+  name: Transporte HTTP e SSE da API
+  status: proposed
+  owners:
+    business_owner: product
+    technical_owner: engineering
+  risk_level: pending_judgment
+  source_paths:
+  - workspace/target/crates/audio_api/src
+  test_paths: []
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: audio_api-transporte
+- id: CAP-UI-PRESENTATION
+  name: Interface de usuário (canvas, overlay, streaming)
+  status: proposed
+  owners:
+    business_owner: product
+    technical_owner: engineering
+  risk_level: pending_judgment
+  source_paths:
+  - workspace/target/ui/src
+  test_paths: []
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: ui-apresentacao
+- id: CAP-PERSISTENCE
+  name: Persistência dual (SQLite/PostgreSQL)
+  status: proposed
+  owners:
+    business_owner: product
+    technical_owner: engineering
+  risk_level: pending_judgment
+  source_paths:
+  - workspace/target/crates/audio_api/src/adapters
+  test_paths: []
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/adr/README.md
+    section: ADR-0003-persistencia-dual
+- id: CAP-LLM-PROVIDER
+  name: Abstração de provedor LLM (OpenAI/Ollama/DeepSeek)
+  status: planned
+  owners:
+    business_owner: product
+    technical_owner: engineering
+  risk_level: pending_judgment
+  source_paths:
+  - workspace/target/crates/audio_agent/src/llm
+  test_paths: []
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/adr/README.md
+    section: ADR-0004-sem-sdk-llm

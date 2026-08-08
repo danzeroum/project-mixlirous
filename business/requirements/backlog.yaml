@@ -1,9 +1,118 @@
-﻿# Backlog de requisitos, cada item ligado a uma capacidade (CAP-*). Dá ao agente o QUE fazer e por
-# quê, sem inventar escopo. Um item pode citar o risco que introduz e depender de outro.
-# Schema: harness/schemas/backlog.schema.json
-schema_version: "1.0"
-metadata_version: "1.0"
-source_of_truth: true
-generated_from: null
-
-items: []
+schema_version: '1.0'
+metadata_version: '1.0'
+source_of_truth: false
+generated_from: ingerir ING-04-NEGOCIO
+items:
+- id: REQ-001
+  title: Remixar áudio com intenção em linguagem natural
+  type: user-story
+  capability: CAP-AGENT-ORCHESTRATION
+  status: in_progress
+  priority: high
+  acceptance_criteria:
+  - O usuário descreve a intenção em linguagem natural.
+  - O agente traduz em parâmetros determinísticos de DSP.
+  - O resultado é um WAV masterizado.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/00-VISAO-ESCOPO.md
+    section: ideia-central
+- id: REQ-002
+  title: Detectar batidas e cortar em blocos alinhados
+  type: task
+  capability: CAP-DSP-ENGINE
+  status: done
+  priority: high
+  acceptance_criteria:
+  - Beat detection com onset strength.
+  - Corte em blocos alinhados ao grid de batidas.
+  - Energia do bloco calculada.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: crates/audio_core/src/dsp/analysis/beat_tracking.rs
+- id: REQ-003
+  title: Masterizar áudio (compressor, limiter, LUFS)
+  type: task
+  capability: CAP-DSP-ENGINE
+  status: done
+  priority: high
+  acceptance_criteria:
+  - Cadeia de masterização com compressor, limiter e medição LUFS.
+  - Output em -14 LUFS para plataforma.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: crates/audio_core/src/dsp/mastering
+- id: REQ-004
+  title: Crossfade e stitches sem estalo
+  type: task
+  capability: CAP-DSP-ENGINE
+  status: done
+  priority: medium
+  acceptance_criteria:
+  - Crossfade com potência constante.
+  - Stitching com zero-cross detection.
+  - Sem estalos audíveis.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: crates/audio_core/src/dsp/stitching
+- id: REQ-005
+  title: Criar e acompanhar job de remix via API
+  type: user-story
+  capability: CAP-HTTP-TRANSPORT
+  status: done
+  priority: high
+  acceptance_criteria:
+  - POST /api/v1/jobs cria job e retorna 202.
+  - GET /api/v1/jobs/:id/events stream SSE com progresso.
+  - Job persistido no banco.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: crates/audio_api/src/routes/jobs.rs
+- id: REQ-006
+  title: Autenticação JWT e escopo de tenant
+  type: enabler
+  capability: CAP-HTTP-TRANSPORT
+  status: done
+  priority: high
+  acceptance_criteria:
+  - Middleware de auth JWT aplicado.
+  - Escopo de tenant isola dados.
+  - Sanitização de prompt contra injection.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: crates/audio_api/src/middleware/auth.rs
+- id: REQ-007
+  title: Canvas interativo com overlay de proposta HITL
+  type: user-story
+  capability: CAP-UI-PRESENTATION
+  status: done
+  priority: medium
+  acceptance_criteria:
+  - Canvas DAG com React Flow.
+  - Overlay de proposta para Human-in-the-Loop.
+  - Painel de raciocínio em tempo real via SSE.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: ui/src/components
+- id: REQ-008
+  title: Trocar de provedor LLM sem alterar código
+  type: enabler
+  capability: CAP-LLM-PROVIDER
+  status: planned
+  priority: medium
+  acceptance_criteria:
+  - Trait LlmProvider com adapters OpenAI/Ollama/DeepSeek.
+  - Troca via configuração (base URL + modelo).
+  - Nenhum nome de modelo fixo no código.
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/adr/README.md
+    section: ADR-0004-sem-sdk-llm

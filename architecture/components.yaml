@@ -79,6 +79,10 @@ components:
     sha: 658a6d34407232e70b512d71732cfdb62868140c
     path: docs/02-ARQUITETURA.md
     section: audio_core-dominio-dsp
+  implements:
+  - REQ-002
+  - REQ-003
+  - REQ-004
 - id: CMP-AUDIO-AGENT
   kind: service
   capability: CAP-AGENT-ORCHESTRATION
@@ -107,6 +111,8 @@ components:
     sha: 658a6d34407232e70b512d71732cfdb62868140c
     path: docs/02-ARQUITETURA.md
     section: audio_agent-orquestracao-cognitiva
+  implements:
+  - REQ-001
 - id: CMP-AUDIO-API
   kind: service
   capability: CAP-HTTP-TRANSPORT
@@ -156,6 +162,9 @@ components:
     sha: 658a6d34407232e70b512d71732cfdb62868140c
     path: docs/02-ARQUITETURA.md
     section: audio_api-transporte
+  implements:
+  - REQ-005
+  - REQ-006
 - id: CMP-UI
   kind: ui-surface
   capability: CAP-UI-PRESENTATION
@@ -190,6 +199,8 @@ components:
     sha: 658a6d34407232e70b512d71732cfdb62868140c
     path: docs/02-ARQUITETURA.md
     section: ui-apresentacao
+  implements:
+  - REQ-007
 exemptions:
 - path: workspace/target/crates/audio_core/tests/aliasing.rs
   justification: Teste acústico/integração do motor DSP. Coberto por tested_by do

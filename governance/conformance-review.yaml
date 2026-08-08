@@ -5,12 +5,13 @@ generated_from: null
 review:
   produced_by: agent
   agent: conformance
-  scope_fingerprint: sha256:8bcc2d4be6e07ce9c3e0108c610e6fce51fb700b88df922d204bb7639a4453bb
+  scope_fingerprint: sha256:3ab948315259e5fac02ef5cd4c9ab32a4fbdce444d82bed4186fa812ab1090e5
   findings: []
   not_assessed:
-  - 'Conformidade do código do alvo (aguarda /ingerir)'
-  - 'Adequação das fronteiras de componente propostas pelo cartographer (aguarda /ingerir)'
-  - 'Eficácia real dos controles em produção (não há ambiente de produção)'
-  - 'Se os prazos de tratamento de risco são razoáveis (nenhum risco está open)'
-  - 'Schemas cujo produtor é externo e não está instalado: nenhum documento real os exercita'
-  - 'Se a cadência é restatada FORA dos caminhos que check_cadence_single_source vigia'
+  - Conformidade do código do alvo (aguarda /ingerir)
+  - Adequação das fronteiras de componente propostas pelo cartographer (aguarda /ingerir)
+  - Eficácia real dos controles em produção (não há ambiente de produção)
+  - Se os prazos de tratamento de risco são razoáveis (nenhum risco está open)
+  - 'Schemas cujo produtor é externo e não está instalado: nenhum documento real os
+    exercita'
+  - Se a cadência é restatada FORA dos caminhos que check_cadence_single_source vigia

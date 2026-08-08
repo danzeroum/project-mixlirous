@@ -9,11 +9,21 @@ fazem: **o que ficou de fora?**
 
 | Capacidade | risk_level | Riscos que a cobrem |
 |---|---|---|
+| `CAP-AGENT-ORCHESTRATION` | pending_judgment | — |
+| `CAP-DSP-ENGINE` | pending_judgment | — |
+| `CAP-HTTP-TRANSPORT` | pending_judgment | — |
+| `CAP-LLM-PROVIDER` | pending_judgment | — |
+| `CAP-PERSISTENCE` | pending_judgment | — |
+| `CAP-UI-PRESENTATION` | pending_judgment | — |
 
 ## Componentes
 
 | Componente | Status | Capacidade | Implementa | Coberto por risco |
 |---|---|---|---|---|
+| `CMP-AUDIO-AGENT` | implemented | `CAP-AGENT-ORCHESTRATION` | REQ-001 | não |
+| `CMP-AUDIO-API` | implemented | `CAP-HTTP-TRANSPORT` | REQ-005, REQ-006 | não |
+| `CMP-AUDIO-CORE` | implemented | `CAP-DSP-ENGINE` | REQ-002, REQ-003, REQ-004 | não |
+| `CMP-UI` | implemented | `CAP-UI-PRESENTATION` | REQ-007 | não |
 
 ## Riscos por área
 

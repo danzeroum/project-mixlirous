@@ -1378,7 +1378,8 @@
           "pointer": "/properties/ui_surfaces/items/properties/capability"
         }
       ],
-      "group": "arquitetura"
+      "group": "arquitetura",
+      "example": "CAP-DSP-ENGINE"
     },
     {
       "pattern": "^CMP-[A-Z0-9]+(-[A-Z0-9]+)*$",
@@ -1419,7 +1420,8 @@
           "pointer": "/properties/interfaces/items/properties/provider"
         }
       ],
-      "group": "arquitetura"
+      "group": "arquitetura",
+      "example": "CMP-AUDIO-CORE"
     },
     {
       "pattern": "^RISK-[A-Z0-9]+(-[0-9]{3})?$",
@@ -1790,7 +1792,8 @@
           "pointer": "/properties/interfaces/items/properties/id"
         }
       ],
-      "group": "arquitetura"
+      "group": "arquitetura",
+      "example": "IFC-AUDIO-ANALYZER"
     },
     {
       "pattern": "^UI-[A-Z0-9]+(-[A-Z0-9]+)*$",
@@ -2104,7 +2107,8 @@
           "pointer": "/properties/risks/items/properties/related/items"
         }
       ],
-      "group": "governança"
+      "group": "governança",
+      "example": "CAP-DSP-ENGINE"
     },
     {
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
@@ -2299,7 +2303,8 @@
           "pointer": "/properties/ui_surfaces/items/properties/satisfies/items"
         }
       ],
-      "group": "negócio"
+      "group": "negócio",
+      "example": "REQ-001"
     },
     {
       "pattern": "^RULE-[A-Z0-9]+(-[A-Z0-9]+)*-[0-9]{3}$",
@@ -4427,19 +4432,19 @@
       },
       {
         "path": "architecture/components.yaml",
-        "sha256": "7ba3b3064457bb3dc7560114356393a0547a8fa02f238f9762c7b0fe64bf6c90"
+        "sha256": "0782c3960d54607c3e4fafefae3e2bb8059060b62e188d80b7e1e79f652d6dd8"
       },
       {
         "path": "architecture/interfaces.yaml",
-        "sha256": "4e9adb3d6c1aa3cd82f002b20fc539f89901e3132f936ff2a98fce54f1da0fb7"
+        "sha256": "9c24d3661c4e4986579140871db2a550f8f58be7e99b2573052c93ed27abb3df"
       },
       {
         "path": "business/capabilities.yaml",
-        "sha256": "226332687102b9f3360e450ce47f5824b7e66961900533ee17472a3c475d3511"
+        "sha256": "92f81d5f26ca50489ef5b43793b75d2429ea845ea00b17d77fa76910d92df5f4"
       },
       {
         "path": "business/requirements/backlog.yaml",
-        "sha256": "d3b4eead5bcd460c426d2730dd90d253e1a0e66ad7063b78093cd2f82226cf17"
+        "sha256": "fbc479f4da39941083f65c49866796461216acaf6d98b28f58993010469ffb32"
       },
       {
         "path": "business/vision.yaml",
@@ -4591,7 +4596,7 @@
       },
       {
         "path": "governance/privacy-review.yaml",
-        "sha256": "665f2fcdadda40e5443ef496ce2317dba64af5826e522492ff61be3b45722f29"
+        "sha256": "2bb0a344ce77677bf72291afac86a7727127def51f0e84e980e4a1da28cb816f"
       },
       {
         "path": "governance/risk-register.yaml",
@@ -4870,7 +4875,7 @@
         "sha256": "dd26eb233b6903e2e5058b0cd0c13cd3df0681fe8af61c481cb7e96727522474"
       }
     ],
-    "inputs_fingerprint": "sha256:1eedb52faa94eb2820f30adc84bcd503a6acb1b940869ffa9f599c7a0e19cad6",
+    "inputs_fingerprint": "sha256:0babf4a809cc2685b7214d553a4c221c612cff863a028da8fabf573e705aa71a",
     "commit": {
       "embedded": false,
       "onde": "harness/reports/config-report.json"
