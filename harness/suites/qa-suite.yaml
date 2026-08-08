@@ -63,10 +63,10 @@ suite:
   modes:
     - nome: inventory
       requires_gate: false
-      command: ["{entrypoint}", "inventario", "--raiz", ".", "--saida", "harness/reports/cockpit.html"]
+      command: ["python", "ci/webqa_wrapper.py", "inventario", "--raiz", ".", "--saida", "harness/reports/cockpit.html"]
     - nome: passive
       requires_gate: false
-      command: ["{entrypoint}", "auditar", "--config", "{perfil}", "-m", "not load"]
+      command: ["python", "ci/webqa_wrapper.py", "auditar", "--config", "{perfil}", "-m", "not load"]
 
   laudo:
     path: harness/reports/qa-report.json
