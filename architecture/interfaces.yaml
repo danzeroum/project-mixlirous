@@ -1,11 +1,123 @@
-﻿# Contratos de interface entre componentes. O fiscal cruza:
-#  - provider e consumers existem em components.yaml;
-#  - exposes ⊆ exposes do componente provedor;
-#  - cada consumidor declara depends_on o provedor (coerência com o grafo de componentes).
-# Schema: harness/schemas/interfaces.schema.json
-schema_version: "1.0"
+﻿schema_version: "1.0"
 metadata_version: "1.0"
-source_of_truth: true
-generated_from: null
+source_of_truth: false
+generated_from: "ingerir ING-03-CARTOGRAFIA"
 
-interfaces: []
+interfaces:
+  - id: IFC-AUDIO-ANALYZER
+    name: "Porta de análise de áudio"
+    kind: python-api
+    provider: CMP-AUDIO-CORE
+    consumers:
+      - CMP-AUDIO-AGENT
+    exposes:
+      - audio_core::ports::AudioAnalyzer
+    status: implemented
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: crates/audio_core/src/ports/analyzer_trait.rs
+
+  - id: IFC-AUDIO-MIXER
+    name: "Porta de mixagem e masterização"
+    kind: python-api
+    provider: CMP-AUDIO-CORE
+    consumers:
+      - CMP-AUDIO-AGENT
+    exposes:
+      - audio_core::ports::AudioMixer
+    status: implemented
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: crates/audio_core/src/ports/mixer_trait.rs
+
+  - id: IFC-AUDIO-REPO
+    name: "Porta de persistência de áudio"
+    kind: python-api
+    provider: CMP-AUDIO-CORE
+    consumers:
+      - CMP-AUDIO-API
+    exposes:
+      - audio_core::ports::AudioRepo
+      - claim_next_job()
+      - update_status()
+    status: implemented
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: crates/audio_core/src/ports/repo_trait.rs
+
+  - id: IFC-STORAGE
+    name: "Porta de armazenamento de objetos"
+    kind: python-api
+    provider: CMP-AUDIO-CORE
+    consumers:
+      - CMP-AUDIO-API
+    exposes:
+      - audio_core::ports::Storage
+      - put_object()
+      - get_object()
+    status: planned
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: docs/adr/README.md
+      section: ADR-0006-object-store
+
+  - id: IFC-LLM-PROVIDER
+    name: "Porta de provedor LLM"
+    kind: python-api
+    provider: CMP-AUDIO-AGENT
+    consumers:
+      - CMP-AUDIO-API
+    exposes:
+      - LlmProvider
+      - complete()
+      - stream()
+    status: planned
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: docs/adr/README.md
+      section: ADR-0004-sem-sdk-llm
+
+  - id: IFC-API-HTTP
+    name: "API HTTP REST"
+    kind: http
+    provider: CMP-AUDIO-API
+    consumers:
+      - CMP-UI
+    exposes:
+      - POST /api/v1/jobs
+      - GET /api/v1/jobs/:id
+      - GET /api/v1/tools
+      - GET /api/v1/tracks
+      - GET /api/v1/prompts
+      - GET /api/v1/tenants
+      - GET /api/v1/system
+    status: implemented
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: crates/audio_api/src/routes
+
+  - id: IFC-API-SSE
+    name: "Stream de eventos SSE"
+    kind: event
+    provider: CMP-AUDIO-API
+    consumers:
+      - CMP-UI
+    exposes:
+      - GET /api/v1/jobs/:id/events
+      - agent.thought
+      - agent.error
+      - agent.proposal
+      - job.progress
+      - job.completed
+    status: implemented
+    derived_from:
+      repo: danzeroum/mixlirous
+      sha: 658a6d34407232e70b512d71732cfdb62868140c
+      path: docs/adr/README.md
+      section: ADR-0002-sse-ao-inves-de-websocket

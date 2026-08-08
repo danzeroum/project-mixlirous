@@ -1,10 +1,226 @@
-﻿# Componentes técnicos ligados a capacidades. Fecha a rastreabilidade
-# capacidade → componente → código → teste.
-# Schema: harness/schemas/components.schema.json
-schema_version: "1.0"
-metadata_version: "1.0"
-source_of_truth: true
-generated_from: null
-
-components: []
-exemptions: []
+schema_version: '1.0'
+metadata_version: '1.0'
+source_of_truth: false
+generated_from: ingerir ING-03-CARTOGRAFIA
+components:
+- id: CMP-AUDIO-CORE
+  kind: domain-module
+  capability: CAP-DSP-ENGINE
+  status: implemented
+  source_paths:
+  - workspace/target/crates/audio_core/Cargo.toml
+  - workspace/target/crates/audio_core/examples/fatia_vertical.rs
+  - workspace/target/crates/audio_core/src/domain/attack_ms.rs
+  - workspace/target/crates/audio_core/src/domain/beat.rs
+  - workspace/target/crates/audio_core/src/domain/block.rs
+  - workspace/target/crates/audio_core/src/domain/block_size_beats.rs
+  - workspace/target/crates/audio_core/src/domain/compression_ratio.rs
+  - workspace/target/crates/audio_core/src/domain/crossfade_ms.rs
+  - workspace/target/crates/audio_core/src/domain/eq_gain_db.rs
+  - workspace/target/crates/audio_core/src/domain/fingerprint.rs
+  - workspace/target/crates/audio_core/src/domain/lufs_target.rs
+  - workspace/target/crates/audio_core/src/domain/mod.rs
+  - workspace/target/crates/audio_core/src/domain/percentile.rs
+  - workspace/target/crates/audio_core/src/domain/pipeline_config.rs
+  - workspace/target/crates/audio_core/src/domain/release_ms.rs
+  - workspace/target/crates/audio_core/src/domain/threshold_db.rs
+  - workspace/target/crates/audio_core/src/domain/time_stretch_factor.rs
+  - workspace/target/crates/audio_core/src/dsp/analysis/beat_tracking.rs
+  - workspace/target/crates/audio_core/src/dsp/analysis/chroma.rs
+  - workspace/target/crates/audio_core/src/dsp/analysis/fft.rs
+  - workspace/target/crates/audio_core/src/dsp/analysis/mod.rs
+  - workspace/target/crates/audio_core/src/dsp/analysis/rms.rs
+  - workspace/target/crates/audio_core/src/dsp/mastering/default_mixer.rs
+  - workspace/target/crates/audio_core/src/dsp/mastering/limiter.rs
+  - workspace/target/crates/audio_core/src/dsp/mastering/lufs.rs
+  - workspace/target/crates/audio_core/src/dsp/mastering/mod.rs
+  - workspace/target/crates/audio_core/src/dsp/mastering/stretch.rs
+  - workspace/target/crates/audio_core/src/dsp/mod.rs
+  - workspace/target/crates/audio_core/src/dsp/stitching/crossfade.rs
+  - workspace/target/crates/audio_core/src/dsp/stitching/fades.rs
+  - workspace/target/crates/audio_core/src/dsp/stitching/mod.rs
+  - workspace/target/crates/audio_core/src/dsp/stitching/zero_cross.rs
+  - workspace/target/crates/audio_core/src/error.rs
+  - workspace/target/crates/audio_core/src/io/decode.rs
+  - workspace/target/crates/audio_core/src/io/mod.rs
+  - workspace/target/crates/audio_core/src/lib.rs
+  - workspace/target/crates/audio_core/src/ports/analyzer_trait.rs
+  - workspace/target/crates/audio_core/src/ports/mixer_trait.rs
+  - workspace/target/crates/audio_core/src/ports/mod.rs
+  - workspace/target/crates/audio_core/src/ports/repo_trait.rs
+  depends_on: []
+  exposes:
+  - audio_core::domain::PipelineConfig
+  - audio_core::dsp::analysis::Analyzer
+  - audio_core::dsp::mastering::MasteringChain
+  - audio_core::ports::AudioAnalyzer
+  - audio_core::ports::AudioMixer
+  - audio_core::ports::AudioRepo
+  - audio_core::ports::Storage
+  - claim_next_job()
+  - update_status()
+  - put_object()
+  - get_object()
+  tested_by:
+  - workspace/target/crates/audio_core/tests/aliasing.rs
+  - workspace/target/crates/audio_core/tests/crossfade_properties.rs
+  - workspace/target/crates/audio_core/tests/dc_offset.proptest-regressions
+  - workspace/target/crates/audio_core/tests/dc_offset.rs
+  - workspace/target/crates/audio_core/tests/fixtures_manifest.rs
+  - workspace/target/crates/audio_core/tests/generators.rs
+  - workspace/target/crates/audio_core/tests/homogeneity.rs
+  - workspace/target/crates/audio_core/tests/idempotence.rs
+  - workspace/target/crates/audio_core/tests/latency.rs
+  - workspace/target/crates/audio_core/tests/neutral_bypass.rs
+  - workspace/target/crates/audio_core/tests/thd.rs
+  owner: engineering
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: audio_core-dominio-dsp
+- id: CMP-AUDIO-AGENT
+  kind: service
+  capability: CAP-AGENT-ORCHESTRATION
+  status: implemented
+  source_paths:
+  - workspace/target/crates/audio_agent/Cargo.toml
+  - workspace/target/crates/audio_agent/src/lib.rs
+  - workspace/target/crates/audio_agent/src/limits.rs
+  - workspace/target/crates/audio_agent/src/prompt_loader.rs
+  - workspace/target/crates/audio_agent/src/react_kernel.rs
+  - workspace/target/crates/audio_agent/src/tools.rs
+  - workspace/target/crates/audio_agent/src/validator.rs
+  depends_on:
+  - CMP-AUDIO-CORE
+  exposes:
+  - AudioToolDef
+  - ValidationLayer
+  - react_kernel::ReActLoop
+  - LlmProvider
+  - complete()
+  - stream()
+  tested_by: []
+  owner: engineering
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: audio_agent-orquestracao-cognitiva
+- id: CMP-AUDIO-API
+  kind: service
+  capability: CAP-HTTP-TRANSPORT
+  status: implemented
+  source_paths:
+  - workspace/target/crates/audio_api/Cargo.toml
+  - workspace/target/crates/audio_api/src/adapters/mod.rs
+  - workspace/target/crates/audio_api/src/adapters/repo_memory.rs
+  - workspace/target/crates/audio_api/src/config/mod.rs
+  - workspace/target/crates/audio_api/src/main.rs
+  - workspace/target/crates/audio_api/src/middleware/auth.rs
+  - workspace/target/crates/audio_api/src/middleware/mod.rs
+  - workspace/target/crates/audio_api/src/middleware/otel.rs
+  - workspace/target/crates/audio_api/src/middleware/tenant_scope.rs
+  - workspace/target/crates/audio_api/src/routes/dev_slice.html
+  - workspace/target/crates/audio_api/src/routes/dev_slice.rs
+  - workspace/target/crates/audio_api/src/routes/health.rs
+  - workspace/target/crates/audio_api/src/routes/jobs.rs
+  - workspace/target/crates/audio_api/src/routes/mod.rs
+  - workspace/target/crates/audio_api/src/routes/prompts.rs
+  - workspace/target/crates/audio_api/src/routes/sse.rs
+  - workspace/target/crates/audio_api/src/routes/system.rs
+  - workspace/target/crates/audio_api/src/routes/tenants.rs
+  - workspace/target/crates/audio_api/src/routes/tools.rs
+  - workspace/target/crates/audio_api/src/state.rs
+  depends_on:
+  - CMP-AUDIO-CORE
+  - CMP-AUDIO-AGENT
+  exposes:
+  - POST /api/v1/jobs
+  - GET /api/v1/jobs/:id
+  - GET /api/v1/jobs/:id/events
+  - GET /api/v1/tools
+  - GET /api/v1/tracks
+  - GET /api/v1/prompts
+  - GET /api/v1/tenants
+  - GET /api/v1/system
+  - agent.thought
+  - agent.error
+  - agent.proposal
+  - job.progress
+  - job.completed
+  tested_by: []
+  owner: engineering
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: audio_api-transporte
+- id: CMP-UI
+  kind: ui-surface
+  capability: CAP-UI-PRESENTATION
+  status: implemented
+  source_paths:
+  - workspace/target/ui/eslint.config.js
+  - workspace/target/ui/index.html
+  - workspace/target/ui/package-lock.json
+  - workspace/target/ui/package.json
+  - workspace/target/ui/src/App.tsx
+  - workspace/target/ui/src/components/ProposalOverlay.tsx
+  - workspace/target/ui/src/components/RemixCanvas.tsx
+  - workspace/target/ui/src/hooks/useParamStream.ts
+  - workspace/target/ui/src/index.css
+  - workspace/target/ui/src/main.tsx
+  - workspace/target/ui/src/store/graphStore.ts
+  - workspace/target/ui/src/vite-env.d.ts
+  - workspace/target/ui/tsconfig.app.json
+  - workspace/target/ui/tsconfig.json
+  - workspace/target/ui/tsconfig.node.json
+  - workspace/target/ui/vite.config.ts
+  depends_on:
+  - CMP-AUDIO-API
+  exposes:
+  - RemixCanvas
+  - ProposalOverlay
+  - ParamStream
+  tested_by: []
+  owner: design
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: docs/02-ARQUITETURA.md
+    section: ui-apresentacao
+exemptions:
+- path: workspace/target/crates/audio_core/tests/aliasing.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/crossfade_properties.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/dc_offset.proptest-regressions
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/dc_offset.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/fixtures_manifest.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/generators.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/homogeneity.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/idempotence.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/latency.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/neutral_bypass.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
+- path: workspace/target/crates/audio_core/tests/thd.rs
+  justification: Teste acústico/integração do motor DSP. Coberto por tested_by do
+    componente mas check_orphan_code exige isenção explícita para arquivos de teste.
