@@ -1,9 +1,37 @@
-﻿# Superfícies de UI ligadas a capacidades. IDs estáveis (UI-*) apontam para capacidades (CAP-*).
-# Critérios de aceite explícitos dão ao agente reviewer uma régua de experiência, não um palpite.
-# Schema: harness/schemas/ui-surfaces.schema.json
-schema_version: "1.0"
-metadata_version: "1.0"
-source_of_truth: true
-generated_from: null
-
-ui_surfaces: []
+schema_version: '1.0'
+metadata_version: '1.0'
+source_of_truth: false
+generated_from: ingerir ING-05-DESIGN
+ui_surfaces:
+- id: UI-REMIX-CANVAS
+  capability: CAP-UI-PRESENTATION
+  status: implemented
+  routes:
+  - /
+  primary_user_goal: Visualizar e interagir com o DAG de remixagem de áudio.
+  acceptance_criteria:
+  - Canvas DAG com React Flow exibe nós do pipeline.
+  - Overlay de proposta aparece para decisões HITL.
+  - Painel de raciocínio do agente em tempo real via SSE.
+  satisfies:
+  - REQ-007
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: ui/src/components/RemixCanvas.tsx
+- id: UI-JOB-PROGRESS
+  capability: CAP-HTTP-TRANSPORT
+  status: implemented
+  routes:
+  - /jobs/:id
+  primary_user_goal: Acompanhar o progresso de um job de remix em tempo real.
+  acceptance_criteria:
+  - SSE stream com progresso do job.
+  - 'Estados: queued, running, completed, failed.'
+  - Link para download do WAV ao completar.
+  satisfies:
+  - REQ-005
+  derived_from:
+    repo: danzeroum/mixlirous
+    sha: 658a6d34407232e70b512d71732cfdb62868140c
+    path: ui/src/hooks/useParamStream.ts
