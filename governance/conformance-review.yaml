@@ -5,7 +5,7 @@ generated_from: null
 review:
   produced_by: agent
   agent: conformance
-  scope_fingerprint: sha256:3ab948315259e5fac02ef5cd4c9ab32a4fbdce444d82bed4186fa812ab1090e5
+  scope_fingerprint: sha256:bb4d67e3ad60f66da8c0a118a1b392b08366b888b9cc6c7a4b2042083906dc9d
   findings: []
   not_assessed:
   - Conformidade do código do alvo (aguarda /ingerir)

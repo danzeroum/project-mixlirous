@@ -9,12 +9,12 @@ fazem: **o que ficou de fora?**
 
 | Capacidade | risk_level | Riscos que a cobrem |
 |---|---|---|
-| `CAP-AGENT-ORCHESTRATION` | pending_judgment | — |
-| `CAP-DSP-ENGINE` | pending_judgment | — |
-| `CAP-HTTP-TRANSPORT` | pending_judgment | — |
-| `CAP-LLM-PROVIDER` | pending_judgment | — |
-| `CAP-PERSISTENCE` | pending_judgment | — |
-| `CAP-UI-PRESENTATION` | pending_judgment | — |
+| `CAP-AGENT-ORCHESTRATION` | high | `RISK-SEC-001` |
+| `CAP-DSP-ENGINE` | low | — |
+| `CAP-HTTP-TRANSPORT` | medium | — |
+| `CAP-LLM-PROVIDER` | high | `RISK-SEC-001` |
+| `CAP-PERSISTENCE` | medium | — |
+| `CAP-UI-PRESENTATION` | low | — |
 
 ## Componentes
 

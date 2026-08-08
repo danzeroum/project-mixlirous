@@ -85,6 +85,12 @@ graph TD
   IFC_STORAGE(["IFC-STORAGE<br/>Porta de armazenamento de objetos"])
   CMP_AUDIO_CORE -.->|provê| IFC_STORAGE
   IFC_STORAGE -.->|consome| CMP_AUDIO_API
+  UI_JOB_PROGRESS["UI-JOB-PROGRESS"]
+  UI_JOB_PROGRESS -->|experiência| CAP_HTTP_TRANSPORT
+  UI_JOB_PROGRESS -.->|satisfaz| REQ_005
+  UI_REMIX_CANVAS["UI-REMIX-CANVAS"]
+  UI_REMIX_CANVAS -->|experiência| CAP_UI_PRESENTATION
+  UI_REMIX_CANVAS -.->|satisfaz| REQ_007
   MET_ACTIVATION[["MET-ACTIVATION"]]
   MET_AOV[["MET-AOV"]]
   MET_DISCOVERY[["MET-DISCOVERY"]]
@@ -226,6 +232,7 @@ graph TD
   class IFC_API_HTTP,IFC_API_SSE,IFC_AUDIO_ANALYZER,IFC_AUDIO_MIXER,IFC_AUDIO_REPO,IFC_LLM_PROVIDER,IFC_STORAGE ifc;
   classDef rule fill:#16a34a,stroke:#15803d,color:#fff;
   classDef ui fill:#db2777,stroke:#9d174d,color:#fff;
+  class UI_JOB_PROGRESS,UI_REMIX_CANVAS ui;
   classDef req fill:#0d9488,stroke:#0f766e,color:#fff;
   class REQ_001,REQ_002,REQ_003,REQ_004,REQ_005,REQ_006,REQ_007,REQ_008 req;
   classDef met fill:#ea580c,stroke:#c2410c,color:#fff;
