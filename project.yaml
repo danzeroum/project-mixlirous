@@ -1,58 +1,52 @@
-# Manifesto de identidade do projeto. Completa (não substitui) o pyproject.toml com o que
-# Python não expressa: propósito, domínio, criticidade, donos, governança.
-# Schema: harness/schemas/project.schema.json
-schema_version: "1.0"
-metadata_version: "1.1"
+schema_version: '1.0'
+metadata_version: '1.1'
 source_of_truth: true
 generated_from: null
-
 project:
-  id: "danzeroum-project-mixlirous"
-  name: "project-mixlirous"
-  kind: "derived"
-  type: "business-software-template"
-  lifecycle: "active"
-  status: "active"
-
+  id: danzeroum-project-mixlirous
+  name: project-mixlirous
+  kind: derived
+  type: business-software-template
+  lifecycle: active
+  status: active
 business:
-  domain: "to-be-assessed"
-  purpose: >
-    Gêmeo de governança derivado de danzeroum/mixlirous. O domínio, propósito e criticidade
-    serão determinados durante a ingestão (/ingerir) e registrados via change-proposal.
-  criticality: "medium"
+  domain: to-be-assessed
+  purpose: 'Gêmeo de governança derivado de danzeroum/mixlirous. O domínio, propósito
+    e criticidade serão determinados durante a ingestão (/ingerir) e registrados via
+    change-proposal.
+
+    '
+  criticality: medium
   stakeholders:
-    product_owner: "@danzeroum"
-    technical_owner: "@danzeroum"
-    security_owner: "@danzeroum"
-
+    product_owner: '@danzeroum'
+    technical_owner: '@danzeroum'
+    security_owner: '@danzeroum'
 target:
-  repo: "danzeroum/mixlirous"
-  ref: "main"
-  lock_source: "target.lock"
+  repo: danzeroum/mixlirous
+  ref: main
+  lock_source: target.lock
   code_roots:
-    - "crates/"
-    - "ui/"
+  - crates/
+  - ui/
   languages:
-    - "rust"
-    - "typescript"
+  - rust
+  - typescript
   test_roots:
-    - "crates/audio_core/tests/"
-
+  - crates/audio_core/tests/
 quality_standard:
   name: webqa-suite
   version_source: requirements-qa.txt
-
 governance:
-  default_change_mode: "pull_request"
+  default_change_mode: pull_request
   human_approval_required_for:
-    - dependency_update
-    - production_deploy
-    - load
-    - active_discovery
-    - protected_path_change
+  - dependency_update
+  - production_deploy
+  - load
+  - active_discovery
+  - protected_path_change
   evidence_retention_days: 90
-
 classification:
-  data_classification: "internal"
-  lgpd_relevance: "none"
+  data_classification: internal
+  lgpd_relevance: controller
   internet_exposed: false
+  dpo_contact: pending_judgment
