@@ -4,7 +4,7 @@ source_of_truth: false
 generated_from: ingerir ING-06-GOVERNANCA
 controller:
   role: controller
-  dpo_contact: pending_judgment
+  dpo_contact: '@danzeroum'
 purposes:
 - id: PURP-001
   description: Processamento de remixagem de áudio enviado pelo usuário.

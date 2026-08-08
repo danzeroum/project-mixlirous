@@ -49,4 +49,4 @@ classification:
   data_classification: internal
   lgpd_relevance: controller
   internet_exposed: false
-  dpo_contact: pending_judgment
+  dpo_contact: '@danzeroum'

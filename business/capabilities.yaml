@@ -1,7 +1,7 @@
 schema_version: '1.0'
 metadata_version: '1.0'
-source_of_truth: false
-generated_from: ingerir ING-04-NEGOCIO
+source_of_truth: true
+generated_from: null
 capabilities:
 - id: CAP-DSP-ENGINE
   name: Motor de DSP para remixagem de áudio
@@ -9,7 +9,7 @@ capabilities:
   owners:
     business_owner: product
     technical_owner: engineering
-  risk_level: pending_judgment
+  risk_level: low
   source_paths:
   - workspace/target/crates/audio_core/src/domain
   - workspace/target/crates/audio_core/src/dsp
@@ -38,7 +38,7 @@ capabilities:
   owners:
     business_owner: product
     technical_owner: engineering
-  risk_level: pending_judgment
+  risk_level: high
   source_paths:
   - workspace/target/crates/audio_agent/src
   test_paths: []
@@ -53,7 +53,7 @@ capabilities:
   owners:
     business_owner: product
     technical_owner: engineering
-  risk_level: pending_judgment
+  risk_level: medium
   source_paths:
   - workspace/target/crates/audio_api/src
   test_paths: []
@@ -68,7 +68,7 @@ capabilities:
   owners:
     business_owner: product
     technical_owner: engineering
-  risk_level: pending_judgment
+  risk_level: low
   source_paths:
   - workspace/target/ui/src
   test_paths: []
@@ -83,7 +83,7 @@ capabilities:
   owners:
     business_owner: product
     technical_owner: engineering
-  risk_level: pending_judgment
+  risk_level: medium
   source_paths:
   - workspace/target/crates/audio_api/src/adapters
   test_paths: []
@@ -98,7 +98,7 @@ capabilities:
   owners:
     business_owner: product
     technical_owner: engineering
-  risk_level: pending_judgment
+  risk_level: high
   source_paths:
   - workspace/target/crates/audio_agent/src/llm
   test_paths: []
