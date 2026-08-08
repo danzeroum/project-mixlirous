@@ -1,0 +1,2108 @@
+schema_version: '1.0'
+metadata_version: '1.0'
+source_of_truth: true
+generated_from: null
+adrs:
+- id: ADR-001
+  title: Consumir a WebQA Suite como padrão externo, nunca copiado
+  status: accepted
+  file: architecture/adr/ADR-001-webqa-como-padrao-externo.md
+  related_risks:
+  - RISK-WEBQA-001
+  assertions:
+  - id: ADR-001-A1
+    kind: path_absent
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: 'A régua nunca existe no consumidor: webqa/, checks/ e a lista curada.'
+    paths:
+    - webqa
+    - checks
+    - data/caminhos-sensiveis.yaml
+  - id: ADR-001-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: O passo de CI que recusa régua copiada continua existindo.
+    files:
+    - .github/workflows/qa.yml
+    pattern: name:\s*Recusar régua copiada
+  - id: ADR-001-A3
+    kind: file_matches
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: O passo ainda enumera os TRÊS alvos — remover um da lista é desligar
+      a trava.
+    files:
+    - .github/workflows/qa.yml
+    pattern: for alvo in webqa checks data/caminhos-sensiveis\.yaml
+  - id: ADR-001-A4
+    kind: file_lacks
+    severity: high
+    risk: RISK-DEP-001
+    description: 'O pin é exato: nenhuma faixa de versão para webqa-suite.'
+    files:
+    - requirements-qa.txt
+    pattern: ^\s*webqa-suite\s*[<>~!]=
+    mutation:
+      op: injetar_texto
+      alvo: requirements-qa.txt
+      texto: 'webqa-suite>=1.0.0  # faixa em vez de pin exato'
+- id: ADR-002
+  title: Enforcement mora em schema, CI e gates — não em markdown
+  status: accepted
+  file: architecture/adr/ADR-002-enforcement-nao-em-markdown.md
+  related_risks:
+  - RISK-META-001
+  assertions:
+  - id: ADR-002-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-META-001
+    description: Os fiscais estruturais e semânticos existem como código, não como
+      promessa.
+    paths:
+    - ci/validate_metadata.py
+    - .github/workflows/validate-metadata.yml
+    - harness/schemas/harness.schema.json
+  - id: ADR-002-A2
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    match: all
+    exclude:
+    - harness/policies/README.md
+    description: Toda política aponta para seu fiscal — o próprio README diz que entrada
+      sem apontamento é lembrete, não garantia.
+    files:
+    - harness/policies/*.md
+    pattern: '^Fiscalizado por:'
+  - id: ADR-002-A3
+    kind: path_present
+    severity: high
+    risk: RISK-CONF-001
+    description: Os fiscais de comportamento e o manifesto de etapas existem.
+    paths:
+    - ci/audit_governance.py
+    - ci/audit_lgpd.py
+    - harness/stages.yaml
+- id: ADR-003
+  title: Versão do padrão em fonte única e procedência carimbada
+  status: accepted
+  file: architecture/adr/ADR-003-versao-em-fonte-unica.md
+  related_risks:
+  - RISK-DEP-001
+  assertions:
+  - id: ADR-003-A1
+    kind: schema_lock
+    severity: high
+    risk: RISK-DEP-001
+    description: O schema fixa ONDE a versão mora, e não admite restatá-la.
+    file: harness/schemas/project.schema.json
+    pointer: /properties/quality_standard/properties/version_source/const
+    expected: requirements-qa.txt
+  - id: ADR-003-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-DEP-001
+    description: additionalProperties:false em quality_standard é o que impede acrescentar
+      'version:'.
+    file: harness/schemas/project.schema.json
+    pointer: /properties/quality_standard/additionalProperties
+    expected: false
+  - id: ADR-003-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-DEP-001
+    description: A procedência continua exigindo o hash da lista curada — é o que
+      revela régua editada.
+    file: harness/schemas/provenance.schema.json
+    pointer: /properties/standard/required
+    contains: sensitive_paths_hash
+  - id: ADR-003-A4
+    kind: file_lacks
+    severity: high
+    risk: RISK-DEP-001
+    description: 'project.yaml não restata a versão do padrão: nenhum semver de três
+      partes.'
+    files:
+    - project.yaml
+    pattern: \b[0-9]+\.[0-9]+\.[0-9]+\b
+    mutation:
+      op: injetar_texto
+      alvo: project.yaml
+      texto: '# versao restatada indevidamente: 1.2.3'
+- id: ADR-004
+  title: Toda mudança proposta é declarada e validada antes de executada
+  status: accepted
+  file: architecture/adr/ADR-004-mudanca-proposta-declarada.md
+  related_risks:
+  - RISK-CHANGE-001
+  assertions:
+  - id: ADR-004-A1
+    kind: schema_lock
+    severity: critical
+    risk: RISK-CHANGE-001
+    description: Risco high/critical continua EXIGINDO aval humano — a trava if/then
+      não foi removida.
+    file: harness/schemas/change-proposal.schema.json
+    pointer: /allOf/0/then/properties/proposal/properties/human_approval_required/const
+    expected: true
+  - id: ADR-004-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-CHANGE-001
+    description: 'O gatilho da trava não foi estreitado: continua disparando em high
+      E critical.'
+    file: harness/schemas/change-proposal.schema.json
+    pointer: /allOf/0/if/properties/proposal/properties/risk_assessment/properties/level/enum
+    expected:
+    - high
+    - critical
+  - id: ADR-004-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-CHANGE-001
+    description: change_mode é const pull_request — mudança nunca é aplicada direto.
+    file: harness/schemas/change-proposal.schema.json
+    pointer: /properties/proposal/properties/change_mode/const
+    expected: pull_request
+- id: ADR-005
+  title: Catálogo via porta (Protocol) e adaptador; precificação depende da porta
+  status: superseded
+  file: architecture/adr/ADR-005-catalogo-via-porta.md
+  assertions: []
+- id: ADR-006
+  title: Conformidade declarada como asserção executável; etapa sem fiscal é achado
+  status: accepted
+  file: architecture/adr/ADR-006-conformidade-como-assercao.md
+  related_risks:
+  - RISK-CONF-001
+  - RISK-STAGE-001
+  assertions:
+  - id: ADR-006-A1
+    kind: path_present
+    severity: high
+    risk: RISK-CONF-001
+    description: O fiscal de conformidade, sua política e o contrato do laudo existem.
+    paths:
+    - ci/audit_governance.py
+    - harness/policies/conformance.md
+    - harness/schemas/audit-report.schema.json
+  - id: ADR-006-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-CONF-001
+    description: Declarar o inverificável continua possível — kind manual não foi
+      removido.
+    file: harness/schemas/adr-index.schema.json
+    pointer: /$defs/assertion/properties/kind/enum
+    contains: manual
+  - id: ADR-006-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-CONF-001
+    description: Asserção manual segue exigindo justificativa — inverificável sem
+      motivo é omissão.
+    file: harness/schemas/adr-index.schema.json
+    pointer: /$defs/assertion/allOf/4/then/required
+    contains: justification
+  - id: ADR-006-A4
+    kind: schema_lock
+    severity: critical
+    risk: RISK-STAGE-001
+    description: O manifesto de etapas recusa artefato que restate um ID (segunda
+      fonte de verdade).
+    file: harness/schemas/stages.schema.json
+    pointer: /$defs/artifact/not/pattern
+    expected: (CAP|REQ|CMP|IFC|RULE|UI|MET|ADR|RISK)-[A-Z0-9]
+  - id: ADR-006-A6
+    kind: schema_lock
+    severity: high
+    risk: RISK-CONF-001
+    description: Achado de LGPD sem artigo citado continua estruturalmente impossível
+      no laudo.
+    file: harness/schemas/audit-report.schema.json
+    pointer: /properties/findings/items/allOf/0/then/required
+    contains: lgpd_article
+  - id: ADR-006-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-CONF-001
+    description: O fiscal de conformidade roda no CI de governança.
+    files:
+    - .github/workflows/governance.yml
+    pattern: ci/audit_governance\.py
+- id: ADR-007
+  title: Análise de LGPD sempre ligada, em dois níveis com fronteira explícita
+  status: accepted
+  file: architecture/adr/ADR-007-lgpd-sempre-em-dois-niveis.md
+  related_risks:
+  - RISK-PRIV-001
+  - RISK-PRIV-002
+  assertions:
+  - id: ADR-007-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-PRIV-002
+    description: 'Os dois níveis existem: o fiscal determinístico e o contrato do
+      julgamento.'
+    paths:
+    - ci/audit_lgpd.py
+    - governance/data-inventory.yaml
+    - governance/privacy-review.yaml
+    - governance/ripd.md
+    - harness/agents/privacy/AGENT.md
+    - harness/prompts/lgpd-task.md
+  - id: ADR-007-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-PRIV-001
+    description: classification voltou a ser opcional? Então lgpd_relevance nunca
+      mais reprova.
+    file: harness/schemas/project.schema.json
+    pointer: /required
+    contains: classification
+  - id: ADR-007-A3
+    kind: schema_lock
+    severity: critical
+    risk: RISK-PRIV-001
+    description: 'Art. 11: a base legal de dado sensível não admite legítimo interesse
+      nem proteção ao crédito.'
+    file: harness/schemas/data-inventory.schema.json
+    pointer: /$defs/base_legal_art_11/enum
+    expected:
+    - consentimento
+    - obrigacao_legal
+    - politicas_publicas
+    - estudo_orgao_pesquisa
+    - exercicio_direitos_processo
+    - protecao_vida
+    - tutela_saude
+    - prevencao_fraude_seguranca
+  - id: ADR-007-A4
+    kind: schema_lock
+    severity: critical
+    risk: RISK-PRIV-001
+    description: 'Art. 41: papel de tratador segue exigindo encarregado indicado.'
+    file: harness/schemas/data-inventory.schema.json
+    pointer: /properties/controller/allOf/0/then/required
+    contains: dpo_contact
+  - id: ADR-007-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-PRIV-002
+    description: A análise de LGPD roda no CI, sem filtro de paths — 'sempre' quer
+      dizer sempre.
+    files:
+    - .github/workflows/governance.yml
+    pattern: ci/audit_lgpd\.py
+  - id: ADR-007-A6
+    kind: manual
+    severity: medium
+    risk: RISK-PRIV-002
+    description: Adequação da base legal à finalidade e proporcionalidade da retenção.
+    justification: 'Juízo jurídico, não verificável por máquina: se a base legal declarada
+      é adequada à finalidade, se o prazo de retenção é proporcional (Art. 6º, I e
+      III) e se um campo não sinalizado pela heurística é ainda assim dado pessoal.
+      Fica com a skill /revisao-lgpd, e o resultado é registrado em governance/privacy-review.yaml,
+      cujo frescor o fiscal determinístico cobra a cada push.
+
+      '
+- id: ADR-008
+  title: O derivado declara o alvo, nunca o copia; e nenhum alvo é especial
+  status: accepted
+  file: architecture/adr/ADR-008-derivado-declara-o-alvo.md
+  related_risks:
+  - RISK-DERIV-001
+  - RISK-DERIV-002
+  assertions:
+  - id: ADR-008-A1
+    kind: path_present
+    severity: high
+    risk: RISK-DERIV-001
+    description: 'O caminho de entrada e a âncora do alvo existem: sem eles, ''colar
+      um link'' volta a ser prosa.'
+    paths:
+    - BOOTSTRAP.md
+    - target.lock
+    - .claude/commands/adotar.md
+    - harness/schemas/target-lock.schema.json
+    - ci/adoption_status.py
+  - id: ADR-008-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-DERIV-001
+    description: Derivado sem bloco target continua sendo recusado pelo schema, não
+      pelo bom senso.
+    file: harness/schemas/project.schema.json
+    pointer: /allOf/0/then/required
+    contains: target
+  - id: ADR-008-A3
+    kind: schema_lock
+    severity: critical
+    risk: RISK-DERIV-001
+    description: A âncora do SHA segue apontando para target.lock — fonte única, como
+      a versão da régua.
+    file: harness/schemas/project.schema.json
+    pointer: /properties/target/properties/lock_source/const
+    expected: target.lock
+  - id: ADR-008-A4
+    kind: file_lacks
+    severity: high
+    risk: RISK-DERIV-001
+    description: 'SHA de commit do alvo fora de target.lock: segunda cópia de uma
+      versão deriva e a comparação passa a mentir.'
+    files:
+    - project.yaml
+    pattern: \b[0-9a-f]{40}\b
+    mutation:
+      op: injetar_texto
+      alvo: project.yaml
+      texto: '# sha vazado para fora do lock: 0123456789abcdef0123456789abcdef01234567'
+  - id: ADR-008-A5
+    kind: file_lacks
+    severity: high
+    risk: RISK-DERIV-002
+    description: 'Alvo cravado no molde: URL de repositório em ci/ ou harness/ faz
+      o molde servir a um alvo e falhar calado nos outros.'
+    files:
+    - ci/**/*.py
+    - harness/**/*.py
+    - harness/**/*.yaml
+    - harness/**/*.json
+    - harness/**/*.md
+    pattern: github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+
+    mutation:
+      op: injetar_texto
+      alvo: ci/audit_governance.py
+      texto: '# alvo cravado no fiscal: github.com/exemplo/alvo-especifico'
+- id: ADR-009
+  title: Código sem metadado não existe, e ignorância de linguagem é declarada
+  status: accepted
+  file: architecture/adr/ADR-009-codigo-sem-metadado-nao-existe.md
+  related_risks:
+  - RISK-INGEST-001
+  - RISK-DERIV-002
+  assertions:
+  - id: ADR-009-A1
+    kind: path_present
+    severity: high
+    risk: RISK-INGEST-001
+    description: 'O inventário e o registro de adapters existem: sem eles a invariante
+      do código órfão é prosa.'
+    paths:
+    - ci/inventory_code.py
+    - ci/adapters/__init__.py
+    - ci/adapters/generico.py
+    - harness/policies/code-metadata.md
+  - id: ADR-009-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-INGEST-001
+    description: Isenção de código segue exigindo justificativa — isenção muda é onde
+      pendência dorme.
+    file: harness/schemas/components.schema.json
+    pointer: /properties/exemptions/items/required
+    contains: justification
+  - id: ADR-009-A3
+    kind: file_matches
+    severity: high
+    risk: RISK-DERIV-002
+    description: 'O adapter genérico casa qualquer extensão: linguagem sem leitor
+      semântico não pode sair verde por vacuidade.'
+    files:
+    - ci/adapters/generico.py
+    pattern: extensions=\("\*",\)
+  - id: ADR-009-A4
+    kind: file_lacks
+    severity: high
+    risk: RISK-DERIV-002
+    description: 'O prefixo src/ não volta a ser literal no fiscal: convenção cravada
+      torna o molde específico de um alvo.'
+    files:
+    - ci/validate_metadata.py
+    pattern: startswith\("src/"\)
+    mutation:
+      op: injetar_texto
+      alvo: ci/validate_metadata.py
+      texto: '_ = "".startswith("src/")  # raiz cravada'
+  - id: ADR-009-A6
+    kind: file_matches
+    severity: critical
+    risk: RISK-INGEST-001
+    description: 'A aritmética de completude continua verificada a cada arquivo: especificador
+      lido e não classificado é aresta engolida, e engolir foi como 84 arestas de
+      um alvo real sumiram.'
+    files:
+    - ci/inventory_code.py
+    pattern: conta_fecha\(\)
+  - id: ADR-009-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-INGEST-001
+    description: A invariante do código órfão roda no CI a cada push, junto dos demais
+      fiscais.
+    files:
+    - .github/workflows/governance.yml
+    pattern: codigo orfao|código órfão
+- id: ADR-010
+  title: A ingestão declara de onde tirou cada coisa, e não julga o que tirou
+  status: accepted
+  file: architecture/adr/ADR-010-ingestao-com-proveniencia.md
+  related_risks:
+  - RISK-INGEST-001
+  - RISK-INGEST-002
+  assertions:
+  - id: ADR-010-A1
+    kind: path_present
+    severity: high
+    risk: RISK-INGEST-002
+    description: O pipeline, seu schema e o contrato do cartographer existem — sem
+      eles a ingestão volta a ser improviso.
+    paths:
+    - harness/pipeline/ingest.yaml
+    - harness/schemas/ingest-pipeline.schema.json
+    - harness/agents/cartographer/AGENT.md
+    - harness/policies/ingestao.md
+  - id: ADR-010-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-INGEST-002
+    description: 'Proveniência segue exigindo o SHA: sem ele o metadado descreve um
+      alvo que já mudou.'
+    file: harness/schemas/capabilities.schema.json
+    pointer: /properties/capabilities/items/properties/derived_from/required
+    contains: sha
+  - id: ADR-010-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-INGEST-002
+    description: Toda fase da ingestão segue obrigada a declarar fiscal e gate.
+    file: harness/schemas/ingest-pipeline.schema.json
+    pointer: /properties/phases/items/required
+    contains: fiscal
+  - id: ADR-010-A4
+    kind: file_matches
+    severity: high
+    risk: RISK-INGEST-002
+    description: O cartographer continua proibido de preencher julgamento — é o que
+      separa cartografar de decidir.
+    files:
+    - harness/agents/cartographer/AGENT.md
+    pattern: pending_judgment
+  - id: ADR-010-A5
+    kind: manual
+    severity: medium
+    risk: RISK-INGEST-001
+    description: Adequação da fronteira de componente proposta ao domínio real do
+      alvo.
+    justification: 'Agrupar arquivos em componentes é julgamento de domínio, não dedução:
+      nenhum fiscal decide se packages/auth e packages/session são um componente ou
+      dois. O fiscal cobra pertencimento, proveniência e ausência de julgamento automático;
+      a adequação da fronteira fica com a revisão humana da change-proposal, onde
+      o erro é visível no diff com a proveniência ao lado.
+
+      '
+- id: ADR-011
+  title: Cobertura de risco é medida na direção difícil, e risk_level continua sendo
+    a única escala
+  status: accepted
+  file: architecture/adr/ADR-011-alinhamento-medido.md
+  related_risks:
+  - RISK-ALIGN-001
+  assertions:
+  - id: ADR-011-A1
+    kind: path_present
+    severity: high
+    risk: RISK-ALIGN-001
+    description: O fiscal do alinhamento e sua matriz derivada existem — sem eles
+      a cobertura volta a ser afirmada.
+    paths:
+    - ci/alignment_report.py
+    - docs/alignment.md
+    - harness/policies/alinhamento.md
+  - id: ADR-011-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-ALIGN-001
+    description: 'Risco aberto segue exigindo prazo: ''open'' sem due é aceite silencioso
+      que dura para sempre.'
+    file: harness/schemas/risk-register.schema.json
+    pointer: /properties/risks/items/allOf/0/then/required
+    contains: due
+  - id: ADR-011-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-ALIGN-001
+    description: Isenção de risco segue exigindo justificativa — sem ela a cobertura
+      é fingida com uma linha.
+    file: harness/schemas/risk-register.schema.json
+    pointer: /properties/risk_exemptions/items/required
+    contains: justification
+  - id: ADR-011-A4
+    kind: file_lacks
+    severity: medium
+    risk: RISK-ALIGN-001
+    description: 'Nenhuma segunda escala de criticidade de capacidade: duas escalas
+      divergem sem que nada reprove.'
+    files:
+    - harness/schemas/capabilities.schema.json
+    pattern: '"criticality"'
+  - id: ADR-011-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-ALIGN-001
+    description: O alinhamento roda no CI a cada push, junto dos demais fiscais.
+    files:
+    - .github/workflows/governance.yml
+    pattern: alignment_report\.py
+- id: ADR-012
+  title: Verificação e validação são coisas distintas, e o agente que valida nunca
+    corrige
+  status: accepted
+  file: architecture/adr/ADR-012-conformidade-continua.md
+  related_risks:
+  - RISK-CONF-002
+  - RISK-DERIV-001
+  assertions:
+  - id: ADR-012-A1
+    kind: path_present
+    severity: high
+    risk: RISK-CONF-002
+    description: O fiscal de frescor, o registro da validação e o contrato do agente
+      existem.
+    paths:
+    - ci/audit_conformance.py
+    - governance/conformance-review.yaml
+    - harness/agents/conformance/AGENT.md
+    - harness/policies/conformidade-continua.md
+  - id: ADR-012-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-CONF-002
+    description: Aceitar um achado segue exigindo razão registrada — aceitar em silêncio
+      é como um achado morre.
+    file: harness/schemas/conformance-review.schema.json
+    pointer: /properties/review/properties/findings/items/allOf/0/then/required
+    contains: rationale
+  - id: ADR-012-A3
+    kind: file_matches
+    severity: critical
+    risk: RISK-DERIV-001
+    description: O fingerprint de conformidade continua incluindo o SHA do alvo —
+      sem ele a revisão se declara fresca sobre um sistema que mudou.
+    files:
+    - ci/harness_lib.py
+    pattern: '"target\.lock",'
+  - id: ADR-012-A4
+    kind: file_matches
+    severity: high
+    risk: RISK-CONF-002
+    description: O canal de retorno ao alvo continua nascendo desligado.
+    files:
+    - harness/harness.yaml
+    pattern: 'open_issues_on_target: false'
+  - id: ADR-012-A5
+    kind: manual
+    severity: medium
+    risk: RISK-CONF-002
+    description: Qualidade do julgamento semântico do agente de conformidade.
+    justification: 'Se a descrição de um componente ainda condiz com o código, e se
+      um ADR aceito continua verdadeiro em espírito, são leituras — não checagens.
+      Nenhum fiscal determinístico as faz, e fingir que faria seria a versão executável
+      de markdown que não morde. O que a máquina cobra é o frescor e a forma: que
+      a revisão exista, cubra este estado (incluindo o SHA do alvo), encaminhe cada
+      achado e declare o que não avaliou.
+
+      '
+- id: ADR-013
+  title: Segurança é departamento com artefato e fiscal, não um campo security_owner
+  status: accepted
+  file: architecture/adr/ADR-013-seguranca-como-departamento.md
+  related_risks:
+  - RISK-SEC-001
+  - RISK-DEP-001
+  assertions:
+  - id: ADR-013-A1
+    kind: path_present
+    severity: high
+    risk: RISK-SEC-001
+    description: O departamento existe como artefato, não como intenção.
+    paths:
+    - security/threat-model.yaml
+    - security/dependencies.yaml
+    - harness/policies/seguranca.md
+  - id: ADR-013-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-SEC-001
+    description: Ameaça segue exigindo mitigação e residual rastreável — sem eles
+      o modelo é lista de preocupações.
+    file: harness/schemas/threat-model.schema.json
+    pointer: /properties/threats/items/required
+    contains: residual_risk
+  - id: ADR-013-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-SEC-001
+    description: Ameaça sem nenhuma mitigação continua estruturalmente impossível.
+    file: harness/schemas/threat-model.schema.json
+    pointer: /properties/threats/items/properties/mitigations/minItems
+    expected: 1
+  - id: ADR-013-A4
+    kind: schema_lock
+    severity: high
+    risk: RISK-DEP-001
+    description: 'Dependência inventariada segue exigindo dono e razão: sem eles o
+      inventário é uma lista de nomes.'
+    file: harness/schemas/dependencies.schema.json
+    pointer: /properties/dependencies/items/required
+    contains: owner
+  - id: ADR-013-A5
+    kind: manual
+    severity: medium
+    risk: RISK-SEC-001
+    description: Completude do modelo de ameaças em relação ao sistema real.
+    justification: 'Nenhum fiscal descobre a ameaça que ninguém pensou. O modelo é
+      escrito por gente, e o que a máquina garante é que a ameaça PENSADA não fica
+      sem mitigação, sem residual e sem dono. Um scanner que "gerasse" o modelo produziria
+      julgamento de máquina com aparência de análise humana — a pior combinação possível
+      neste repositório.
+
+      '
+- id: ADR-014
+  title: A orientação deriva do repositório; ela não o descreve
+  status: accepted
+  file: architecture/adr/ADR-014-orientacao-derivada.md
+  related_risks:
+  - RISK-ORIENT-001
+  - RISK-META-001
+  assertions:
+  - id: ADR-014-A1
+    kind: path_present
+    severity: medium
+    risk: RISK-ORIENT-001
+    description: A camada de orientação existe como ferramenta, não como intenção.
+    paths:
+    - ci/orient.py
+    - .claude/skills/desenvolver/SKILL.md
+    - harness/policies/orientacao.md
+  - id: ADR-014-A2
+    kind: file_matches
+    severity: high
+    risk: RISK-ORIENT-001
+    description: orient.py continua reusando a lista de fiscais de validate_all em
+      vez de manter uma cópia que derivaria.
+    files:
+    - ci/orient.py
+    pattern: validate_all\._steps\(\)
+  - id: ADR-014-A3
+    kind: file_lacks
+    severity: high
+    risk: RISK-ORIENT-001
+    description: 'Nenhum id de etapa escrito à mão na skill: enumerar é o que transforma
+      orientação em segunda descrição que deriva.'
+    files:
+    - .claude/skills/desenvolver/SKILL.md
+    pattern: STAGE-[A-Z]
+    mutation:
+      op: injetar_texto
+      alvo: .claude/skills/desenvolver/SKILL.md
+      texto: A etapa STAGE-CODE é onde o código mora.
+  - id: ADR-014-A4
+    kind: file_lacks
+    severity: medium
+    risk: RISK-ORIENT-001
+    description: 'orient.py não reprova: um orientador que também fiscaliza vira o
+      oitavo fiscal, sem política e sem teste de mordida.'
+    files:
+    - ci/orient.py
+    pattern: ^\s*return 1\b
+- id: ADR-015
+  title: O molde é consumido por versão, como a régua
+  status: accepted
+  file: architecture/adr/ADR-015-molde-consumido-por-versao.md
+  related_risks:
+  - RISK-MOLD-001
+  - RISK-DERIV-001
+  assertions:
+  - id: ADR-015-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-MOLD-001
+    description: As peças da ancoragem existem como código e workflow, não como intenção.
+    paths:
+    - ci/mold_release.py
+    - .github/workflows/release.yml
+    - harness/schemas/release-manifest.schema.json
+    - harness/releases
+  - id: ADR-015-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-DERIV-001
+    description: 'A trava nos dois sentidos continua no schema: derivado EXIGE mold_release.'
+    file: harness/schemas/target-lock.schema.json
+    pointer: /allOf/1/then/required
+    contains: mold_release
+  - id: ADR-015-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-MOLD-001
+    description: 'manifest_sha segue obrigatório: sem o hash, a âncora cita uma tag
+      móvel e nada mais.'
+    file: harness/schemas/target-lock.schema.json
+    pointer: /properties/mold_release/required
+    contains: manifest_sha
+  - id: ADR-015-A4
+    kind: schema_lock
+    severity: high
+    risk: RISK-MOLD-001
+    description: O manifesto só representa validação 'pass' — a categoria 'release
+      com validação vermelha' continua inexistente.
+    file: harness/schemas/release-manifest.schema.json
+    pointer: /properties/release/properties/validation/properties/result/enum
+    contains: pass
+  - id: ADR-015-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'A release continua validando ANTES de publicar: o passo de validação
+      total segue no workflow de release.'
+    files:
+    - .github/workflows/release.yml
+    pattern: run:\s*python ci/validate_all\.py
+  - id: ADR-015-A6
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: A verificação da cadeia continua sendo passo do workflow — publicar
+      sem verificar seria tag sem raiz de confiança.
+    files:
+    - .github/workflows/release.yml
+    pattern: ci/mold_release\.py --verify-tag
+  - id: ADR-015-A7
+    kind: file_lacks
+    severity: high
+    risk: RISK-MOLD-001
+    description: 'verify_chain continua sem I/O: nenhuma chamada de rede, git ou disco
+      dentro da função pura que decide se a cadeia é íntegra. O padrão é temperado
+      — só percorre da assinatura até o próximo ''def'' de topo, senão acusaria o
+      I/O legítimo da camada de CLI.'
+    files:
+    - ci/mold_release.py
+    pattern: def verify_chain\((?:(?!\ndef )[\s\S])*?(?:subprocess\.|urlopen|requests\.|\bopen\()
+    mutation:
+      op: injetar_apos
+      alvo: ci/mold_release.py
+      marcador: def verify_chain(
+      texto: '    urlopen(''http://exemplo'')  # I/O dentro da função pura'
+- id: ADR-016
+  title: Aprovação vale para o conteúdo integrado, não para o pedido
+  status: accepted
+  file: architecture/adr/ADR-016-aprovacao-vale-para-o-conteudo-integrado.md
+  related_risks:
+  - RISK-CHANGE-001
+  - RISK-META-001
+  assertions:
+  - id: ADR-016-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-CHANGE-001
+    description: O verificador de aprovação e o fiscal de ciclo existem como código.
+    paths:
+    - ci/verify_approval.py
+    - ci/audit_friction.py
+  - id: ADR-016-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-CHANGE-001
+    description: Executada com risco alto continua exigindo aprovador nomeado.
+    file: harness/schemas/change-proposal.schema.json
+    pointer: /allOf/3/then/properties/proposal/required
+    contains: approved_by
+  - id: ADR-016-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-CHANGE-001
+    description: 'Executada continua exigindo onde: sem executed_in, a decisão não
+      tem rastro.'
+    file: harness/schemas/change-proposal.schema.json
+    pointer: /allOf/2/then/properties/proposal/required
+    contains: executed_in
+  - id: ADR-016-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-CHANGE-001
+    description: A recusa de aprovação anterior ao último push continua no verificador
+      — é o modo de fraude que sobrevive a um 'APPROVED' legítimo da API.
+    files:
+    - ci/verify_approval.py
+    pattern: aprovação anterior ao último push
+  - id: ADR-016-A5
+    kind: file_matches
+    severity: high
+    risk: RISK-CHANGE-001
+    description: 'approval_unverifiable continua com código próprio: indeterminação
+      e fraude não podem colapsar no mesmo vermelho.'
+    files:
+    - ci/verify_approval.py
+    pattern: EXIT_UNVERIFIABLE = 3
+  - id: ADR-016-A6
+    kind: file_lacks
+    severity: high
+    risk: RISK-CHANGE-001
+    description: 'verify_approval continua sem I/O: a conclusão que só a rede sustenta
+      não pode nascer dentro da função pura.'
+    files:
+    - ci/verify_approval.py
+    pattern: def verify_approval\((?:(?!\ndef )[\s\S])*?(?:urlopen|_api\(|requests\.|\bopen\()
+    mutation:
+      op: injetar_apos
+      alvo: ci/verify_approval.py
+      marcador: def verify_approval(
+      texto: '    urlopen(''http://exemplo'')  # I/O dentro da função pura'
+  - id: ADR-016-A7
+    kind: file_lacks
+    severity: medium
+    risk: RISK-META-001
+    description: 'O fiscal de atrito não reprova: um medidor de custo que virasse
+      gate criaria o incentivo de não declarar propostas, destruindo o registro de
+      onde ele tira o sinal.'
+    files:
+    - ci/audit_friction.py
+    pattern: ^\s*return 1\b
+- id: ADR-017
+  title: Parecer sem consumo não fecha
+  status: accepted
+  file: architecture/adr/ADR-017-parecer-sem-consumo-nao-fecha.md
+  related_risks:
+  - RISK-DECISION-001
+  - RISK-CONF-001
+  assertions:
+  - id: ADR-017-A1
+    kind: file_matches
+    severity: high
+    risk: RISK-DECISION-001
+    description: O fiscal da cadeia de decisão continua existindo com esse nome —
+      renomeá-lo em silêncio deixaria a etapa sem fiscal.
+    files:
+    - ci/audit_governance.py
+    pattern: def check_decision_chain\(
+  - id: ADR-017-A2
+    kind: schema_lock
+    severity: high
+    risk: RISK-DECISION-001
+    description: 'consumed_by continua exigindo destino tipado: kind sem ref seria
+      de novo texto livre.'
+    file: harness/schemas/conformance-review.schema.json
+    pointer: /properties/review/properties/findings/items/properties/consumed_by/required
+    contains: ref
+  - id: ADR-017-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-DECISION-001
+    description: A trava if/then que exige consumo em achado encaminhado segue no
+      schema.
+    file: harness/schemas/conformance-review.schema.json
+    pointer: /properties/review/properties/findings/items/allOf/1/then/required
+    contains: consumed_by
+- id: ADR-018
+  title: A denylist cobre sequestro, não só auto-autorização
+  status: accepted
+  file: architecture/adr/ADR-018-denylist-cobre-sequestro.md
+  related_risks:
+  - RISK-SEC-001
+  - RISK-DEP-001
+  assertions:
+  - id: ADR-018-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-SEC-001
+    description: O guard de ambiente existe como código.
+    paths:
+    - ci/env_guard.py
+  - id: ADR-018-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-SEC-001
+    description: env_denylist_exact continua obrigatório no schema da harness — esvaziá-lo
+      ou removê-lo desliga a família inteira.
+    file: harness/schemas/harness.schema.json
+    pointer: /properties/env_hygiene/required
+    contains: env_denylist_exact
+  - id: ADR-018-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-SEC-001
+    description: 'A lista não pode ficar vazia: minItems 1 faz esvaziar ser tão visível
+      quanto remover.'
+    file: harness/schemas/harness.schema.json
+    pointer: /properties/env_hygiene/properties/env_denylist_exact/minItems
+    expected: 1
+  - id: ADR-018-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-SEC-001
+    description: O guard segue aplicado no workflow que julga o repositório — sem
+      ele, o job que fiscaliza é o que fica com o import sequestrável.
+    files:
+    - .github/workflows/governance.yml
+    pattern: python ci/env_guard\.py
+  - id: ADR-018-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-DEP-001
+    description: O passo negativo que injeta HTTP_PROXY continua provando que a trava
+      morde.
+    files:
+    - .github/workflows/qa.yml
+    pattern: 'HTTP_PROXY: "http://evil\.example:3128"'
+  - id: ADR-018-A6
+    kind: file_lacks
+    severity: high
+    risk: RISK-SEC-001
+    description: 'O workflow não REPETE a denylist: uma segunda cópia deriva em silêncio,
+      e a primeira entrada a divergir é a que alguém removeu.'
+    files:
+    - .github/workflows/qa.yml
+    - .github/workflows/governance.yml
+    pattern: PIP_EXTRA_INDEX_URL
+  - id: ADR-018-A7
+    kind: file_matches
+    severity: high
+    risk: RISK-SEC-001
+    description: 'A exceção continua exigindo contexto: exceção sem contexto vale
+      em toda parte, e vale-em-toda-parte é a entrada removida da lista com outro
+      nome.'
+    files:
+    - ci/env_guard.py
+    pattern: e\.get\("context"\) == contexto
+- id: ADR-019
+  title: O vermelho durante mudança declarada é mapa, não defeito
+  status: accepted
+  file: architecture/adr/ADR-019-vermelho-durante-mudanca-e-mapa.md
+  related_risks:
+  - RISK-META-001
+  - RISK-CONF-001
+  assertions:
+  - id: ADR-019-A1
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    description: 'Amortecedor (i): a asserção genérica de referência por ID continua
+      existindo — sem ela, arestas por caminho voltam a passar em silêncio.'
+    files:
+    - ci/audit_governance.py
+    pattern: def check_references_by_id\(
+  - id: ADR-019-A2
+    kind: file_matches
+    severity: high
+    risk: RISK-CONF-001
+    description: 'Amortecedor (ii): o gate genérico de maturidade continua existindo
+      — é o que permite a transição honesta que torna um pivô fatiável.'
+    files:
+    - ci/audit_governance.py
+    pattern: def check_maturity_gates\(
+  - id: ADR-019-A3
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    description: 'Amortecedor (iii): a fronteira fonte/derivado continua fiscalizada.'
+    files:
+    - ci/audit_governance.py
+    pattern: def check_derived_vs_source\(
+  - id: ADR-019-A4
+    kind: file_matches
+    severity: medium
+    risk: RISK-META-001
+    description: 'Os dois artefatos derivados carregam o cabeçalho CANÔNICO, e é o
+      mesmo nos dois: duas convenções para a mesma promessa é como a terceira nasce
+      sem nenhuma.'
+    files:
+    - docs/metadata-graph.md
+    - docs/alignment.md
+    pattern: '^<!-- GENERATED: não editar; rodar ci/[a-z_]+\.py -->'
+  - id: ADR-019-A5
+    kind: file_lacks
+    severity: high
+    risk: RISK-META-001
+    description: 'O fiscal continua sugerindo o comando sem executá-lo (fronteira
+      do R-01): nenhuma chamada de subprocesso no fiscal de conformidade.'
+    files:
+    - ci/audit_governance.py
+    pattern: subprocess\.(run|call|Popen)
+    mutation:
+      op: injetar_texto
+      alvo: ci/audit_governance.py
+      texto: "def _mutacao_canonica():\n    subprocess.run([\"true\"])"
+  - id: ADR-019-A6
+    kind: manual
+    severity: medium
+    risk: RISK-META-001
+    description: A ausência de propagação automática de cascata.
+    justification: 'Não se verifica por máquina que algo NÃO foi construído: qualquer
+      padrão que tentasse provar a ausência de um propagador seria satisfeito por
+      vacuidade no dia em que ele fosse escrito com outro nome. O que se verifica
+      são os três amortecedores que tornam a ausência viável (A1-A3), mais o registro
+      escrito desta decisão — que existe para que "automatizar a cascata", já proposto
+      e rejeitado duas vezes por caminhos diferentes (R-01, R-03), não seja proposto
+      uma terceira sem enfrentar o motivo.
+
+      '
+- id: ADR-020
+  title: A camada local não equivale à externa
+  status: accepted
+  file: architecture/adr/ADR-020-camada-local-nao-equivale-a-externa.md
+  related_risks:
+  - RISK-META-002
+  - RISK-EXT-001
+  assertions:
+  - id: ADR-020-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-META-002
+    description: A camada local existe como código, e o atestado da externa tem schema
+      pronto.
+    paths:
+    - ci/verify_protection.py
+    - harness/schemas/protection-attestation.schema.json
+  - id: ADR-020-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: O passo que verifica a proteção continua no workflow — removê-lo
+      é o gesto exato de quem quer desligar a trava.
+    files:
+    - .github/workflows/governance.yml
+    pattern: python ci/verify_protection\.py
+  - id: ADR-020-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-EXT-001
+    description: Desligar a auditoria externa continua exigindo um risco aceito declarado
+      — sem esse elo, desligá-la não custaria nada a ninguém.
+    file: harness/schemas/harness.schema.json
+    pointer: /properties/external_audit/required
+    contains: accepted_risk
+  - id: ADR-020-A4
+    kind: schema_lock
+    severity: high
+    risk: RISK-EXT-001
+    description: 'O bloco external_audit segue obrigatório na harness: sem ele, ''não
+      há autoridade externa'' seria um estado sem lugar onde aparecer.'
+    file: harness/schemas/harness.schema.json
+    pointer: /required
+    contains: external_audit
+  - id: ADR-020-A5
+    kind: schema_lock
+    severity: high
+    risk: RISK-META-002
+    description: 'O atestado continua exigindo emissor: atestado anônimo é indistinguível
+      de atestado forjado, e quem mais teria motivo para forjá-lo é o próprio fiscalizado.'
+    file: harness/schemas/protection-attestation.schema.json
+    pointer: /properties/attestation/required
+    contains: issuer
+  - id: ADR-020-A6
+    kind: schema_lock
+    severity: high
+    risk: RISK-META-002
+    description: 'O atestado continua expirando: sem validade, ele seria carimbo eterno
+      sobre configuração que pode ter mudado dez minutos depois.'
+    file: harness/schemas/protection-attestation.schema.json
+    pointer: /properties/attestation/required
+    contains: expires_at
+  - id: ADR-020-A7
+    kind: file_matches
+    severity: high
+    risk: RISK-META-002
+    description: 'A indeterminação continua tendo código próprio: ''não consegui perguntar''
+      e ''a proteção está desligada'' pedem reações opostas.'
+    files:
+    - ci/verify_protection.py
+    pattern: EXIT_UNVERIFIABLE = 3
+- id: ADR-021
+  title: O ledger é versionado, e a minimização mudou de lugar
+  status: accepted
+  file: architecture/adr/ADR-021-ledger-versionado-com-minimizacao-estrutural.md
+  related_risks:
+  - RISK-PRIV-001
+  - RISK-META-001
+  assertions:
+  - id: ADR-021-A1
+    kind: path_present
+    severity: high
+    risk: RISK-PRIV-001
+    description: O fiscal do ledger e seu schema existem como código, não como intenção.
+    paths:
+    - ci/audit_ledger.py
+    - harness/schemas/ledger.schema.json
+  - id: ADR-021-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-PRIV-001
+    description: 'additionalProperties:false é o que torna a minimização ESTRUTURAL:
+      sem ele, qualquer campo novo entra, e o campo novo é onde o texto livre volta.'
+    file: harness/schemas/ledger.schema.json
+    pointer: /additionalProperties
+    expected: false
+  - id: ADR-021-A3
+    kind: schema_lock
+    severity: critical
+    risk: RISK-PRIV-001
+    description: actor_ref continua pseudonimizado por pattern — o prefixo e o tamanho
+      fixo tornam impossível escrever um login.
+    file: harness/schemas/ledger.schema.json
+    pointer: /properties/actor_ref/pattern
+    expected: ^anon:[0-9a-f]{16}$
+  - id: ADR-021-A4
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    description: A verificação append-only continua existindo — um ledger reescrevível
+      não registra nada.
+    files:
+    - ci/audit_ledger.py
+    pattern: def check_append_only\(
+  - id: ADR-021-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-PRIV-001
+    description: 'O item 5 do RIPD registra a exceção do ledger: mudar uma medida
+      de proteção declarada sem tocar no documento que a declara é o que este repositório
+      recusa em toda parte.'
+    files:
+    - governance/ripd.md
+    pattern: ledger\.jsonl.*versionado|versionado a partir do CP-026
+    dotall: true
+  - id: ADR-021-A6
+    kind: file_matches
+    severity: high
+    risk: RISK-PRIV-001
+    description: A exceção do .gitignore é de UM arquivo, e continua comentada com
+      o motivo.
+    files:
+    - .gitignore
+    pattern: ^!harness/state/ledger\.jsonl$
+- id: ADR-022
+  title: Agente sem template é fronteira sem leitor
+  status: accepted
+  file: architecture/adr/ADR-022-agente-sem-template-e-fronteira-sem-leitor.md
+  related_risks:
+  - RISK-META-001
+  - RISK-ORIENT-001
+  assertions:
+  - id: ADR-022-A1
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    description: O fiscal bidirecional continua existindo — sem ele, agente sem template
+      e template-fantasma voltam a passar.
+    files:
+    - ci/audit_governance.py
+    pattern: def check_agent_prompt_pairing\(
+  - id: ADR-022-A2
+    kind: path_present
+    severity: high
+    risk: RISK-META-001
+    description: Todo agente declarado tem template de tarefa como arquivo real.
+    paths:
+    - harness/prompts/developer-task.md
+    - harness/prompts/documenter-task.md
+    - harness/prompts/cartographer-task.md
+    - harness/prompts/conformance-task.md
+    - harness/prompts/lgpd-task.md
+    - harness/prompts/review-task.md
+    - harness/prompts/tester-task.md
+  - id: ADR-022-A3
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    description: 'A doc de schemas continua com --check dentro da validação total:
+      doc que pode envelhecer sem custo envelhece, e passa a mentir com autoridade
+      de documentação (R-11).'
+    files:
+    - ci/validate_all.py
+    pattern: generate_schema_docs\.main, \["--check"\]
+  - id: ADR-022-A4
+    kind: file_matches
+    severity: medium
+    risk: RISK-ORIENT-001
+    description: Prontidão continua sendo MODO do orientador, e não script separado
+      (R-10).
+    files:
+    - ci/orient.py
+    pattern: def pronto\(
+  - id: ADR-022-A5
+    kind: path_absent
+    severity: medium
+    risk: RISK-ORIENT-001
+    description: 'Nenhum script separado de prontidão reapareceu: duplicar o que orient.py
+      sabe foi rejeitado, e a duplicata errava o caminho do lock.'
+    paths:
+    - ci/verificar_pronto.py
+    - ci/check_ready.py
+- id: ADR-023
+  title: Duração de CI nunca é gate; paridade local é
+  status: accepted
+  file: architecture/adr/ADR-023-duracao-de-ci-nunca-e-gate.md
+  related_risks:
+  - RISK-DEP-001
+  - RISK-META-001
+  assertions:
+  - id: ADR-023-A1
+    kind: path_present
+    severity: high
+    risk: RISK-DEP-001
+    description: O lockfile do ambiente dos fiscais e o script de paridade local existem.
+    paths:
+    - requirements-ci.txt
+    - harness/local_validate.sh
+  - id: ADR-023-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-DEP-001
+    description: Toda linha do lockfile carrega hash — sem isso o cache poderia esconder
+      dependência adulterada.
+    files:
+    - requirements-ci.txt
+    pattern: --hash=sha256:[0-9a-f]{64}
+  - id: ADR-023-A3
+    kind: file_matches
+    severity: critical
+    risk: RISK-DEP-001
+    description: 'O CI continua instalando com verificação de hash: restore falho
+      nunca vira artefato de fiscal.'
+    files:
+    - .github/workflows/governance.yml
+    pattern: pip install --require-hashes -r requirements-ci\.txt
+  - id: ADR-023-A4
+    kind: file_matches
+    severity: high
+    risk: RISK-DEP-001
+    description: O local instala do MESMO lockfile e com a MESMA exigência de hash
+      — é o que faz 'passa aqui' significar 'passa lá'.
+    files:
+    - harness/local_validate.sh
+    pattern: --require-hashes --quiet -r requirements-ci\.txt
+  - id: ADR-023-A5
+    kind: file_matches
+    severity: high
+    risk: RISK-DEP-001
+    description: 'A chave do cache inclui o lockfile: uma chave que ignorasse o lock
+      serviria um ambiente que não corresponde ao declarado.'
+    files:
+    - .github/workflows/governance.yml
+    pattern: hashFiles\('requirements-ci\.txt'\)
+  - id: ADR-023-A6
+    kind: file_matches
+    severity: high
+    risk: RISK-META-001
+    description: O mapa de remediação por origem continua existindo — achado sem o
+      que fazer transfere ao leitor o trabalho de descobrir.
+    files:
+    - ci/harness_lib.py
+    pattern: REMEDIACAO_POR_ORIGEM
+  - id: ADR-023-A7
+    kind: file_lacks
+    severity: high
+    risk: RISK-META-001
+    description: 'Nenhum threshold de duração voltou como gate (R-12): o workflow
+      não compara tempo de execução com número algum.'
+    files:
+    - .github/workflows/governance.yml
+    pattern: (duration|elapsed|SECONDS).*(-lt|-gt|<|>)\s*[0-9]+
+    mutation:
+      op: injetar_texto
+      alvo: .github/workflows/governance.yml
+      texto: '          # if [ "$SECONDS" -gt 300 ]; then exit 1; fi'
+  - id: ADR-023-A8
+    kind: file_lacks
+    severity: medium
+    risk: RISK-META-001
+    description: 'O checklist de PR continua fora da validação total: ele é ergonomia,
+      não o nono fiscal.'
+    files:
+    - ci/validate_all.py
+    pattern: pr_checklist
+- id: ADR-024
+  title: Toda trava prova que morde
+  status: accepted
+  file: architecture/adr/ADR-024-toda-trava-prova-que-morde.md
+  related_risks:
+  - RISK-CONF-001
+  - RISK-DEP-001
+  assertions:
+  - id: ADR-024-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-CONF-001
+    description: A prova de mutação e o fiscal de conflito de dependências existem
+      como código.
+    paths:
+    - ci/audit_mutations.py
+    - ci/check_dependency_conflict.py
+  - id: ADR-024-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-CONF-001
+    description: A prova continua sendo passo do CI — sem ela, uma asserção pode virar
+      decorativa sem que nada acuse.
+    files:
+    - .github/workflows/governance.yml
+    pattern: python ci/audit_mutations\.py
+  - id: ADR-024-A3
+    kind: file_matches
+    severity: high
+    risk: RISK-CONF-001
+    description: 'A mutação continua sendo VERIFICADA, não assumida: o fiscal exige
+      que a asserção fique vermelha depois de aplicá-la.'
+    files:
+    - ci/audit_mutations.py
+    pattern: nao_morde
+  - id: ADR-024-A4
+    kind: schema_lock
+    severity: high
+    risk: RISK-CONF-001
+    description: 'O escape declarado continua no schema: sem ele, as dez asserções
+      de regex expressiva não teriam como provar que mordem.'
+    file: harness/schemas/adr-index.schema.json
+    pointer: /$defs/assertion/properties/mutation/required
+    contains: op
+  - id: ADR-024-A5
+    kind: file_lacks
+    severity: high
+    risk: RISK-CONF-001
+    description: 'A prova continua FORA da validação total: um fiscal que torna o
+      loop de trabalho insuportável é desligado, não obedecido.'
+    files:
+    - ci/validate_all.py
+    pattern: audit_mutations
+    mutation:
+      op: injetar_texto
+      alvo: ci/validate_all.py
+      texto: '# import audit_mutations  # mutação canônica'
+  - id: ADR-024-A6
+    kind: file_matches
+    severity: high
+    risk: RISK-DEP-001
+    description: 'O fiscal de conflito só acusa == contra ==: um >=8 no pyproject
+      com um ==9.1.1 no lock não se contradizem, e acusá-los seria reprovar o funcionamento
+      normal de um lockfile.'
+    files:
+    - ci/check_dependency_conflict.py
+    pattern: op == "=="
+- id: ADR-025
+  title: O workflow cria a ref, e não pode movê-la
+  status: accepted
+  file: architecture/adr/ADR-025-o-workflow-cria-a-ref-e-nao-a-move.md
+  related_risks:
+  - RISK-MOLD-001
+  - RISK-EXT-001
+  - RISK-CONF-001
+  assertions:
+  - id: ADR-025-A1
+    kind: path_present
+    severity: high
+    risk: RISK-MOLD-001
+    description: A decisão que revê o comentário do CP-021 existe como ADR, não como
+      edição silenciosa de comentário.
+    paths:
+    - architecture/adr/ADR-025-o-workflow-cria-a-ref-e-nao-a-move.md
+  - id: ADR-025-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'O caminho de publicação existe: dispatch com a versão como entrada.
+      Sem ele, a única forma de nascer uma tag volta a ser `git tag` manual — que
+      aponta para qualquer commit.'
+    files:
+    - .github/workflows/release.yml
+    pattern: 'workflow_dispatch:'
+  - id: ADR-025-A3
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: O job de publicação tem permissão de escrita de conteúdo — sem ela
+      o workflow não cria ref alguma e o caminho volta a ser decorativo.
+    files:
+    - .github/workflows/release.yml
+    pattern: 'contents: write'
+  - id: ADR-025-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-CONF-001
+    description: 'A prova de mutação é passo do caminho de release: uma versão sem
+      ela sairia sem evidência de que as regras bloqueantes ainda bloqueavam naquele
+      commit.'
+    files:
+    - .github/workflows/release.yml
+    pattern: 'run: python ci/audit_mutations\.py'
+  - id: ADR-025-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'A ORDEM é a decisão: a prova de mutação aparece ANTES do push da
+      ref. Validar depois de publicar é descobrir o problema com o problema já publicado.'
+    files:
+    - .github/workflows/release.yml
+    pattern: python ci/audit_mutations\.py[\s\S]*?git push origin "refs/tags/
+  - id: ADR-025-A6
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'A cadeia é verificada ANTES do push da ref: o que se publica é byte
+      a byte o que se verificou, porque é o mesmo objeto Git.'
+    files:
+    - .github/workflows/release.yml
+    pattern: mold_release\.py --verify-tag "\$\{TAG\}"[\s\S]*?git push origin "refs/tags/
+  - id: ADR-025-A7
+    kind: file_lacks
+    severity: critical
+    risk: RISK-MOLD-001
+    description: Nenhum push de ref com --force neste workflow. Criar e mover são
+      operações distintas, e a assimetria entre elas é toda a resposta à objeção do
+      auto-atestado.
+    files:
+    - .github/workflows/release.yml
+    pattern: ^[^#\n]*git push[^\n]*--force
+    mutation:
+      op: injetar_texto
+      alvo: .github/workflows/release.yml
+      texto: '        run: git push --force origin "refs/tags/${TAG}"'
+  - id: ADR-025-A8
+    kind: file_matches
+    severity: high
+    risk: RISK-MOLD-001
+    description: A janela entre validar e criar a ref tem tranca própria, e ela é
+      função pura — o chamador é quem tem o git.
+    files:
+    - ci/mold_release.py
+    pattern: def preflight_publicacao
+  - id: ADR-025-A9
+    kind: file_matches
+    severity: high
+    risk: RISK-MOLD-001
+    description: A release é registrada no ledger, referenciando o commit taggeado.
+      Publicação sem registro é evento que só existe enquanto alguém lembra.
+    files:
+    - .github/workflows/release.yml
+    pattern: ci/audit_ledger\.py --append release
+  - id: ADR-025-A10
+    kind: file_matches
+    severity: high
+    risk: RISK-EXT-001
+    description: 'O eixo de tags da trava externa existe no mesmo fiscal da branch:
+      são a mesma pergunta sobre dois namespaces de ref, e dependem da mesma raiz
+      administrativa.'
+    files:
+    - ci/verify_protection.py
+    pattern: def verify_tag_protection
+  - id: ADR-025-A11
+    kind: file_matches
+    severity: high
+    risk: RISK-EXT-001
+    description: 'O eixo de tags exige as regras que impedem MOVER e APAGAR, e não
+      `creation`: exigir creation trancaria o único caminho legítimo de publicação.'
+    files:
+    - ci/verify_protection.py
+    pattern: non_fast_forward
+  - id: ADR-025-A12
+    kind: file_matches
+    severity: high
+    risk: RISK-MOLD-001
+    description: 'A recusa rápida usa o MESMO regex de ci/mold_release.py::TAG_RE.
+      Duas checagens da mesma coisa que discordam num caso de borda são um gerador
+      de bugs: a rápida libera, a lenta recusa, e o operador descobre a discordância
+      no pior momento.'
+    files:
+    - .github/workflows/release.yml
+    pattern: \^v\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\$
+  - id: ADR-025-A13
+    kind: file_matches
+    severity: high
+    risk: RISK-MOLD-001
+    description: A recusa rápida vem ANTES do checkout — a posição é a decisão. Um
+      caminho que faz três minutos de trabalho antes de olhar para o que o operador
+      digitou ensina o operador a esperar.
+    files:
+    - .github/workflows/release.yml
+    pattern: 'Recusar entrada malformada[\s\S]*?uses: actions/checkout'
+  - id: ADR-025-A14
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'O registro NASCE do commit validado e REFERENCIA o taggeado. Ancorada
+      no NOME do passo de propósito: o mesmo detach aparece antes, ao montar o commit
+      de release, e uma asserção que só procurasse o comando casaria com aquele e
+      continuaria verde depois de removido este — decorativa no sentido exato do ADR-024.'
+    files:
+    - .github/workflows/release.yml
+    pattern: Registrar a release no ledger[\s\S]*?git switch --detach "\$\{VALIDADO\}"[\s\S]*?--commit-sha
+      "\$\{RELEASE_COMMIT\}"
+- id: ADR-026
+  title: A árvore taggeada valida-se pela cadeia, não por validate_all
+  status: accepted
+  file: architecture/adr/ADR-026-a-arvore-taggeada-valida-se-pela-cadeia.md
+  related_risks:
+  - RISK-MOLD-001
+  - RISK-DERIV-002
+  - RISK-CONF-001
+  assertions:
+  - id: ADR-026-A1
+    kind: path_present
+    severity: high
+    risk: RISK-MOLD-001
+    description: A decisão sobre o que 'validado' significa numa árvore que carrega
+      o manifesto existe como ADR, não como hábito do workflow.
+    paths:
+    - architecture/adr/ADR-026-a-arvore-taggeada-valida-se-pela-cadeia.md
+  - id: ADR-026-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'A ORDEM do job auditar: a cadeia é verificada ENQUANTO a tag está
+      montada (--verify-tag lê o manifesto do disco) e a validação total roda depois,
+      no PAI — a árvore para a qual ela é a pergunta certa.'
+    files:
+    - .github/workflows/release.yml
+    pattern: 'Verificar a cadeia da release[\s\S]*?git switch --detach "\$pai"[\s\S]*?run:
+      python ci/validate_all\.py'
+  - id: ADR-026-A3
+    kind: file_lacks
+    severity: critical
+    risk: RISK-DERIV-002
+    description: Não existe mais caminho que produza run_url no manifesto. Não é 'proibido
+      escrever' — é inexpressável, mesma formulação da CP-026, porque proibição depende
+      de alguém lembrar. O schema segue aceitando o campo, para que o registro histórico
+      da v1.0.0 continue válido.
+    files:
+    - ci/mold_release.py
+    pattern: run_url
+  - id: ADR-026-A4
+    kind: file_lacks
+    severity: high
+    risk: RISK-DERIV-002
+    description: 'O workflow não passa --run-url: a URL do run é derivável de repository
+      + run_id, e carregá-la no manifesto tornaria a árvore publicada indefensável
+      sob o ADR-008-A5.'
+    files:
+    - .github/workflows/release.yml
+    pattern: --run-url
+  - id: ADR-026-A5
+    kind: dir_allowlist
+    severity: critical
+    risk: RISK-MOLD-001
+    description: 'O manifesto não entra na árvore validada — cláusula própria, para
+      reprovar pelo MOTIVO e não por efeito colateral do ADR-008-A5. É dir_allowlist
+      e não path_absent com glob porque rel_exists é literal: o glob nunca casaria,
+      e a mutação canônica criaria um arquivo com o nome literal do glob, fazendo
+      a prova de mutação certificar uma trava decorativa.'
+    dir: harness/releases
+    allow:
+    - README.md
+  - id: ADR-026-A6
+    kind: file_lacks
+    severity: critical
+    risk: RISK-DERIV-002
+    description: 'O ADR-008-A5 não foi afrouxado para acomodar manifestos: nenhum
+      `exclude:` dentro do bloco dele. Afrouxar um fiscal para o CI passar é a terceira
+      opção, e é a errada.'
+    files:
+    - architecture/adr/index.yaml
+    pattern: '^      - id: ADR-008-A5$(?:(?!\n      - id: )[\s\S])*?exclude:'
+    mutation:
+      op: injetar_apos
+      alvo: architecture/adr/index.yaml
+      marcador: 'id: ADR-008-A5'
+      texto: '        exclude: ["harness/releases/*.manifest.json"]'
+- id: ADR-027
+  title: Aval humano ausente é lacuna declarada, não status inventado
+  status: accepted
+  file: architecture/adr/ADR-027-aval-ausente-e-lacuna-declarada.md
+  related_risks:
+  - RISK-CHANGE-002
+  - RISK-CHANGE-001
+  assertions:
+  - id: ADR-027-A1
+    kind: path_present
+    severity: high
+    risk: RISK-CHANGE-002
+    description: A decisão de não forjar o aval existe como ADR — doze propostas visivelmente
+      não fechadas, com o motivo escrito, valem mais que doze `executed` cujo aval
+      ninguém prestou.
+    paths:
+    - architecture/adr/ADR-027-aval-ausente-e-lacuna-declarada.md
+  - id: ADR-027-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-CHANGE-002
+    description: A lacuna do aval independente é risco ABERTO e COM DATA. O schema
+      já exige `due` de risco `open`; esta asserção prova que o risco não foi silenciosamente
+      fechado ou removido para o registro parecer limpo.
+    files:
+    - governance/risk-register.yaml
+    pattern: '^  - id: RISK-CHANGE-002$(?:(?!\n  - id: )[\s\S])*?due: "'
+  - id: ADR-027-A3
+    kind: file_matches
+    severity: critical
+    risk: RISK-CHANGE-002
+    description: 'O verify_approval continua rodando no CI: no dia em que alguém marcar
+      uma CP `executed`, o aval é resolvido contra a API, não contra a boa-fé de quem
+      escreveu o YAML.'
+    files:
+    - .github/workflows/governance.yml
+    pattern: python ci/verify_approval\.py
+  - id: ADR-027-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-CHANGE-002
+    description: 'A recusa de auto-aprovação (Fraude 3) continua no código. É a asserção
+      que mais importa: quando doze propostas `approved` parecerem trabalho inacabado,
+      a tentação não será conseguir o revisor que falta — será apagar a checagem que
+      o exige.'
+    files:
+    - ci/verify_approval.py
+    pattern: é o autor do PR
+- id: ADR-028
+  title: A autoridade externa está ligada, e o emissor é conferido
+  status: accepted
+  file: architecture/adr/ADR-028-a-autoridade-externa-ligada.md
+  related_risks:
+  - RISK-EXT-001
+  - RISK-META-002
+  assertions:
+  - id: ADR-028-A1
+    kind: path_present
+    severity: high
+    risk: RISK-EXT-001
+    description: A decisão de ligar a camada externa existe como ADR — inclusive o
+      que ela deliberadamente NÃO faz (tornar o check obrigatório no ruleset da main),
+      para que a lacuna restante não seja confundida com esquecimento.
+    paths:
+    - architecture/adr/ADR-028-a-autoridade-externa-ligada.md
+  - id: ADR-028-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-EXT-001
+    description: A camada externa está LIGADA. A mutação canônica não apaga a linha
+      — apagá-la produziria erro de schema, que é outro estado com outra reação. Ela
+      escreve `false`, que é o gesto real de quem desliga a autoridade e permanece
+      válido perante o schema.
+    files:
+    - harness/harness.yaml
+    pattern: '^external_audit:$(?:(?!\n[a-z_]+:)[\s\S])*?\n  enabled: true$'
+    mutation:
+      op: substituir_texto
+      alvo: harness/harness.yaml
+      de: "\n  enabled: true"
+      para: "\n  enabled: false"
+  - id: ADR-028-A3
+    kind: schema_lock
+    severity: critical
+    risk: RISK-META-002
+    description: Ligada EXIGE emissor declarado. A combinação 'exijo atestado e aceito
+      qualquer um' é pior que a camada desligada — desligada a lacuna está escrita
+      e datada; ligada-sem-emissor ela fica escondida atrás de um JSON que quem tem
+      direito de merge escreve à mão. O schema a torna inexpressável em vez de proibida.
+    file: harness/schemas/harness.schema.json
+    pointer: /properties/external_audit/allOf/0/then/required
+    contains: authorized_issuer
+  - id: ADR-028-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'A comparação de emissor continua no fiscal, e compara IDENTIDADE
+      contra a autoridade declarada. Sem ela, o atestado certificaria a si mesmo:
+      qualquer arquivo com a forma certa passaria, e quem teria motivo para escrevê-lo
+      é exatamente quem tem direito de merge.'
+    files:
+    - ci/audit_governance.py
+    pattern: emissor\.get\("identity"\) != autorizado\.get\("identity"\)
+  - id: ADR-028-A5
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'O achado de emissor é PRÓPRIO e não colapsa com os outros dois (princípio
+      (h)): ausente é ''o verificador não entregou'', expirado é ''ele entregou e
+      envelheceu'', emissor errado é ''alguém escreveu isto à mão''. Os dois primeiros
+      são falha de operação; o terceiro é uma acusação, e um EXT-AUDIT-INVALIDO genérico
+      destruiria a informação que diz qual investigar.'
+    files:
+    - ci/audit_governance.py
+    pattern: EXT-AUDIT-EMISSOR-NAO-AUTORIZADO
+  - id: ADR-028-A6
+    kind: path_present
+    severity: critical
+    risk: RISK-EXT-001
+    description: 'Com a camada ligada, o atestado está na árvore. Removê-lo não deixa
+      o repositório em silêncio — deixa em vermelho, porque ausente vale o mesmo que
+      expirado: é o preço declarado de depender de um cron que este repositório não
+      controla.'
+    paths:
+    - harness/state/protection-attestation.json
+- id: ADR-029
+  title: O atestado é o único conteúdo auto-mergeável, e o portão não julga os checks
+  status: accepted
+  file: architecture/adr/ADR-029-o-atestado-e-o-unico-conteudo-auto-mergeavel.md
+  related_risks:
+  - RISK-EXT-001
+  - RISK-META-002
+  assertions:
+  - id: ADR-029-A1
+    kind: path_present
+    severity: high
+    risk: RISK-EXT-001
+    description: A decisão de dispensar o clique — e SÓ o clique — existe como ADR,
+      com a janela calculada e o passo de admin que ela não alcança.
+    paths:
+    - architecture/adr/ADR-029-o-atestado-e-o-unico-conteudo-auto-mergeavel.md
+    - ci/automerge_gate.py
+    - .github/workflows/atestado-automerge.yml
+  - id: ADR-029-A2
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'O gatilho é `pull_request_target`, e essa linha é a segurança inteira:
+      com `pull_request` o YAML executado viria do head, e as checagens que decidem
+      se o PR pode auto-mergear seriam escritas pelo próprio PR.'
+    files:
+    - .github/workflows/atestado-automerge.yml
+    pattern: pull_request_target
+  - id: ADR-029-A3
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'A ORDEM é a decisão: o portão decide ANTES de o auto-merge ser habilitado.
+      Ancorada no NOME do passo (lição da ADR-025-A14) para que a asserção não case
+      com qualquer menção solta ao comando.'
+    files:
+    - .github/workflows/atestado-automerge.yml
+    pattern: Decidir se este PR é auto-mergeável[\s\S]*?Habilitar o auto-merge NATIVO[\s\S]*?gh
+      pr merge
+  - id: ADR-029-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: Habilitar o auto-merge é CONDICIONAL à saída do portão. Sem o `if`,
+      os dois passos continuariam na ordem certa e o segundo rodaria de qualquer jeito
+      — ordem sem condição é encenação.
+    files:
+    - .github/workflows/atestado-automerge.yml
+    pattern: 'if: steps\.portao\.outputs\.liberar == ''true'''
+  - id: ADR-029-A5
+    kind: file_lacks
+    severity: critical
+    risk: RISK-META-002
+    description: Nada de `--admin` neste workflow. `--auto` entrega o julgamento ao
+      ruleset; `--admin` o atropela, e o ruleset é a única coisa deste desenho que
+      o conteúdo de um PR não alcança.
+    files:
+    - .github/workflows/atestado-automerge.yml
+    pattern: --admin
+  - id: ADR-029-A6
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'A CHECAGEM DE DIFF, e a forma dela é a decisão: IGUALDADE contra
+      uma lista de UM caminho, não allowlist, não prefixo, não glob. Um `startswith`
+      teria o mesmo efeito hoje e custaria uma linha para virar `harness/` amanhã.
+      É esta asserção que torna caro alargar o que pode auto-mergear.'
+    files:
+    - ci/automerge_gate.py
+    pattern: tocados != \[caminho_atestado\]
+  - id: ADR-029-A7
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'A checagem de AUTOR continua no portão, e exige as duas coisas:
+      o login derivado de `authorized_issuer` e o tipo `Bot`. O login é digitável
+      por um humano que registre uma conta com esse nome; o tipo é atribuído pelo
+      GitHub.'
+    files:
+    - ci/automerge_gate.py
+    pattern: autor_login != esperado or autor_tipo != "Bot"
+  - id: ADR-029-A8
+    kind: file_matches
+    severity: critical
+    risk: RISK-META-002
+    description: 'Indeterminação não libera: sem `authorized_issuer` ou sem `attestation_path`
+      declarados, o portão não sabe contra o que comparar e recusa. Sem esta guarda,
+      as duas comparações acima seriam feitas contra string vazia e liberariam por
+      vacuidade.'
+    files:
+    - ci/automerge_gate.py
+    pattern: PORTAO-SEM-DECLARACAO
+  - id: ADR-029-A9
+    kind: file_lacks
+    severity: high
+    risk: RISK-META-002
+    description: 'O portão não faz checkout do head do PR. Ler metadado da API é seguro;
+      trazer o head para o runner de um job com `contents: write` é o modo de falha
+      clássico do `pull_request_target`.'
+    files:
+    - .github/workflows/atestado-automerge.yml
+    pattern: github\.event\.pull_request\.head\.sha
+- id: ADR-030
+  title: Uma régua entra por ficha, nunca por código
+  status: accepted
+  file: architecture/adr/ADR-030-a-regua-entra-por-ficha.md
+  related_risks:
+  - RISK-WEBQA-001
+  - RISK-CONF-001
+  - RISK-SEC-001
+  assertions:
+  - id: ADR-030-A1
+    kind: path_present
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: O contrato, o registro, o fiscal genérico e o motor compartilhado
+      existem como código — não como intenção.
+    paths:
+    - harness/suite-contract/contract-v1/SUITE_CONTRACT.md
+    - harness/suite-contract/contract-v1/contract-manifest.json
+    - harness/suite-contract/mutation-engine/mutation_engine.py
+    - harness/suites/qa-suite.yaml
+    - harness/suites/privacy-suite.yaml
+    - ci/audit_suites.py
+  - id: ADR-030-A2
+    kind: schema_lock
+    severity: critical
+    risk: RISK-SEC-001
+    description: 'env_prefix continua OBRIGATÓRIO na ficha: sem ele, os gates fail-closed
+      de uma régua ficam alcançáveis pelo ambiente, e a ficha passaria sem que nada
+      acusasse.'
+    file: harness/schemas/suite-registry.schema.json
+    pointer: /properties/suite/required
+    contains: env_prefix
+  - id: ADR-030-A3
+    kind: schema_lock
+    severity: high
+    risk: RISK-META-001
+    description: 'contract_version continua sendo enum FECHADO: um contrato inexistente
+      tem de ser inexpressável, não apenas detectável.'
+    file: harness/schemas/suite-registry.schema.json
+    pointer: /properties/suite/properties/contract_version/enum
+    contains: v1
+  - id: ADR-030-A4
+    kind: schema_lock
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: O terceiro estado do laudo continua representável — sem `inconclusivo`,
+      'não consegui medir' volta a sair com a cor de 'medi e está bom'.
+    file: harness/schemas/report.schema.json
+    pointer: /properties/verdict/enum
+    contains: inconclusivo
+  - id: ADR-030-A5
+    kind: schema_lock
+    severity: high
+    risk: RISK-CONF-001
+    description: 'O conjunto de cláusulas da v1 continua fechado em cinco: acrescentar
+      uma sexta é a v2, nunca uma edição da v1 — senão o contrato muda de conteúdo
+      sem mudar de nome.'
+    file: harness/schemas/suite-contract-manifest.schema.json
+    pointer: /properties/contract/properties/clauses/maxItems
+    expected: 5
+  - id: ADR-030-A6
+    kind: file_matches
+    severity: critical
+    risk: RISK-SEC-001
+    description: 'A denylist de ambiente continua DERIVANDO do registro de suites:
+      sem isso, o prefixo de cada régua nova voltaria a depender de alguém lembrar
+      de editar uma lista.'
+    files:
+    - ci/env_guard.py
+    - ci/hooks/pre_bash_env_hygiene.py
+    pattern: harness / "suites"|harness/suites/
+  - id: ADR-030-A7
+    kind: file_lacks
+    severity: high
+    risk: RISK-DEP-001
+    description: 'harness.yaml não restata o prefixo de régua alguma: ele mora na
+      ficha, e a segunda cópia derivaria da primeira.'
+    files:
+    - harness/harness.yaml
+    pattern: 'env_denylist_prefix: \[[^]]*WEBQA_'
+    mutation:
+      op: substituir_texto
+      alvo: harness/harness.yaml
+      de: 'env_denylist_prefix: []'
+      para: 'env_denylist_prefix: ["WEBQA_"]'
+  - id: ADR-030-A8
+    kind: file_matches
+    severity: critical
+    risk: RISK-CONF-001
+    description: O fiscal continua reprovando A SI MESMO quando uma cláusula chega
+      sem mutação canônica — um fiscal que não sabe como seria negado não sabe se
+      está funcionando.
+    files:
+    - ci/audit_suites.py
+    pattern: FISCAL-SEM-AUTOPROVA
+  - id: ADR-030-A9
+    kind: import_forbidden
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: 'O motor compartilhado não importa harness_lib: a fronteira é de
+      DADOS, e é o que permite a um segundo consumidor usá-lo sem receber meio molde
+      junto.'
+    module_glob: harness/suite-contract/mutation-engine/mutation_engine.py
+    symbols:
+    - harness_lib.Findings
+  - id: ADR-030-A10
+    kind: path_present
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: 'O runner genérico e o kit de conformidade existem como código: sem
+      eles a ficha DESCREVE e nunca EXECUTA, e um registro que ninguém executa é documentação
+      com schema.'
+    paths:
+    - ci/suite_runner.py
+    - ci/suite_conformance.py
+  - id: ADR-030-A11
+    kind: file_matches
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: 'O runner continua traduzindo `inconclusivo`, e não deixando o estado
+      sumir: um verde que significa ''não olhei'' encerra a investigação com a convicção
+      de quem olhou.'
+    files:
+    - ci/suite_runner.py
+    pattern: def traduzir_veredito
+  - id: ADR-030-A12
+    kind: file_lacks
+    severity: critical
+    risk: RISK-WEBQA-001
+    description: 'qa.yml não invoca mais a régua diretamente: o comando mora na ficha,
+      e voltar a cravá-lo aqui faz uma régua nova custar edição de workflow outra
+      vez.'
+    files:
+    - .github/workflows/qa.yml
+    pattern: ^\s+webqa (inventario|auditar) --(raiz|config) [^\n]*\n\s+else
+    mutation:
+      op: substituir_texto
+      alvo: .github/workflows/qa.yml
+      de: '        run: python ci/suite_runner.py --suite qa-suite --mode inventory'
+      para: "        run: |\n          if true; then\n            webqa inventario\
+        \ --raiz . --saida harness/reports/cockpit.html\n          else\n        \
+        \    echo stub\n          fi"
+  - id: ADR-030-A13
+    kind: file_matches
+    severity: high
+    risk: RISK-SEC-001
+    description: 'O runner executa sem shell: o argv vem separado da ficha, porque
+      `--config $ARQUIVO` num shell deixa de ser um argumento e vira uma oportunidade.'
+    files:
+    - ci/suite_runner.py
+    pattern: subprocess\.run\(comando, cwd=hl\.REPO
+  - id: ADR-030-A14
+    kind: file_matches
+    severity: critical
+    risk: RISK-DEP-001
+    description: 'A resolução de $ref entre schemas é LOCAL: um fiscal que consulta
+      a rede para julgar o repositório tem veredito que depende de quem responde —
+      a mesma família de sequestro que o CP-025 fecha para pip e import.'
+    files:
+    - ci/harness_lib.py
+    pattern: def _registry
+- id: ADR-031
+  title: O painel de configuração deriva dos contratos, e prova isso a cada execução
+  status: accepted
+  file: architecture/adr/ADR-031-painel-de-configuracao-derivado.md
+  related_risks:
+  - RISK-ORIENT-001
+  - RISK-META-001
+  assertions:
+  - id: ADR-031-A1
+    kind: import_required
+    severity: high
+    risk: RISK-ORIENT-001
+    description: O gerador usa o leitor da casa. Sem harness_lib ele não honraria
+      HARNESS_REPO_ROOT, e toda mordida passaria a validar a árvore de trabalho em
+      vez da cópia mutada — provando exatamente nada.
+    module_glob: ci/generate_config_report.py
+    symbols:
+    - harness_lib
+  - id: ADR-031-A2
+    kind: import_forbidden
+    severity: high
+    risk: RISK-ORIENT-001
+    description: 'Nenhum leitor PARALELO do que harness_lib já lê. O escopo é a decisão:
+      escrever JSON é permitido (json.dumps serializa o artefato), LER em paralelo
+      não é — seriam duas leituras do mesmo repositório, e a segunda derivaria.'
+    module_glob: ci/generate_config_report.py
+    symbols:
+    - yaml
+    - tomllib
+    - toml
+    - configparser
+    - json.load
+    - json.loads
+    - json.JSONDecoder
+  - id: ADR-031-A3
+    kind: path_present
+    severity: high
+    risk: RISK-META-001
+    description: O gerador, o contrato do artefato, o stylesheet declarado e os dois
+      artefatos derivados existem como arquivo.
+    paths:
+    - ci/generate_config_report.py
+    - ci/assets/organic.css
+    - harness/schemas/config-report.schema.json
+    - docs/configuracao/index.html
+    - docs/configuracao/config.json
+  - id: ADR-031-A4
+    kind: file_matches
+    severity: critical
+    risk: RISK-ORIENT-001
+    description: 'A autoauditoria continua no lugar. É ela, e não uma asserção de
+      texto, que impede a transcrição: um arquivo que fala sobre vocabulário fechado
+      contém as palavras do assunto em toda parte, e procurar no texto cru ancoraria
+      na menção.'
+    files:
+    - ci/generate_config_report.py
+    pattern: ^def _vocabulario_nao_esta_no_codigo\(
+    mutation:
+      op: apagar_padrao
+      alvo: ci/generate_config_report.py
+      pattern: def _vocabulario_nao_esta_no_codigo\(
+  - id: ADR-031-A5
+    kind: file_lacks
+    severity: high
+    risk: RISK-META-001
+    description: 'O artefato abre offline: nada nele busca recurso na rede. Um painel
+      que depende de rede para renderizar some quando a rede some — e some em silêncio,
+      porque a página ainda abre.'
+    files:
+    - docs/configuracao/index.html
+    pattern: '@import|<(?:link|script|img|iframe)[^>]*\b(?:src|href)\s*=\s*["'']?(?:https?:)?//'
+    mutation:
+      op: injetar_texto
+      alvo: docs/configuracao/index.html
+      texto: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo">
+  - id: ADR-031-A6
+    kind: schema_lock
+    severity: high
+    risk: RISK-META-001
+    description: O estado 'não consegui ler' continua existindo como valor nomeado
+      no contrato. É o único dos três estados de vazio que jamais pode sair como exit
+      0, e apagá-lo faria coleção ilegível e coleção vazia saírem iguais na tela.
+    file: harness/schemas/config-report.schema.json
+    pointer: /$defs/razao_ilegivel/const
+    expected: não consegui ler
+  - id: ADR-031-A7
+    kind: manual
+    severity: medium
+    risk: RISK-ORIENT-001
+    description: Nenhuma asserção de TEXTO procura valores de vocabulário dentro do
+      gerador.
+    justification: 'Seria a próxima ocorrência da âncora-na-menção registrada em harness/policies/conformance.md
+      como família reincidente — nove ocorrências, a última nascida dentro do fiscal
+      escrito para vigiar as anteriores. Um gerador que fala SOBRE vocabulário fechado
+      contém as palavras do assunto em toda parte, inclusive nos comentários que explicam
+      por que ele não deve conter os VALORES, e _regex_assert lê o arquivo cru. A
+      verificação real é _vocabulario_nao_esta_no_codigo, que lê o AST — onde comentário
+      não existe — e roda a cada execução do gerador, portanto é gate via validate_all.
+      A asserção A4 prova que ela continua no lugar, e a mutação declarada nela prova
+      que a remoção é acusada.
+
+      '

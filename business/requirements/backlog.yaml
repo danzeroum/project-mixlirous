@@ -1,0 +1,9 @@
+﻿# Backlog de requisitos, cada item ligado a uma capacidade (CAP-*). Dá ao agente o QUE fazer e por
+# quê, sem inventar escopo. Um item pode citar o risco que introduz e depender de outro.
+# Schema: harness/schemas/backlog.schema.json
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+items: []

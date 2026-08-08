@@ -1,0 +1,9 @@
+﻿# Capacidades de negócio com rastreabilidade física: cada capacidade aponta para código e teste
+# reais. IDs estáveis (CAP-...) formam as arestas duráveis do grafo.
+# Schema: harness/schemas/capabilities.schema.json
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+capabilities: []

@@ -1,0 +1,234 @@
+name: qa
+
+# Onde a trava morde. A harness é declarativa; a enforcement efetiva vive aqui e nos gates
+# fail-closed da suíte externa.
+#
+#  - inventory + passive: automáticos (push/PR), runner-kind ci, ambiente limpo.
+#  - load / active_discovery: SÓ workflow_dispatch, disparados por pessoa, jobs segregados.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Modo segregado a rodar (humano dispara)"
+        required: true
+        type: choice
+        options:
+          - load
+          - active_discovery
+      confirm:
+        description: 'Digite "confirmo" para autorizar o modo segregado'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Guardas estruturais + inventário + auditoria passiva. Rodam sempre.
+  # ---------------------------------------------------------------------------
+  inventory-and-passive:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # Ambiente automático não define nenhum WEBQA_*: os gates não moram no ambiente do CI automático.
+    # (O contexto `env` não pode ser referenciado em job-level env; a higiene é provada no passo negativo abaixo.)
+    steps:
+      - uses: actions/checkout@v4
+
+      # Guarda de fronteira: a régua nunca mora neste repo (política webqa.md).
+      - name: Recusar régua copiada (declarar, não copiar)
+        run: |
+          set -euo pipefail
+          violacao=0
+          for alvo in webqa checks data/caminhos-sensiveis.yaml; do
+            if [ -e "$alvo" ]; then
+              echo "::error::'$alvo' não pode existir no consumidor — a régua é declarada, não copiada."
+              violacao=1
+            fi
+          done
+          if [ "$violacao" -ne 0 ]; then exit 40; fi
+
+      # Guarda de pin exato: webqa-suite deve estar pinado com == (política dependency-updates.md).
+      - name: Exigir pin exato do padrão
+        run: |
+          set -euo pipefail
+          if ! grep -Eq '^webqa-suite==[^[:space:]]+' requirements-qa.txt; then
+            echo "::error::requirements-qa.txt deve pinar webqa-suite com == (sem faixa)."
+            exit 40
+          fi
+
+      # A trava que morde: prova que o denylist DETECTA uma variável WEBQA_* injetada.
+      # O passo passa quando a detecção funciona (comportamento correto do guard) e só falha
+      # se o denylist NÃO detectar — aí sim o CI acusa que a trava parou de morder.
+      - name: Higiene de ambiente — denylist WEBQA_* deve detectar (passo negativo)
+        env:
+          WEBQA_LEAK: "1"
+        run: |
+          set -euo pipefail
+          if env | grep -qE '^WEBQA_'; then
+            echo "::notice::Guard detectou variável WEBQA_* — fail_on_denied_env=true abortaria (DENIED_ENV=10)."
+            echo "Detecção OK: o denylist morde."
+          else
+            echo "::error::Denylist não detectou WEBQA_LEAK — a trava parou de morder."
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # CP-025 — higiene ESTENDIDA, e ela roda ANTES do pip por um motivo específico: as variáveis
+      # que ela recusa (PIP_INDEX_URL, HTTPS_PROXY) mudam de onde o pip baixa. Rodar depois seria
+      # verificar a fechadura com o ladrão já dentro.
+      #
+      # A lista NÃO está aqui: ci/env_guard.py a lê de harness/harness.yaml. Repeti-la criaria uma
+      # segunda cópia que deriva em silêncio, e a primeira entrada a divergir seria justamente a
+      # que alguém removeu.
+      - name: Higiene de ambiente estendida (sequestro de rede e de import)
+        run: pip install "pyyaml>=6" --quiet && python ci/env_guard.py
+
+      - name: Instalar pacote de negócio + ferramentas
+        run: pip install -e ".[dev]"
+
+      # A trava que morde, para a família nova: injeta HTTP_PROXY e exige o abort. O passo PASSA
+      # quando o guard recusa; falha se o guard deixar passar — mesmo idioma do WEBQA_LEAK acima.
+      - name: Higiene estendida — sequestro de rede deve abortar (passo negativo)
+        env:
+          HTTP_PROXY: "http://evil.example:3128"
+        run: |
+          set +e
+          python ci/env_guard.py --quiet
+          codigo=$?
+          set -e
+          if [ "$codigo" != "10" ]; then
+            echo "::error::env_guard não abortou com HTTP_PROXY definido (saiu $codigo) — a trava de sequestro parou de morder."
+            exit 1
+          fi
+          echo "Detecção OK: DENIED_ENV=10 com HTTP_PROXY presente."
+
+      # CP-016 — "alvo do inventário é código real" só é verdade se o código real estiver aqui.
+      # No molde são os testes do negócio de exemplo; num derivado são os do ALVO, que vivem em
+      # workspace/target/ e precisam ser materializados antes. Rodar tests/unit num derivado
+      # falhava com exit 4 (diretório removido pelo CP-000) — medido no primeiro derivado real, e
+      # o passo estava certo em falhar: ele apontava para código que não existe mais.
+      - name: Materializar o alvo (só no derivado)
+        env:
+          TARGET_TOKEN: ${{ secrets.TARGET_READ_TOKEN || github.token }}
+        run: |
+          kind=$(python - <<'PY'
+          import re, pathlib
+          t = pathlib.Path("project.yaml").read_text(encoding="utf-8")
+          m = re.search(r'^\s*kind:\s*"?([a-z]+)"?\s*$', t, re.M)
+          print(m.group(1) if m else "")
+          PY
+          )
+          echo "kind=$kind" >> "$GITHUB_ENV"
+          [ "$kind" = "derived" ] || { echo "papel '$kind': sem alvo a materializar."; exit 0; }
+          python ci/bootstrap.py --only-workspace --skip-deps || {
+            echo "::error::materialização do alvo falhou — estado do mundo, não divergência."
+            exit 2
+          }
+
+      - name: Rodar testes de unidade (alvo do inventário é código real)
+        run: |
+          if [ "$kind" = "derived" ]; then
+            raiz=$(python - <<'PY'
+          import re, pathlib
+          t = pathlib.Path("project.yaml").read_text(encoding="utf-8")
+          m = re.search(r'^\s*test_roots:\s*\[([^\]]*)\]', t, re.M)
+          print((m.group(1).split(",")[0].strip().strip('"\'') if m and m.group(1).strip() else ""))
+          PY
+          )
+            [ -n "$raiz" ] || { echo "test_roots vazio: o alvo declara não ter testes."; exit 0; }
+            pytest "workspace/target/$raiz"
+          else
+            pytest tests/unit
+          fi
+
+      # Consumo da suíte externa (webqa-suite==1.0.0). Degrada de forma tolerante:
+      # a v1.0.0 não está no PyPI, então a instalação por nome falha e o CI segue em modo stub.
+      # Para instalar de fato, use o pin via Git (ver docs/COMO-ADOTAR.md §4).
+      - name: Instalar o padrão declarado (tolerante)
+        run: pip install -r requirements-qa.txt || echo "::warning::webqa-suite indisponível via PyPI — passos de suíte entram em modo stub (instale via Git; ver docs/COMO-ADOTAR.md)."
+
+      # CP-042 — OS COMANDOS SAEM DAQUI E VÃO PARA A FICHA. Os nomes dos passos ficam: eles são
+      # citados por `harness/stages.yaml:enforced_by.step` e resolvidos literalmente, então mudá-los
+      # desligaria a cobertura da etapa sem que nada acusasse.
+      #
+      # O que muda não é O QUE roda — é QUEM ESCOLHE. `harness/suites/qa-suite.yaml` declara o
+      # comando de cada modo, e uma régua nova deixa de custar edição de workflow. Se acrescentar
+      # uma suíte voltar a exigir mexer aqui, a padronização não aconteceu.
+      #
+      # E o `if command -v webqa` sumiu de propósito: aquele ramo transformava "não consegui medir"
+      # num ::warning:: e exit 0. Agora a ausência da régua produz um LAUDO, com veredito
+      # `inconclusivo`, que vai para o ledger. Enquanto o GAP-QA-EXIT-ZERO vigora o runner não
+      # reprova; vencida a data do gap, o mesmo código passa a reprovar — a tolerância fecha por
+      # data declarada, nunca por esquecimento.
+      - name: Inventário (Trabalho B — sem rede, sem autorização)
+        run: python ci/suite_runner.py --suite qa-suite --mode inventory
+
+      - name: Auditoria passiva (Trabalho A — só se escopo autorizar)
+        run: python ci/suite_runner.py --suite qa-suite --mode passive
+
+      # O consumidor prova que o pin e a ficha honram o contrato. O outro lado do kit
+      # (`--as-suite`) é para a régua rodar no CI DELA — é o que faz disto um contrato, e não uma
+      # checagem que só uma das partes consegue fazer.
+      - name: Conformidade do consumo (kit, lado do consumidor)
+        run: python ci/suite_conformance.py --as-consumer qa-suite
+
+      - name: Arquivar evidência
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports
+          path: harness/reports/
+          if-no-files-found: ignore
+          # Sem este campo a retenção real vem de uma setting do GitHub, editável fora do
+          # repositório e invisível a qualquer fiscal — a evidência que sobrevive ao runner
+          # escaparia da retenção declarada. Cobrado por ci/audit_lgpd.py::check_evidence_retention.
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Modos segregados. SÓ workflow_dispatch, disparados por pessoa. Agente/CI automático
+  # nunca chega aqui. environment: production exige revisores (configurar no repositório).
+  # ---------------------------------------------------------------------------
+  segregated-load-or-active:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production   # aprovação manual obrigatória — configurar required reviewers
+    steps:
+      - name: Validar confirmação humana
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event.inputs.confirm }}" != "confirmo" ]; then
+            echo "::error::Confirmação ausente. Modo segregado exige disparo humano explícito."
+            exit 11
+          fi
+          echo "Modo segregado autorizado por pessoa: ${{ github.event.inputs.mode }}"
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar padrão declarado
+        run: pip install -r requirements-qa.txt || echo "::warning::webqa-suite indisponível."
+
+      # Aqui — e SÓ aqui — o ambiente monta o gate correspondente, no job segregado.
+      - name: Rodar modo segregado
+        env:
+          WEBQA_LOAD_AUTHORIZED: ${{ github.event.inputs.mode == 'load' && '1' || '' }}
+          WEBQA_DISCOVERY_AUTHORIZED: ${{ github.event.inputs.mode == 'active_discovery' && '1' || '' }}
+        run: |
+          if ! command -v webqa >/dev/null 2>&1; then
+            echo "::warning::CLI 'webqa' ausente — nada a rodar (suite_not_installed)."
+            exit 0
+          fi
+          case "${{ github.event.inputs.mode }}" in
+            load)             webqa auditar --config tests/qa/config.yaml -m load ;;
+            active_discovery) webqa auditar --config tests/qa/config.yaml --escopo tests/qa/escopo-autorizado.yaml -m active ;;
+          esac

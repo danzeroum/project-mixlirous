@@ -1,0 +1,17 @@
+# Âncora do alvo: o SHA do commit do alvo que este derivado governa.
+# Fonte única da verdade sobre "qual alvo" — project.yaml cita este arquivo, nunca o SHA.
+# Schema: harness/schemas/target-lock.schema.json
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+kind: "derived"
+target_sha: "658a6d34407232e70b512d71732cfdb62868140c"
+
+mold_release:
+  repository: "danzeroum/project"
+  tag: "v1.0.0"
+  commit_sha: "8339aa77129b123e27fe1628a6506aac654c4d7a"
+  manifest_path: "harness/releases/v1.0.0.manifest.json"
+  manifest_sha: "ec405bc5bbff2c983351b09e6342f917569d0d1c24c2000a967b173a6c869a69"

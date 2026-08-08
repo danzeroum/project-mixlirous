@@ -1,0 +1,310 @@
+name: release
+
+# Uma release do molde nasce SÓ daqui.
+#
+# A ordem dos passos é a decisão inteira: valida-se primeiro, publica-se depois. Um workflow que
+# publicasse antes de validar produziria a categoria "release com validação vermelha" — e categoria
+# que existe acaba sendo usada, normalmente no dia em que alguém tem pressa.
+#
+# O CP-021 fechou este arquivo dizendo que criar a tag NÃO era trabalho do workflow: "um workflow
+# que criasse a própria tag que ele valida seria o vigiado assinando o próprio atestado". O ADR-025
+# revê essa decisão, e a razão cabe numa assimetria: o workflow CRIA a ref e não pode MOVÊ-LA
+# (`git push` sem `--force` recusa atualizar tag existente). O que ele assina é "esta versão nasceu
+# de um commit validado" — afirmação que ele PODE provar, porque rodou a validação e empurra o
+# mesmo objeto que verificou. "Esta versão continua sendo o que eu disse" é outra afirmação, e
+# continua sendo do ruleset externo (RISK-EXT-001, due 2026-11-03).
+#
+# O que sobrava para "quem decide publicar" era `git tag` manual — e `git tag` manual aponta para
+# qualquer commit, inclusive um que nunca foi validado. Auditar depois de publicar é descobrir o
+# problema com o problema já publicado.
+
+on:
+  # (A) O caminho de PUBLICAÇÃO. Pessoa dispara, workflow valida e só então cria a ref.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Versão a publicar, no formato vX.Y.Z"
+        required: true
+        type: string
+
+  # (B) O caminho de AUDITORIA. Continua existindo para toda tag que chegue por qualquer OUTRO
+  # caminho — que é justamente o caso em que auditar importa. Uma ref criada com GITHUB_TOKEN não
+  # dispara workflows, então este job NÃO roda para a tag que o dispatch cria; por isso o dispatch
+  # verifica a cadeia por conta própria antes de publicar.
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+jobs:
+  # ======================================================================================
+  # (A) PUBLICAR — valida, monta, verifica LOCALMENTE e só então empurra a ref.
+  # ======================================================================================
+  publicar:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # criar refs/tags/<tag> e a branch do registro no ledger. NUNCA a main.
+    steps:
+      # PRIMEIRO passo, antes até do checkout — e a posição é a decisão (CP-032).
+      #
+      # A v1.0.0 foi publicada na segunda tentativa: a primeira recebeu `tag = v1.0.0` no campo do
+      # dispatch e morreu no preflight, correta mas TRÊS MINUTOS depois, com a validação total, 350
+      # testes e a prova de mutação inteira já rodados. A checagem mais barata do caminho estava
+      # entre as últimas. Um caminho que faz três minutos de trabalho antes de olhar para o que o
+      # operador digitou ensina o operador a esperar — e quem espera três minutos por um erro de
+      # digitação começa a disparar sem reler.
+      #
+      # Só FORMA. Nada aqui sabe do repositório, e é por isso que pode rodar antes de tê-lo: tag
+      # já existente, HEAD movido e manifesto já na árvore continuam no preflight, que segue sendo
+      # a segunda tranca.
+      #
+      # O regex é a string EXATA de ci/mold_release.py::TAG_RE, e há teste comparando as duas.
+      # Duas checagens da mesma coisa que discordam num caso de borda são um gerador de bugs.
+      #
+      # A entrada chega por `env:` e NUNCA é interpolada dentro do `run:` — interpolar entrada de
+      # dispatch em script é injeção de comando com outro nome, e o passo que existe para
+      # desconfiar da entrada seria o pior lugar para confiar nela.
+      - name: Recusar entrada malformada
+        env:
+          ENTRADA: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          # Trim só das pontas. Espaço em volta é engano de cópia e vira normalização; `v 1.0.0`
+          # continua reprovando, porque ali o espaço muda o número.
+          tag="${ENTRADA#"${ENTRADA%%[![:space:]]*}"}"
+          tag="${tag%"${tag##*[![:space:]]}"}"
+          if ! printf '%s' "$tag" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::entrada $(printf '%q' "$ENTRADA") não é uma versão. Esperado exatamente vX.Y.Z — por exemplo v1.0.1. O caminho do manifesto é DERIVADO da tag, e uma entrada de forma livre produz um caminho que nenhum fiscal prevê."
+            exit 1
+          fi
+          # Vai para GITHUB_ENV, e não para um `env:` de job, porque `env` de job vence o arquivo
+          # de ambiente — a normalização não teria efeito nos passos seguintes.
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+
+      # fetch-depth 0: verify_chain precisa do PAI do commit de release para conferir que a
+      # release não acrescenta nada além do manifesto. Com clone raso não há pai, e o elo viraria
+      # indeterminação permanente — indeterminação que nunca resolve é trava desligada.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar ferramentas de validação
+        run: pip install "jsonschema>=4" "pyyaml>=6" "pytest>=8"
+
+      # ------------------------------------------------------------------------------------
+      # O commit validado é FIXADO aqui, antes de qualquer validação, e todo o resto do job se
+      # refere a ele por SHA. Sem isto, "o que foi validado" seria "o que o git tiver no momento
+      # em que cada passo perguntar" — e é exatamente essa ambiguidade que a janela explora.
+      # ------------------------------------------------------------------------------------
+      - name: Fixar o commit a validar
+        run: |
+          set -euo pipefail
+          sha=$(git rev-parse HEAD)
+          echo "VALIDADO=$sha" >> "$GITHUB_ENV"
+          echo "publicando $TAG a partir de $sha"
+
+      # Falha em segundos em vez de depois de um minuto e meio de prova. A recusa definitiva é o
+      # `git push` sem --force, lá embaixo; esta é a cortesia.
+      - name: Recusar tag preexistente
+        run: |
+          set -euo pipefail
+          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q .; then
+            echo "::error::a tag ${TAG} já existe no remoto — publicar por cima seria mover a âncora. Uma versão nova recebe um número novo."
+            exit 1
+          fi
+
+      # ------------------------------------------------------------------------------------
+      # (1) Tag só nasce de commit validado. Estes três passos são o significado único de
+      # "validado" (princípio (c) do plano): a mesma linha que o governance.yml roda, nem mais
+      # fraca nem diferente. O manifesto declara o comando como const no schema justamente para
+      # que afrouxá-lo aqui não passe despercebido.
+      # ------------------------------------------------------------------------------------
+      - name: Validação total do projeto
+        run: python ci/validate_all.py
+
+      - name: Testes dos fiscais
+        run: pytest tests/governance -q
+
+      # As travas ainda mordem (ADR-024). Sem este passo a versão sairia sem evidência de que as
+      # regras bloqueantes ainda bloqueavam neste commit — e para um molde cujo produto É o
+      # conjunto de travas, essa seria a lacuna mais séria das três.
+      - name: Prova de mutação — as travas ainda mordem
+        run: python ci/audit_mutations.py
+
+      # ------------------------------------------------------------------------------------
+      # (2) A janela entre validar e criar a ref. Fechada por CONSTRUÇÃO — tudo abaixo acontece
+      # em objetos locais, e o push é a última operação remota. O preflight é a segunda tranca.
+      # ------------------------------------------------------------------------------------
+      - name: Preflight da publicação
+        run: python ci/mold_release.py --preflight "${TAG}" --validado "${VALIDADO}"
+
+      - name: Montar o commit de release
+        run: |
+          set -euo pipefail
+          # git archive é determinístico para um commit dado: o mtime dos membros vem do próprio
+          # commit. É o que permite dizer "esta árvore é aquela árvore" sem confiar na tag.
+          digest="sha256:$(git archive --format=tar "${VALIDADO}" | sha256sum | cut -d' ' -f1)"
+
+          python ci/mold_release.py --emit \
+            --repository "${GITHUB_REPOSITORY}" \
+            --tag "${TAG}" \
+            --commit "${VALIDADO}" \
+            --run-id "${GITHUB_RUN_ID}" \
+            --artifact-digest "$digest"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Detached de propósito: o commit de release NÃO é a main, e não pode virar main por
+          # descuido de um push posterior. harness/ é caminho protegido — o manifesto entra na
+          # árvore do commit taggeado, e é lá que o derivado o lê.
+          git switch --detach "${VALIDADO}"
+          git add "harness/releases/${TAG}.manifest.json"
+          git commit -m "release(${TAG}): manifesto da versão"
+          echo "RELEASE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+          git tag -a "${TAG}" -m "release ${TAG}"
+
+      # ------------------------------------------------------------------------------------
+      # (3) A cadeia inteira, ANTES de qualquer push: tag → commit → manifesto na árvore → hash →
+      # pai validado → commit de release sem carona. O que for publicado é byte a byte o que foi
+      # verificado aqui, porque é o mesmo objeto Git.
+      # ------------------------------------------------------------------------------------
+      - name: Verificar a cadeia antes de publicar
+        run: python ci/mold_release.py --verify-tag "${TAG}"
+
+      # Eixo de tags da trava externa. Informativo enquanto external_audit está desligada — a
+      # imutabilidade da âncora depende de ruleset administrado fora daqui (RISK-EXT-001). Exit 3
+      # é indeterminação (token sem escopo para ler rulesets), nunca "protegido".
+      - name: Eixo de tags da trava externa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          python ci/verify_protection.py --tags; code=$?
+          if [ "$code" = "3" ]; then
+            echo "::notice::protection_unverifiable no eixo de tags — indeterminação auditável, nunca 'protegido' por ausência de prova."
+          elif [ "$code" != "0" ]; then
+            exit "$code"
+          fi
+
+      # ------------------------------------------------------------------------------------
+      # (4) A publicação. SEM --force, e é a decisão inteira do ADR-025: este comando CRIA uma ref
+      # inexistente e recusa atualizar uma existente. O workflow assina "esta versão nasceu de um
+      # commit validado"; ele não tem como assinar "ela continua sendo isto", e não finge ter.
+      # ------------------------------------------------------------------------------------
+      - name: Publicar a ref
+        run: git push origin "refs/tags/${TAG}"
+
+      # ------------------------------------------------------------------------------------
+      # (5) O registro. Um commit não pode conter o registro de si mesmo — mesma aritmética que
+      # fez o manifesto declarar o pai — então ele é um commit à parte, e vai para branch própria:
+      # o ruleset da main recusa push direto para todos, e um workflow que pudesse escrever na
+      # main poderia reescrever a evidência das releases anteriores.
+      #
+      # NASCE DO VALIDADO, REFERENCIA O TAGGEADO (CP-033). O registro não precisa DESCENDER do
+      # commit que ele registra — precisa CITÁ-LO, e `--commit-sha` já faz isso. Confundir as duas
+      # coisas custou um PR manual ao fechar a v1.0.0: com o commit do ledger como filho do commit
+      # de release, a branch de evidência carregava o manifesto junto, e trazê-la para a main
+      # reprovava em ADR-008-A5. Detachar no commit validado antes do append faz a branch ser
+      # exatamente a main mais um commit que muda um arquivo.
+      # ------------------------------------------------------------------------------------
+      - name: Registrar a release no ledger
+        run: |
+          set -euo pipefail
+          git switch --detach "${VALIDADO}"
+          python ci/audit_ledger.py --append release \
+            --commit-sha "${RELEASE_COMMIT}" \
+            --fiscal ci/mold_release.py \
+            --run-id "${GITHUB_RUN_ID}" \
+            --artifact-ref "harness/releases/${TAG}.manifest.json"
+          git add harness/state/ledger.jsonl
+          git commit -m "release(${TAG}): registro no ledger"
+          git push origin "HEAD:refs/heads/release/ledger-${TAG}"
+
+      - name: Resumo
+        run: |
+          {
+            echo "### release ${TAG} publicada"
+            echo ""
+            echo "- commit validado: \`${VALIDADO}\`"
+            echo "- commit de release (taggeado): \`${RELEASE_COMMIT}\`"
+            echo "- manifesto: \`harness/releases/${TAG}.manifest.json\`"
+            echo ""
+            echo "A linha do ledger está em \`release/ledger-${TAG}\` e entra na main por PR —"
+            echo "o mesmo portão de todo o resto."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ======================================================================================
+  # (B) AUDITAR — toda tag que chegue por outro caminho é auditada aqui.
+  # ======================================================================================
+  auditar:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar ferramentas de validação
+        run: pip install "jsonschema>=4" "pyyaml>=6" "pytest>=8"
+
+      # Tag móvel = ausência de release. Uma tag reescrita apontaria para outro conteúdo com o
+      # mesmo nome, e todo derivado que a cita passaria a afirmar ter nascido de algo que nunca
+      # existiu. A trava real é a proteção de tag administrada fora deste workflow; este passo é a
+      # detecção — ele acusa a divergência entre o que a tag registrou e o que ela aponta.
+      - name: Recusar tag movida
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          alvo=$(git rev-list -n 1 "$tag")
+          if [ "$alvo" != "${GITHUB_SHA}" ]; then
+            echo "::error::a tag $tag aponta para $alvo e o evento carrega ${GITHUB_SHA} — tag movida é ausência de release."
+            exit 1
+          fi
+          echo "tag $tag → $alvo (imóvel neste run)"
+
+      # ------------------------------------------------------------------------------------
+      # A ORDEM É A DECISÃO DO ADR-026, e ela responde a pergunta certa para cada árvore.
+      #
+      # A árvore TAGGEADA não se valida por validate_all.py — ela se valida pela CADEIA. Rodar a
+      # validação total nela sempre foi perguntar a pergunta errada: o manifesto descreve a
+      # validação do PAI, e o elo "nada além do manifesto" é o que transporta essa validação para
+      # a árvore publicada. Enquanto isso não estava dito, este job era incapaz de ficar verde.
+      #
+      # `--verify-tag` lê o manifesto do disco, então roda ENQUANTO a tag está montada. Só depois
+      # o job volta ao pai — que é a árvore para a qual `validate_all` é a pergunta certa.
+      # ------------------------------------------------------------------------------------
+      - name: Verificar a cadeia da release
+        run: python ci/mold_release.py --verify-tag "${GITHUB_REF_NAME}"
+
+      - name: Voltar ao commit validado (o pai da tag)
+        run: |
+          set -euo pipefail
+          commit=$(git rev-list -n 1 "${GITHUB_REF_NAME}")
+          pai=$(git rev-list --parents -n 1 "$commit" | cut -d' ' -f2)
+          if [ -z "$pai" ] || [ "$pai" = "$commit" ]; then
+            echo "::error::o commit de release $commit não tem pai — não há árvore validada para auditar."
+            exit 1
+          fi
+          git switch --detach "$pai"
+          echo "auditando o conteúdo validado: $pai"
+
+      - name: Validação total do projeto
+        run: python ci/validate_all.py
+
+      - name: Testes dos fiscais
+        run: pytest tests/governance -q
+
+      - name: Prova de mutação — as travas ainda mordem
+        run: python ci/audit_mutations.py

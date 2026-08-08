@@ -1,0 +1,169 @@
+# Plano de controle da harness.
+# Toda decisão de modo/runner/ambiente que a harness toma é LIDA daqui e validada contra
+# harness/schemas/harness.schema.json. Isto é declaração — a enforcement efetiva vive no CI
+# (.github/workflows/qa.yml) e nos gates fail-closed da suíte externa (ver harness/policies/).
+schema_version: 1
+
+standard:
+  package: webqa-suite
+  requirements_file: requirements-qa.txt   # o pin exato mora lá; aqui só referenciamos
+
+# Fronteira do repositório. protected_paths só mudam com revisão humana — o fiscal REAL é
+# CODEOWNERS + branch protection + diff-check no CI, não esta lista (que é a declaração).
+repository:
+  project_manifest: project.yaml
+  stages_manifest: harness/stages.yaml   # as etapas do projeto e seus fiscais
+  protected_paths:
+    - .github/
+    - harness/
+    - tests/qa/escopo-autorizado.yaml
+    - requirements-qa.txt
+    # ci/ e governance/ entraram junto com os fiscais de conformidade e privacidade: um fiscal
+    # que o fiscalizado edita sem revisão não é fiscal. CLAUDE.md e .claude/ pelo mesmo motivo —
+    # um hook que o agente pode reescrever é ergonomia, nunca a trava (o gate é o CI).
+    - ci/
+    - governance/
+    - CLAUDE.md
+    - .claude/
+
+# CP-024 — a camada externa da trava, DECLARADA mesmo enquanto desligada.
+#
+# A camada local (ci/verify_protection.py, aplicada pelo governance.yml) confere que a proteção da
+# branch está ligada e que todo protected_path tem dono. Ela é necessária e NÃO É SUFICIENTE: mora
+# no mesmo repositório que fiscaliza, então um PR com privilégio suficiente remove o passo e a
+# asserção que o vigia no mesmo commit — o CI fica verde porque a trava saiu junto com quem
+# reclamaria dela.
+#
+# Só um ruleset administrado FORA daqui quebra essa circularidade. Enquanto ele não existir,
+# `enabled: false` faz o estado aparecer a cada execução em vez de sumir. A alternativa — não ter
+# nada — deixaria a lacuna sem lugar onde aparecer.
+external_audit:
+  # LIGADA em 05/08/2026 (CP-036). O que a ligou não foi uma decisão de escrever mais código: foi
+  # a autoridade externa passar a existir de fato — `danzeroum/harness-authority`, um repositório
+  # que este aqui não alcança, com App próprio e atestado que expira na cadência declarada
+  # em `cadence`, abaixo — o único lugar onde essa duração é escrita.
+  enabled: true
+  accepted_risk: RISK-EXT-001   # risco aceito COM DATA (princípio (g)); `due` mora no registro
+  # QUEM pode atestar. Ligar sem este bloco produziria um estado pior que desligado: o molde
+  # exigiria atestado e aceitaria qualquer um — quem tem direito de merge escreveria o JSON à mão.
+  # O schema torna a combinação inexpressável: `enabled: true` EXIGE `authorized_issuer`.
+  authorized_issuer:
+    identity: harness-authority
+    kind: github_app
+  attestation_path: harness/state/protection-attestation.json
+
+  # O LUGAR CANÔNICO da cadência do auditor externo (CP-046). Antes disto o número existia só
+  # dentro da autoridade, num repositório que este aqui não lê — e por isso a divergência entre os
+  # dois era invisível. Aqui o molde declara o que AUTORIZA; a autoridade implementa; e
+  # `audit_governance.py::check_attestation_cadence` confere o atestado recebido contra esta
+  # declaração. Documentação que cite cadência referencia este bloco em vez de repetir o número:
+  # cópia deriva, e foi assim que "25h" acabou espalhado por doze arquivos.
+  cadence:
+    interval_days: 3
+    tolerated_cycles: 2
+    # Calibrada contra o atraso REAL do agendador do Actions (2h34 medidos em 06/08), não contra o
+    # intervalo nominal. Confundir os dois foi o que produziu a folga NEGATIVA que a CP-044 corrigiu.
+    margin_hours: 6
+  justification: >
+    Não há, hoje, identidade emissora com ruleset administrado fora deste repositório. Ligar a
+    flag sem essa raiz administrativa produziria uma autoridade decorativa: quem pode mudar o
+    workflow mudaria a exigência junto, e o atestado passaria a certificar a si mesmo. Ligar
+    exige apontar o emissor e o ruleset — não escrever código novo, que já está aqui.
+
+# Política de decisão da harness. default: deny — sem reconhecer projeto/capacidade/risco/modo,
+# não age. missing_metadata para e pede contexto em vez de inferir.
+decision_policy:
+  default: deny
+  missing_metadata: stop_and_request_context
+  protected_path_change: require_human_review
+  dependency_update: require_human_review
+
+# Enumeração formal dos quatro modos. Uma chamada ambígua nunca deve ser roteada como
+# operação de baixo risco — cada modo declara sua natureza de risco.
+execution_modes:
+  inventory:
+    network: false
+    requires_auth: false
+    agent_may_trigger: true
+    job: inline
+    note: "Trabalho B — lê o código por AST, cataloga testes. O mais barato e o mais seguro."
+  passive:
+    network: true
+    requires_auth: true
+    agent_may_trigger: true
+    job: inline
+    note: "Trabalho A — GET normais contra alvo JÁ declarado. Agente só com alvo pré-configurado."
+  load:
+    network: true
+    requires_auth: true
+    agent_may_trigger: false
+    job: segregated
+    trigger: human_only
+    note: "Rajada de requisições. Humano dispara em job segregado."
+  active_discovery:
+    network: true
+    requires_auth: true
+    agent_may_trigger: false
+    job: segregated
+    trigger: human_only
+    requires_proof_of_possession: true
+    note: "Fase C — pede recursos não linkados. Humano dispara, com escopo e prova de posse."
+
+# A trava que morde. O runner de qualquer agente roda com ambiente limpo, sempre.
+# Um agente com shell não deve ter como receber, preservar ou injetar WEBQA_*.
+env_hygiene:
+  env_allowlist: [PATH, HOME, LANG]
+  # VAZIA POR DERIVAÇÃO, não por descuido (CP-041). `WEBQA_` morava aqui como literal; agora nasce
+  # de `harness/suites/qa-suite.yaml:env_prefix`, e `PRIVSUITE_` nasce da ficha da privacy-suite
+  # antes de a régua existir. Esta lista guarda apenas prefixos que não pertencem a régua alguma —
+  # hoje, nenhum. A denylist EFETIVA é `ci/env_guard.py::prefixos_efetivos`, que soma esta lista
+  # às fichas e é FAIL-CLOSED: registro ausente ou ilegível aborta com exit 2, jamais devolve o
+  # que conseguiu ler. Restatar `WEBQA_` aqui recriaria a segunda cópia que o CP-025 já pagou para
+  # não ter — e a primeira entrada a divergir seria a que alguém removeu de um dos dois lugares.
+  env_denylist_prefix: []
+  # CP-025 — a segunda família, e ela não autoriza nada: redireciona PARA ONDE o processo busca o
+  # que executa. Nenhuma destas ataca o fiscal; elas trocam o que o fiscal lê. E fiscal enganado
+  # reporta verde com convicção, que é estritamente pior que vermelho porque encerra a investigação.
+  env_denylist_exact:
+    # Sequestro de rede: reescrevem o destino de toda requisição do job, inclusive as do pip que
+    # baixam a régua cuja versão este repositório trava com tanto cuidado.
+    - HTTP_PROXY
+    - HTTPS_PROXY
+    - ALL_PROXY
+    - NO_PROXY
+    # Sequestro de índice: o pin exato continua exato e passa a apontar para outro lugar.
+    - PIP_INDEX_URL
+    - PIP_EXTRA_INDEX_URL
+    # Sequestro de import: injetam código ANTES de qualquer linha deste repositório rodar. Um
+    # fiscal que importa harness_lib importaria o harness_lib de quem definiu a variável.
+    - PYTHONPATH
+    - PYTHONSTARTUP
+    - NODE_OPTIONS
+  # Exceção DECLARADA, não entrada removida da lista. A diferença é toda: exceção declarada é
+  # exceção que alguém pode contestar numa revisão; entrada removida é exceção que ninguém mais vê.
+  exceptions:
+    - name: PYTHONPATH
+      context: mutation-tests
+      justification: >
+        Rodar um fiscal contra uma CÓPIA MUTADA do repositório exige apontar o interpretador para
+        aquela cópia. Dois lugares fazem isso, e são o mesmo gesto: os testes de mordida em
+        subprocesso, e o passo negativo "validate_all sem dependências" do governance.yml, que
+        injeta stubs de yaml/jsonschema por PYTHONPATH para provar que um validador sem
+        dependências sai 2 e nunca 0. Sem a variável, os dois importariam o fiscal da árvore de
+        trabalho e validariam o repositório errado — provando exatamente nada. A exceção é por
+        COMANDO, nunca por job: nenhum job define PYTHONPATH no seu `env:`, e ci/env_guard.py
+        (que roda no início do job) continua abortando se alguém o fizer.
+  fail_on_denied_env: true   # aborta se encontrar, NÃO apenas ignora (erro vira evento auditável)
+
+# Canal de retorno derivado -> alvo. A ÚNICA capacidade deste repositório que escreveria num
+# repositório de terceiro, e por isso nasce desligada: coerente com decision_policy.default: deny,
+# escrita em repositório que não se governa começa fechada e liga por decisão declarada.
+# Ligado, um fiscal novo e ruidoso vira issue de verdade no projeto de outra pessoa.
+target_feedback:
+  open_issues_on_target: false
+  requires_human_approval: true
+
+paths:
+  runs: harness/runs         # evidência bruta por run_id
+  reports: harness/reports   # laudos normalizados + agregação
+  state: harness/state       # ledger / fingerprint da última régua boa

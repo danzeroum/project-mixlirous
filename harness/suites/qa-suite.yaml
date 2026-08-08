@@ -1,0 +1,142 @@
+# Ficha da qa-suite (WebQA Suite) — como esta régua entra neste projeto.
+# Schema: ../schemas/suite-registry.schema.json · Contrato: ../suite-contract/contract-v1/
+#
+# ESTA FICHA NÃO SUBSTITUI NADA. O WEBQA_CONSUMER_CONTRACT.md segue normativo, tests/qa/ segue
+# sendo o perfil real e requirements-qa.txt segue sendo a fonte única da versão. O contrato os
+# ENVOLVE: a ficha aponta para eles e acrescenta o que faltava — o outro lado da promessa, e um
+# lugar onde os defeitos da régua aparecem como achado em vez de como silêncio.
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+suite:
+  nome: qa-suite
+  status: active
+  contract_version: v1
+
+  # ONDE a versão mora — nunca QUAL (cláusula 1, ADR-003). O schema proíbe URL neste campo.
+  pin_source: requirements-qa.txt
+
+  # A OUTRA METADE DA CLÁUSULA 1. `pin_source` diz onde a versão mora; isto diz de onde ela vem.
+  # Sem o par, o pin era uma linha que NÃO RESOLVIA: `webqa-suite==1.0.0` não está em índice
+  # algum, e `pip install -r requirements-qa.txt` falhava — não por defeito de configuração, mas
+  # porque o caminho que funciona só existia num comentário. Comentário não é declaração: nada o
+  # valida, nada o executa, e ele envelhece sem ficar vermelho.
+  #
+  # O `{version}` é obrigatório e é o ponto fino: a ficha descreve o caminho sem nunca dizer para
+  # onde ele aponta hoje. Quem resolve lê o número de pin_source e substitui. Um literal aqui
+  # seria o segundo lugar onde a versão mora, e o fiscal da cláusula 1 o acusaria.
+  install:
+    method: direct-reference
+    spec: "webqa-suite @ git+{origin}@v{version}#subdirectory=webqa-suite"
+    origin_source: requirements-qa.txt
+    decided_at: "2026-08-07"
+    rationale: >-
+      Referência direta (PEP 508), e não índice, porque a régua NÃO É PUBLICADA: o release.yml da
+      qa-suite constrói wheel + sdist como artefato e nenhum passo os envia a PyPI ou a índice
+      privado — decisão do dono, escrita lá. O fragmento `#subdirectory=` é a parte que ninguém
+      adivinha: o pacote não vive na raiz daquele repositório, e sem o fragmento o pip procura o
+      pyproject.toml onde ele não está e falha com "projeto inválido" — mensagem que manda quem
+      instala procurar defeito no lugar errado. A referência é a uma TAG e não a um branch: a
+      régua é a versão, e `@main` faria dois laudos comparáveis medirem réguas diferentes. O
+      caminho é conferido e EXECUTADO na origem, a cada push, pelo job `instalacao-declarada` do
+      CI da qa-suite, que instala num venv limpo e roda o console script — daqui ele é declarado,
+      não provado, e é assim que tem de ser: quem prova que um pacote instala é quem o publica.
+      CONSEQUÊNCIA ACEITA, e é o que esta decisão custa: `pip install -r requirements-qa.txt`
+      sozinho NÃO resolve, porque a linha do pin é `==` e não há índice que a sirva. O comando que
+      resolve está escrito em origin_source, ao lado do pin. Trocar a linha por esta referência
+      direta unificaria os dois, e é a migração certa — mas ela muda a política de pin (`==`, sem
+      faixa) de dependency-updates.md, e política se muda por CP, não de passagem numa ficha.
+      Quando a régua for publicada em índice, esta decisão muda para method:index e a consequência
+      desaparece — a data acima é o que permite saber que ela precede a publicação em vez de
+      tê-la ignorado.
+
+  entrypoint: webqa
+  perfil_path: tests/qa/config.yaml
+
+  # Cruzados com harness.yaml:execution_modes pelo fiscal. load e active_discovery estão AUSENTES
+  # de propósito, como em tests/qa/campanha.yaml: um modo que a campanha não autoriza não deve
+  # aparecer aqui como se estivesse disponível.
+  # CP-042 — `command` é o que faz o runner conseguir executar a partir da ficha. Os comandos são
+  # EXATAMENTE os que estavam cravados em qa.yml: o que muda não é o que roda, é quem escolhe.
+  modes:
+    - nome: inventory
+      requires_gate: false
+      command: ["{entrypoint}", "inventario", "--raiz", ".", "--saida", "harness/reports/cockpit.html"]
+    - nome: passive
+      requires_gate: false
+      command: ["{entrypoint}", "auditar", "--config", "{perfil}", "-m", "not load"]
+
+  laudo:
+    path: harness/reports/qa-report.json
+    schema: harness/schemas/report.schema.json
+
+  # Entra AUTOMATICAMENTE na denylist efetiva lida por ci/env_guard.py. Saiu de harness.yaml no
+  # CP-041 para não existir em dois lugares: a segunda cópia derivaria, e a primeira entrada a
+  # divergir seria exatamente a que alguém removeu.
+  env_prefix: WEBQA_
+
+  ledger_event_kind: validation
+
+  fingerprint_fields: [name, version, commit, catalog_hash, schema_version]
+
+  # Cláusula 2 — ANCORADA. A ref `refs/tags/v1.0.0` existe, o manifesto mora na árvore do commit
+  # taggeado, e o que guardamos aqui é o digest DELE — extraído da própria tag, não do branch.
+  #
+  # A âncora é o DIGEST, nunca a tag: mover a tag muda o manifesto que se encontra no destino, e
+  # `manifest_sha` deixa de conferir. É a mesma razão pela qual target.lock guarda manifest_sha
+  # além do ponteiro. E agora o fiscal confere de verdade — o que a cláusula 2 sempre prescreveu
+  # ("`manifest_sha` que não bate ⇒ achado") e nada fazia.
+  #
+  # O arquivo é uma CÓPIA PINADA, e a distinção importa: copiar a RÉGUA é o que a política de
+  # webqa proíbe; copiar a ÂNCORA é o que permite a este consumidor detectar sozinho que a régua
+  # mudou sob os pés. O que ele guarda não é código de verificação — é a prova de qual
+  # verificação foi publicada.
+  release:
+    anchored: true
+    manifest_path: harness/suites/qa-suite.manifesto.json
+    manifest_sha: 826d69343dae58d99baa61321e6be0163c34cba67731f00cce3cbfb08817479e
+
+  # O QUE ESTA RÉGUA AINDA NÃO CUMPRE DO CONTRATO, com data.
+  #
+  # Eram cinco; são DOIS. Saíram `GAP-QA-ENVELOPE` (a régua declara `verdict` e o fingerprint
+  # completo, e o kit da contract-v1 roda no CI dela), `GAP-QA-MORDIDA` (a autoprova por release
+  # existe, o release.yml recusa a tag se alguma trava do escopo não morder) e agora
+  # `GAP-QA-TAG` (a ref v1.0.0 foi publicada e o digest do manifesto está logo acima). As três
+  # saíram porque a dívida foi PAGA — um gap que some sem o fato correspondente apagaria a única
+  # evidência de que a dívida existiu.
+  #
+  # Os dois restantes vencem em 2026-11-03 — a mesma data do RISK-EXT-001, e não por acaso: é o
+  # horizonte em que este repositório já se comprometeu a reavaliar suas dependências externas.
+  # Um gap declarado é dívida que alguém pode contestar numa revisão. Um gap não declarado é
+  # indistinguível de conformidade, e essa indistinguibilidade é o que o contrato existe para
+  # desfazer.
+  gaps:
+    - id: GAP-QA-EXIT-ZERO
+      clause: envelope-com-3-estados
+      description: >
+        REAGENDADO, e o motivo mudou de lugar — o que é exatamente o que um gap datado existe
+        para tornar visível. A metade da régua está PAGA: `webqa-veredicto` traduz os três
+        estados em código de saída (0 · 10 · 20 · 30), o laudo carrega `verdict` e
+        `inconclusivo` carimbados pela MESMA função que decide o exit, e o preflight virou sinal
+        explícito de sessão. O que segura a tolerância agora é OUTRA COISA: a régua não expõe o
+        entrypoint `webqa` com os subcomandos `inventario` e `auditar` que esta ficha declara,
+        então `shutil.which("webqa")` continua vazio e todo run deste consumidor mede
+        `suite_not_installed`. O veredito é `inconclusivo` com razão declarada — e é honesto —,
+        mas fechar o gap hoje reprovaria o CI por uma lacuna de ENTRYPOINT, não de envelope. O
+        gap sai no dia em que `webqa` existir; até lá, avisa sem reprovar, e o estado fica no
+        ledger.
+      declared_at: "2026-08-06"
+      due: "2026-11-03"
+      risk: RISK-WEBQA-001
+
+    - id: GAP-QA-FONTE-UNICA
+      clause: pin-fonte-unica
+      description: >
+        A versão é espelhada em tests/qa/config.yaml:standard_version. O espelho é conferido por
+        igualdade (I3), o que o torna tolerável e não correto: continuam existindo dois lugares
+        onde a versão aparece, e a conferência é o que impede a deriva — não a estrutura.
+      declared_at: "2026-08-06"
+      due: "2026-11-03"
+      risk: RISK-DEP-001

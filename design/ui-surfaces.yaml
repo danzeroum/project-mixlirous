@@ -1,0 +1,9 @@
+﻿# Superfícies de UI ligadas a capacidades. IDs estáveis (UI-*) apontam para capacidades (CAP-*).
+# Critérios de aceite explícitos dão ao agente reviewer uma régua de experiência, não um palpite.
+# Schema: harness/schemas/ui-surfaces.schema.json
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+ui_surfaces: []

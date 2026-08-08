@@ -1,0 +1,4879 @@
+{
+  "schema_version": "1.0",
+  "metadata_version": "1.0",
+  "source_of_truth": false,
+  "generated_from": "harness/schemas/, harness/harness.yaml, harness/stages.yaml, harness/suites/, harness/pipeline/ingest.yaml, ci/, .claude/, .github/, project.yaml, pyproject.toml (lista completa e verificável em provenance.inputs)",
+  "vocabulary": [
+    {
+      "field": "assertion.kind",
+      "pointer": "/$defs/assertion/allOf/0/if/properties/kind",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "path_absent",
+        "path_present"
+      ]
+    },
+    {
+      "field": "assertion.kind",
+      "pointer": "/$defs/assertion/allOf/1/if/properties/kind",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "import_required",
+        "import_forbidden"
+      ]
+    },
+    {
+      "field": "assertion.kind",
+      "pointer": "/$defs/assertion/allOf/2/if/properties/kind",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "file_matches",
+        "file_lacks"
+      ]
+    },
+    {
+      "field": "assertion.kind",
+      "pointer": "/$defs/assertion/properties/kind",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "path_absent",
+        "path_present",
+        "dir_allowlist",
+        "import_required",
+        "import_forbidden",
+        "file_matches",
+        "file_lacks",
+        "schema_lock",
+        "manual"
+      ]
+    },
+    {
+      "field": "assertion.match",
+      "pointer": "/$defs/assertion/properties/match",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "all",
+        "any"
+      ]
+    },
+    {
+      "field": "assertion.mutation.op",
+      "pointer": "/$defs/assertion/properties/mutation/properties/op",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "remover_caminho",
+        "criar_caminho",
+        "apagar_padrao",
+        "apagar_linha",
+        "injetar_texto",
+        "injetar_apos",
+        "quebrar_ponteiro",
+        "substituir_texto"
+      ]
+    },
+    {
+      "field": "assertion.severity",
+      "pointer": "/$defs/assertion/properties/severity",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "adrs.status",
+      "pointer": "/properties/adrs/items/properties/status",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "proposed",
+        "accepted",
+        "superseded",
+        "deprecated"
+      ]
+    },
+    {
+      "field": "findings.origin",
+      "pointer": "/properties/findings/items/properties/origin",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "values": [
+        "adr_assertion",
+        "adr_meta",
+        "assertion_self_match",
+        "stage_coverage",
+        "stage_partition",
+        "policy_pointer",
+        "risk_control",
+        "protected_path",
+        "lgpd_inventory",
+        "lgpd_scan",
+        "lgpd_retention",
+        "lgpd_declaration",
+        "lgpd_judgment",
+        "manual_assertion",
+        "ingest_pipeline",
+        "alignment_risk",
+        "alignment_orphan",
+        "conformance_review",
+        "cp_lifecycle",
+        "decision_chain",
+        "change_buffer",
+        "external_audit",
+        "ledger",
+        "agent_pairing",
+        "dependency_conflict",
+        "suite_contract",
+        "cadence_single_source",
+        "approval_gate"
+      ]
+    },
+    {
+      "field": "findings.pbd_principle",
+      "pointer": "/properties/findings/items/properties/pbd_principle",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "values": [
+        "Proativo e Preventivo",
+        "Privacy by Default",
+        "Privacidade no Design",
+        "Soma Positiva",
+        "Transparência",
+        "Segurança Ponta-a-Ponta",
+        "Centrado no Usuário"
+      ]
+    },
+    {
+      "field": "findings.severity",
+      "pointer": "/properties/findings/items/properties/severity",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "values": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "provenance.auditor",
+      "pointer": "/properties/provenance/properties/auditor",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "values": [
+        "ci/audit_governance.py",
+        "ci/audit_lgpd.py",
+        "ci/alignment_report.py",
+        "ci/audit_conformance.py",
+        "ci/audit_ledger.py",
+        "ci/check_dependency_conflict.py",
+        "ci/audit_suites.py"
+      ]
+    },
+    {
+      "field": "result",
+      "pointer": "/properties/result",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "values": [
+        "ok",
+        "findings",
+        "error"
+      ],
+      "note": "ok = o real corresponde ao declarado; findings = há divergência; error = o fiscal não conseguiu fiscalizar."
+    },
+    {
+      "field": "items.priority",
+      "pointer": "/properties/items/items/properties/priority",
+      "file": "backlog.schema.json",
+      "group": "negócio",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "items.status",
+      "pointer": "/properties/items/items/properties/status",
+      "file": "backlog.schema.json",
+      "group": "negócio",
+      "values": [
+        "proposed",
+        "planned",
+        "in_progress",
+        "done",
+        "dropped"
+      ]
+    },
+    {
+      "field": "items.type",
+      "pointer": "/properties/items/items/properties/type",
+      "file": "backlog.schema.json",
+      "group": "negócio",
+      "values": [
+        "user-story",
+        "task",
+        "bug",
+        "enabler"
+      ]
+    },
+    {
+      "field": "etapas.drift.estado",
+      "pointer": "/properties/etapas/properties/drift/properties/estado",
+      "file": "bootstrap-report.schema.json",
+      "group": "etapas",
+      "values": [
+        "em-dia",
+        "atrasado",
+        "indisponivel"
+      ]
+    },
+    {
+      "field": "etapas.workspace.acao",
+      "pointer": "/properties/etapas/properties/workspace/properties/acao",
+      "file": "bootstrap-report.schema.json",
+      "group": "etapas",
+      "values": [
+        "materializado",
+        "avancado",
+        "ja-no-sha",
+        "nao-aplicavel"
+      ]
+    },
+    {
+      "field": "kind",
+      "pointer": "/properties/kind",
+      "file": "bootstrap-report.schema.json",
+      "group": "etapas",
+      "values": [
+        "mold",
+        "derived"
+      ]
+    },
+    {
+      "field": "resultado",
+      "pointer": "/properties/resultado",
+      "file": "bootstrap-report.schema.json",
+      "group": "etapas",
+      "values": [
+        "ok",
+        "divergencias",
+        "fiscal-nao-fiscalizou",
+        "erro"
+      ]
+    },
+    {
+      "field": "rules.status",
+      "pointer": "/properties/rules/items/properties/status",
+      "file": "business-rules.schema.json",
+      "group": "negócio",
+      "values": [
+        "proposed",
+        "planned",
+        "implemented",
+        "verified",
+        "deprecated"
+      ]
+    },
+    {
+      "field": "capabilities.risk_level",
+      "pointer": "/properties/capabilities/items/properties/risk_level",
+      "file": "capabilities.schema.json",
+      "group": "negócio",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical",
+        "pending_judgment"
+      ],
+      "note": "Nível de risco da capacidade. pending_judgment é o valor que a INGESTÃO escreve por não poder decidir: reprovado por check_pending_judgment em qualquer documento com source_of_truth:true, logo só sobrevive enquanto o documento se declara derivado. Promover é substituí-lo."
+    },
+    {
+      "field": "capabilities.status",
+      "pointer": "/properties/capabilities/items/properties/status",
+      "file": "capabilities.schema.json",
+      "group": "negócio",
+      "values": [
+        "proposed",
+        "planned",
+        "implemented",
+        "verified",
+        "deprecated"
+      ],
+      "note": "Maturidade. O fiscal semântico só exige código+teste existentes para implemented/verified."
+    },
+    {
+      "field": "proposal.risk_assessment.level",
+      "pointer": "/allOf/0/if/properties/proposal/properties/risk_assessment/properties/level",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "values": [
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "proposal.risk_assessment.level",
+      "pointer": "/allOf/3/if/properties/proposal/properties/risk_assessment/properties/level",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "values": [
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "proposal.author_kind",
+      "pointer": "/properties/proposal/properties/author_kind",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "values": [
+        "agent",
+        "human",
+        "ci"
+      ]
+    },
+    {
+      "field": "proposal.required_gates",
+      "pointer": "/properties/proposal/properties/required_gates/items",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "values": [
+        "inventory",
+        "passive",
+        "load",
+        "active_discovery",
+        "unit-tests",
+        "metadata-validation"
+      ]
+    },
+    {
+      "field": "proposal.risk_assessment.level",
+      "pointer": "/properties/proposal/properties/risk_assessment/properties/level",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "proposal.status",
+      "pointer": "/properties/proposal/properties/status",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "values": [
+        "draft",
+        "approved",
+        "executed",
+        "rejected",
+        "superseded",
+        "deferred"
+      ],
+      "note": "Onde a proposta está no ciclo. 'deferred' é estado de primeira classe: uma CP que depende de condição externa (identidade emissora, ADR de exceção) não conta como implementada, e sem este valor ela ficaria eternamente 'approved' passando por pronta."
+    },
+    {
+      "field": "components.kind",
+      "pointer": "/properties/components/items/properties/kind",
+      "file": "components.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "domain-module",
+        "adapter",
+        "port",
+        "service",
+        "ui-surface"
+      ]
+    },
+    {
+      "field": "components.status",
+      "pointer": "/properties/components/items/properties/status",
+      "file": "components.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "proposed",
+        "planned",
+        "implemented",
+        "verified",
+        "deprecated"
+      ]
+    },
+    {
+      "field": "review.findings.disposition",
+      "pointer": "/properties/review/properties/findings/items/allOf/1/if/properties/disposition",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "values": [
+        "change_proposal",
+        "risk_entry"
+      ]
+    },
+    {
+      "field": "review.findings.consumed_by.kind",
+      "pointer": "/properties/review/properties/findings/items/properties/consumed_by/properties/kind",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "values": [
+        "change_proposal",
+        "risk",
+        "adr"
+      ]
+    },
+    {
+      "field": "review.findings.disposition",
+      "pointer": "/properties/review/properties/findings/items/properties/disposition",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "values": [
+        "change_proposal",
+        "risk_entry",
+        "accepted"
+      ],
+      "note": "Para onde o achado foi encaminhado. 'accepted' exige rationale — aceitar em silêncio é como um achado morre."
+    },
+    {
+      "field": "review.findings.severity",
+      "pointer": "/properties/review/properties/findings/items/properties/severity",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "review.produced_by",
+      "pointer": "/properties/review/properties/produced_by",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "values": [
+        "agent",
+        "human"
+      ]
+    },
+    {
+      "field": "base_legal_art_11",
+      "pointer": "/$defs/base_legal_art_11",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "consentimento",
+        "obrigacao_legal",
+        "politicas_publicas",
+        "estudo_orgao_pesquisa",
+        "exercicio_direitos_processo",
+        "protecao_vida",
+        "tutela_saude",
+        "prevencao_fraude_seguranca"
+      ],
+      "note": "Hipóteses do Art. 11 da LGPD, para dado SENSÍVEL. Note as duas ausências deliberadas: legitimo_interesse e protecao_credito não existem para dado sensível."
+    },
+    {
+      "field": "base_legal_art_7",
+      "pointer": "/$defs/base_legal_art_7",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "consentimento",
+        "obrigacao_legal",
+        "politicas_publicas",
+        "estudo_orgao_pesquisa",
+        "execucao_contrato",
+        "exercicio_direitos_processo",
+        "protecao_vida",
+        "tutela_saude",
+        "legitimo_interesse",
+        "protecao_credito"
+      ],
+      "note": "Hipóteses do Art. 7º da LGPD, para dado pessoal comum."
+    },
+    {
+      "field": "field.art_11_category",
+      "pointer": "/$defs/field/properties/art_11_category",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "origem_racial_etnica",
+        "conviccao_religiosa",
+        "opiniao_politica",
+        "filiacao_sindical",
+        "filiacao_religiosa_filosofica_politica",
+        "saude",
+        "vida_sexual",
+        "genetico",
+        "biometrico"
+      ],
+      "note": "Categoria do Art. 5º, II. Obrigatória quando classification é sensivel, proibida caso contrário."
+    },
+    {
+      "field": "field.classification",
+      "pointer": "/$defs/field/properties/classification",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "pessoal",
+        "sensivel",
+        "pseudonimizado",
+        "anonimizado"
+      ]
+    },
+    {
+      "field": "field.retention.policy",
+      "pointer": "/$defs/field/properties/retention/properties/policy",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "prazo_definido",
+        "obrigacao_legal",
+        "ate_revogacao"
+      ]
+    },
+    {
+      "field": "controller.role",
+      "pointer": "/properties/controller/allOf/0/if/properties/role",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "controller",
+        "operator",
+        "controller_and_operator"
+      ]
+    },
+    {
+      "field": "controller.role",
+      "pointer": "/properties/controller/properties/role",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "none",
+        "incidental",
+        "controller",
+        "operator",
+        "controller_and_operator"
+      ]
+    },
+    {
+      "field": "international_transfer.mechanism",
+      "pointer": "/properties/international_transfer/items/properties/mechanism",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "values": [
+        "adequacao",
+        "clausulas_padrao",
+        "clausulas_especificas",
+        "selos_certificados",
+        "consentimento_especifico"
+      ]
+    },
+    {
+      "field": "dependencies.pin_kind",
+      "pointer": "/properties/dependencies/items/properties/pin_kind",
+      "file": "dependencies.schema.json",
+      "group": "governança",
+      "values": [
+        "exact",
+        "range",
+        "unpinned"
+      ],
+      "note": "Descreve o que É, não o que deveria ser. 'range' declarado é uma decisão auditável; 'range' escondido é uma dependência que muda sozinha entre dois runs."
+    },
+    {
+      "field": "dependencies.scope",
+      "pointer": "/properties/dependencies/items/properties/scope",
+      "file": "dependencies.schema.json",
+      "group": "governança",
+      "values": [
+        "runtime",
+        "dev",
+        "qa"
+      ],
+      "note": "runtime é o que chega ao usuário; dev e qa não. A distinção muda o que uma vulnerabilidade significa."
+    },
+    {
+      "field": "design_system.accessibility_target",
+      "pointer": "/properties/design_system/properties/accessibility_target",
+      "file": "design-system.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "WCAG-2.1-AA",
+        "WCAG-2.2-AA",
+        "WCAG-2.2-AAA"
+      ]
+    },
+    {
+      "field": "mode.job",
+      "pointer": "/$defs/mode/properties/job",
+      "file": "harness.schema.json",
+      "group": "execução",
+      "values": [
+        "inline",
+        "segregated"
+      ]
+    },
+    {
+      "field": "mode.trigger",
+      "pointer": "/$defs/mode/properties/trigger",
+      "file": "harness.schema.json",
+      "group": "execução",
+      "values": [
+        "human_only"
+      ]
+    },
+    {
+      "field": "external_audit.authorized_issuer.kind",
+      "pointer": "/properties/external_audit/properties/authorized_issuer/properties/kind",
+      "file": "harness.schema.json",
+      "group": "execução",
+      "values": [
+        "github_app",
+        "oidc_workload",
+        "external_service"
+      ]
+    },
+    {
+      "field": "phases.fiscal.kind",
+      "pointer": "/properties/phases/items/properties/fiscal/properties/kind",
+      "file": "ingest-pipeline.schema.json",
+      "group": "etapas",
+      "values": [
+        "ci_script",
+        "schema"
+      ]
+    },
+    {
+      "field": "phases.gate",
+      "pointer": "/properties/phases/items/properties/gate",
+      "file": "ingest-pipeline.schema.json",
+      "group": "etapas",
+      "values": [
+        "none",
+        "human_approval"
+      ],
+      "note": "human_approval nas fases que escrevem julgamento ou promovem metadado. Uma fase que decide sozinha o que só um humano pode decidir é a trava que o vigiado desliga."
+    },
+    {
+      "field": "interfaces.kind",
+      "pointer": "/properties/interfaces/items/properties/kind",
+      "file": "interfaces.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "python-api",
+        "http",
+        "event",
+        "cli"
+      ]
+    },
+    {
+      "field": "interfaces.status",
+      "pointer": "/properties/interfaces/items/properties/status",
+      "file": "interfaces.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "proposed",
+        "planned",
+        "implemented",
+        "verified",
+        "deprecated"
+      ]
+    },
+    {
+      "field": "event",
+      "pointer": "/properties/event",
+      "file": "ledger.schema.json",
+      "group": "mutação",
+      "values": [
+        "validation",
+        "release",
+        "adoption",
+        "ingestion",
+        "sync",
+        "attestation"
+      ],
+      "note": "Enum, nunca string: um campo 'tipo de evento' aberto seria a primeira porta por onde texto livre entraria."
+    },
+    {
+      "field": "result",
+      "pointer": "/properties/result",
+      "file": "ledger.schema.json",
+      "group": "mutação",
+      "values": [
+        "pass",
+        "fail",
+        "unverifiable"
+      ]
+    },
+    {
+      "field": "review.issues.severity",
+      "pointer": "/properties/review/properties/issues/items/allOf/0/if/properties/severity",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "P0",
+        "P1"
+      ]
+    },
+    {
+      "field": "review.issues.consumed_by.kind",
+      "pointer": "/properties/review/properties/issues/items/properties/consumed_by/properties/kind",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "change_proposal",
+        "risk",
+        "adr"
+      ]
+    },
+    {
+      "field": "review.issues.pbd_principle",
+      "pointer": "/properties/review/properties/issues/items/properties/pbd_principle",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "Proativo e Preventivo",
+        "Privacy by Default",
+        "Privacidade no Design",
+        "Soma Positiva",
+        "Transparência",
+        "Segurança Ponta-a-Ponta",
+        "Centrado no Usuário"
+      ]
+    },
+    {
+      "field": "review.issues.severity",
+      "pointer": "/properties/review/properties/issues/items/properties/severity",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ]
+    },
+    {
+      "field": "review.issues.status",
+      "pointer": "/properties/review/properties/issues/items/properties/status",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "open",
+        "mitigated",
+        "accepted"
+      ]
+    },
+    {
+      "field": "review.kind",
+      "pointer": "/properties/review/properties/kind",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "ripd_completo",
+        "parecer_proporcionalidade"
+      ],
+      "note": "Art. 38. Sistema que trata dados de titulares exige RIPD completo (8 seções); tratamento apenas incidental/efêmero admite Parecer de Proporcionalidade (4 seções). Qual dos dois é exigido é derivado do inventário pelo fiscal, não escolhido livremente."
+    },
+    {
+      "field": "review.produced_by",
+      "pointer": "/properties/review/properties/produced_by",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "values": [
+        "agent",
+        "human"
+      ]
+    },
+    {
+      "field": "business.criticality",
+      "pointer": "/properties/business/properties/criticality",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "classification.lgpd_relevance",
+      "pointer": "/properties/classification/allOf/0/if/properties/lgpd_relevance",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "controller",
+        "operator",
+        "controller_and_operator"
+      ]
+    },
+    {
+      "field": "classification.data_classification",
+      "pointer": "/properties/classification/properties/data_classification",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "public",
+        "internal",
+        "confidential",
+        "restricted"
+      ]
+    },
+    {
+      "field": "classification.lgpd_relevance",
+      "pointer": "/properties/classification/properties/lgpd_relevance",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "none",
+        "incidental",
+        "controller",
+        "operator",
+        "controller_and_operator"
+      ]
+    },
+    {
+      "field": "governance.human_approval_required_for",
+      "pointer": "/properties/governance/properties/human_approval_required_for/items",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "dependency_update",
+        "production_deploy",
+        "load",
+        "active_discovery",
+        "protected_path_change"
+      ]
+    },
+    {
+      "field": "project.kind",
+      "pointer": "/properties/project/properties/kind",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "mold",
+        "derived"
+      ],
+      "note": "mold = a casca genérica, que não governa alvo algum. derived = o gêmeo de governança de UM alvo, declarado em target. Enum fechado e obrigatório: um campo opcional aqui seria preenchido uma vez e nunca mais conferido."
+    },
+    {
+      "field": "project.lifecycle",
+      "pointer": "/properties/project/properties/lifecycle",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "template",
+        "incubating",
+        "active",
+        "maintenance",
+        "sunset"
+      ]
+    },
+    {
+      "field": "project.status",
+      "pointer": "/properties/project/properties/status",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "values": [
+        "active",
+        "paused",
+        "archived"
+      ]
+    },
+    {
+      "field": "attestation.issuer.kind",
+      "pointer": "/properties/attestation/properties/issuer/properties/kind",
+      "file": "protection-attestation.schema.json",
+      "group": "governança",
+      "values": [
+        "github_app",
+        "oidc_workload",
+        "external_service"
+      ]
+    },
+    {
+      "field": "attestation.kind",
+      "pointer": "/properties/attestation/properties/kind",
+      "file": "provenance.schema.json",
+      "group": "identidade",
+      "values": [
+        "sigstore",
+        "github_attestation"
+      ]
+    },
+    {
+      "field": "execution.mode",
+      "pointer": "/properties/execution/properties/mode",
+      "file": "provenance.schema.json",
+      "group": "identidade",
+      "values": [
+        "inventory",
+        "passive",
+        "load",
+        "active_discovery"
+      ]
+    },
+    {
+      "field": "execution.runner_kind",
+      "pointer": "/properties/execution/properties/runner_kind",
+      "file": "provenance.schema.json",
+      "group": "identidade",
+      "values": [
+        "agent",
+        "human",
+        "ci"
+      ]
+    },
+    {
+      "field": "release.validation.result",
+      "pointer": "/properties/release/properties/validation/properties/result",
+      "file": "release-manifest.schema.json",
+      "group": "identidade",
+      "values": [
+        "pass"
+      ],
+      "note": "Só 'pass' é representável. Um enum com 'fail' criaria a categoria 'release publicada com validação vermelha' — categoria que, existindo, será usada."
+    },
+    {
+      "field": "findings.severity",
+      "pointer": "/properties/findings/items/properties/severity",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "field": "result",
+      "pointer": "/properties/result",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "ok",
+        "findings",
+        "suite_not_installed",
+        "error"
+      ],
+      "note": "ok = sem achados; findings = achados presentes; suite_not_installed = stub tolerante; error = falha."
+    },
+    {
+      "field": "verdict",
+      "pointer": "/properties/verdict",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "conforme",
+        "nao_conforme",
+        "inconclusivo"
+      ],
+      "note": "Os TRÊS estados da cláusula 3. conforme = mediu e passou; nao_conforme = mediu e reprovou; inconclusivo = NÃO MEDIU. O terceiro existe porque a ausência dele é o modo de falha mais caro deste sistema: um verde que significa 'não olhei' encerra a investigação com a convicção de quem olhou."
+    },
+    {
+      "field": "risks.area",
+      "pointer": "/properties/risks/items/properties/area",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "webqa",
+        "dependencies",
+        "data",
+        "access",
+        "availability",
+        "governance"
+      ]
+    },
+    {
+      "field": "risks.controls.kind",
+      "pointer": "/properties/risks/items/properties/controls/items/allOf/0/if/properties/kind",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "local_path",
+        "github_environment",
+        "branch_protection"
+      ]
+    },
+    {
+      "field": "risks.controls.kind",
+      "pointer": "/properties/risks/items/properties/controls/items/properties/kind",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "local_path",
+        "standard_symbol",
+        "pinned_dependency",
+        "github_environment",
+        "branch_protection"
+      ]
+    },
+    {
+      "field": "risks.impact",
+      "pointer": "/properties/risks/items/properties/impact",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "pending_judgment"
+      ],
+      "note": "pending_judgment: escrito pela ingestão, recusado em documento promovido."
+    },
+    {
+      "field": "risks.likelihood",
+      "pointer": "/properties/risks/items/properties/likelihood",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "pending_judgment"
+      ],
+      "note": "pending_judgment: escrito pela ingestão, recusado em documento promovido."
+    },
+    {
+      "field": "risks.status",
+      "pointer": "/properties/risks/items/properties/status",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "open",
+        "mitigated",
+        "accepted",
+        "closed"
+      ]
+    },
+    {
+      "field": "risks.treatment",
+      "pointer": "/properties/risks/items/properties/treatment",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "values": [
+        "accept",
+        "mitigate",
+        "prevent",
+        "transfer"
+      ]
+    },
+    {
+      "field": "enforcer.kind",
+      "pointer": "/$defs/enforcer/properties/kind",
+      "file": "stages.schema.json",
+      "group": "etapas",
+      "values": [
+        "ci_script",
+        "workflow_step",
+        "schema",
+        "external_standard",
+        "none"
+      ]
+    },
+    {
+      "field": "contract.clauses.canonical_mutation.op",
+      "pointer": "/properties/contract/properties/clauses/items/properties/canonical_mutation/properties/op",
+      "file": "suite-contract-manifest.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "remover_caminho",
+        "criar_caminho",
+        "apagar_linha",
+        "apagar_padrao",
+        "substituir_texto",
+        "injetar_apos",
+        "injetar_texto",
+        "quebrar_ponteiro"
+      ],
+      "note": "Restrito aos operadores que o motor compartilhado implementa. O fiscal confere este enum contra mutation_engine.OPERADORES em vez de confiar nele: um enum que promete um operador inexistente faria a autoprova falhar por engano de escrita, e o achado mandaria consertar o lugar errado."
+    },
+    {
+      "field": "contract.clauses.id",
+      "pointer": "/properties/contract/properties/clauses/items/properties/id",
+      "file": "suite-contract-manifest.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "pin-fonte-unica",
+        "release-com-manifesto",
+        "envelope-com-3-estados",
+        "fingerprint",
+        "autoprova-de-mordida"
+      ]
+    },
+    {
+      "field": "contract.files.role",
+      "pointer": "/properties/contract/properties/files/items/properties/role",
+      "file": "suite-contract-manifest.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "contract-text",
+        "schema",
+        "engine"
+      ],
+      "note": "engine = o motor de mutação compartilhado, consumido POR PIN e nunca copiado. É o que permite a uma suíte provar as próprias travas com o mesmo motor que o molde usa, sem que exista uma segunda cópia onde um operador possa ter sido enfraquecido."
+    },
+    {
+      "field": "contract.version",
+      "pointer": "/properties/contract/properties/version",
+      "file": "suite-contract-manifest.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "v1"
+      ],
+      "note": "Casa com o enum de suite-registry.schema.json:contract_version e com o nome do diretório. As três formas de dizer a mesma coisa são conferidas entre si pelo fiscal — restatar sem conferir seria a deriva que este repositório combate."
+    },
+    {
+      "field": "suite.contract_version",
+      "pointer": "/properties/suite/properties/contract_version",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "v1"
+      ],
+      "note": "Enum FECHADO, nunca string livre. Uma ficha que declarasse 'v9' apontaria para um contrato inexistente e o fiscal teria de descobrir isso lendo o disco — descoberta que falha em silêncio quando o diretório some. Fechar o enum torna o erro inexpressável em vez de detectável."
+    },
+    {
+      "field": "suite.fingerprint_fields",
+      "pointer": "/properties/suite/properties/fingerprint_fields/items",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "name",
+        "version",
+        "commit",
+        "catalog_hash",
+        "schema_version"
+      ]
+    },
+    {
+      "field": "suite.gaps.clause",
+      "pointer": "/properties/suite/properties/gaps/items/properties/clause",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "pin-fonte-unica",
+        "release-com-manifesto",
+        "envelope-com-3-estados",
+        "fingerprint",
+        "autoprova-de-mordida"
+      ],
+      "note": "Enum fechado sobre as cinco cláusulas: um gap que não aponta para cláusula alguma é reclamação, não dívida."
+    },
+    {
+      "field": "suite.install.method",
+      "pointer": "/properties/suite/properties/install/properties/method",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "direct-reference",
+        "index"
+      ],
+      "note": "direct-reference = PEP 508 (`nome @ url`), o caminho de quem não publica em índice; index = o pacote é resolvível por um índice configurado, e o spec é uma especificação de requisito comum."
+    },
+    {
+      "field": "suite.ledger_event_kind",
+      "pointer": "/properties/suite/properties/ledger_event_kind",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "validation",
+        "release",
+        "adoption",
+        "ingestion",
+        "sync",
+        "attestation"
+      ],
+      "note": "Espelha o enum de ledger.schema.json. Restatado por necessidade — JSON Schema não referencia enum de outro arquivo sem $ref ao arquivo inteiro — e por isso o fiscal confere a igualdade das duas listas em vez de confiar nela."
+    },
+    {
+      "field": "suite.modes.nome",
+      "pointer": "/properties/suite/properties/modes/items/properties/nome",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "inventory",
+        "passive",
+        "load",
+        "active_discovery"
+      ]
+    },
+    {
+      "field": "suite.status",
+      "pointer": "/properties/suite/properties/status",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "values": [
+        "active",
+        "planned",
+        "retired"
+      ],
+      "note": "active = consumida hoje; planned = declarada antes de existir (a denylist já a cobre); retired = saiu de uso, e a ficha fica para que o env_prefix continue negado."
+    },
+    {
+      "field": "kind",
+      "pointer": "/properties/kind",
+      "file": "target-lock.schema.json",
+      "group": "identidade",
+      "values": [
+        "mold",
+        "derived"
+      ],
+      "note": "Espelha project.yaml:project.kind. ci/validate_metadata.py::check_target_lock cobra a igualdade — dois arquivos que discordam sobre o papel do repositório são pior que um só."
+    },
+    {
+      "field": "threats.mitigations.kind",
+      "pointer": "/properties/threats/items/properties/mitigations/items/properties/kind",
+      "file": "threat-model.schema.json",
+      "group": "governança",
+      "values": [
+        "local_path",
+        "standard_symbol",
+        "github_environment",
+        "branch_protection",
+        "accepted"
+      ]
+    },
+    {
+      "field": "threats.severity",
+      "pointer": "/properties/threats/items/properties/severity",
+      "file": "threat-model.schema.json",
+      "group": "governança",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical",
+        "pending_judgment"
+      ],
+      "note": "pending_judgment: nenhuma ferramenta decide gravidade de ameaça. Recusado em documento promovido pela mesma trava da Fase D."
+    },
+    {
+      "field": "threats.stride",
+      "pointer": "/properties/threats/items/properties/stride",
+      "file": "threat-model.schema.json",
+      "group": "governança",
+      "values": [
+        "spoofing",
+        "tampering",
+        "repudiation",
+        "information_disclosure",
+        "denial_of_service",
+        "elevation_of_privilege"
+      ],
+      "note": "Enum fechado de propósito: categoria livre aceita 'outros' para sempre, e ninguém consegue perguntar 'quais ameaças de elevação de privilégio existem?'."
+    },
+    {
+      "field": "ui_surfaces.status",
+      "pointer": "/properties/ui_surfaces/items/properties/status",
+      "file": "ui-surfaces.schema.json",
+      "group": "arquitetura",
+      "values": [
+        "proposed",
+        "planned",
+        "implemented",
+        "verified",
+        "deprecated"
+      ]
+    }
+  ],
+  "grammar": [
+    {
+      "pattern": "^/",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "assertion.pointer",
+          "pointer": "/$defs/assertion/properties/pointer"
+        }
+      ],
+      "group": "arquitetura"
+    },
+    {
+      "pattern": "^ADR-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "adrs.id",
+          "pointer": "/properties/adrs/items/properties/id"
+        },
+        {
+          "file": "adr-index.schema.json",
+          "field": "adrs.supersedes",
+          "pointer": "/properties/adrs/items/properties/supersedes/items"
+        },
+        {
+          "file": "audit-report.schema.json",
+          "field": "findings.adr",
+          "pointer": "/properties/findings/items/properties/adr"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "ADR-001"
+    },
+    {
+      "pattern": "^ADR-[0-9]{3}-A[0-9]+$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "assertion.id",
+          "pointer": "/$defs/assertion/properties/id"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "ADR-001-A1"
+    },
+    {
+      "pattern": "^CAP-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "adrs.related_capabilities",
+          "pointer": "/properties/adrs/items/properties/related_capabilities/items"
+        },
+        {
+          "file": "backlog.schema.json",
+          "field": "items.capability",
+          "pointer": "/properties/items/items/properties/capability"
+        },
+        {
+          "file": "business-rules.schema.json",
+          "field": "capability",
+          "pointer": "/properties/capability"
+        },
+        {
+          "file": "capabilities.schema.json",
+          "field": "capabilities.id",
+          "pointer": "/properties/capabilities/items/properties/id"
+        },
+        {
+          "file": "change-proposal.schema.json",
+          "field": "proposal.capabilities_affected",
+          "pointer": "/properties/proposal/properties/capabilities_affected/items"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "components.capability",
+          "pointer": "/properties/components/items/properties/capability"
+        },
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "ui_surfaces.capability",
+          "pointer": "/properties/ui_surfaces/items/properties/capability"
+        }
+      ],
+      "group": "arquitetura"
+    },
+    {
+      "pattern": "^CMP-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "adrs.related_components",
+          "pointer": "/properties/adrs/items/properties/related_components/items"
+        },
+        {
+          "file": "change-proposal.schema.json",
+          "field": "proposal.components_affected",
+          "pointer": "/properties/proposal/properties/components_affected/items"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "components.depends_on",
+          "pointer": "/properties/components/items/properties/depends_on/items"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "components.id",
+          "pointer": "/properties/components/items/properties/id"
+        },
+        {
+          "file": "data-inventory.schema.json",
+          "field": "field.owning_component",
+          "pointer": "/$defs/field/properties/owning_component"
+        },
+        {
+          "file": "interfaces.schema.json",
+          "field": "interfaces.consumers",
+          "pointer": "/properties/interfaces/items/properties/consumers/items"
+        },
+        {
+          "file": "interfaces.schema.json",
+          "field": "interfaces.provider",
+          "pointer": "/properties/interfaces/items/properties/provider"
+        }
+      ],
+      "group": "arquitetura"
+    },
+    {
+      "pattern": "^RISK-[A-Z0-9]+(-[0-9]{3})?$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "assertion.risk",
+          "pointer": "/$defs/assertion/properties/risk"
+        },
+        {
+          "file": "adr-index.schema.json",
+          "field": "adrs.related_risks",
+          "pointer": "/properties/adrs/items/properties/related_risks/items"
+        },
+        {
+          "file": "audit-report.schema.json",
+          "field": "findings.risk",
+          "pointer": "/properties/findings/items/properties/risk"
+        },
+        {
+          "file": "backlog.schema.json",
+          "field": "items.risk",
+          "pointer": "/properties/items/items/properties/risk"
+        },
+        {
+          "file": "change-proposal.schema.json",
+          "field": "proposal.risk_assessment.risks",
+          "pointer": "/properties/proposal/properties/risk_assessment/properties/risks/items"
+        },
+        {
+          "file": "harness.schema.json",
+          "field": "external_audit.accepted_risk",
+          "pointer": "/properties/external_audit/properties/accepted_risk"
+        },
+        {
+          "file": "privacy-review.schema.json",
+          "field": "review.issues.risk",
+          "pointer": "/properties/review/properties/issues/items/properties/risk"
+        },
+        {
+          "file": "risk-register.schema.json",
+          "field": "risks.id",
+          "pointer": "/properties/risks/items/properties/id"
+        },
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.gaps.risk",
+          "pointer": "/properties/suite/properties/gaps/items/properties/risk"
+        },
+        {
+          "file": "threat-model.schema.json",
+          "field": "threats.residual_risk",
+          "pointer": "/properties/threats/items/properties/residual_risk"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "RISK-WEBQA-001"
+    },
+    {
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "adr-index.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "audit-report.schema.json",
+          "field": "provenance.auditor_version",
+          "pointer": "/properties/provenance/properties/auditor_version"
+        },
+        {
+          "file": "backlog.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "backlog.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "bootstrap-report.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "business-rules.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "business-rules.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "capabilities.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "capabilities.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "change-proposal.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "change-proposal.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "config-report.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "config-report.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "conformance-review.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "conformance-review.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "data-inventory.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "data-inventory.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "dependencies.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "dependencies.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "design-system.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "design-system.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "ingest-pipeline.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "ingest-pipeline.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "interfaces.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "interfaces.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "ledger.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "privacy-review.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "privacy-review.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "project.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "project.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "protection-attestation.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "protection-attestation.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "provenance.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "release-manifest.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "release-manifest.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "risk-register.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "risk-register.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "stages.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "stages.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "suite-contract-manifest.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "threat-model.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "threat-model.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        },
+        {
+          "file": "vision.schema.json",
+          "field": "metadata_version",
+          "pointer": "/properties/metadata_version"
+        },
+        {
+          "file": "vision.schema.json",
+          "field": "schema_version",
+          "pointer": "/properties/schema_version"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "1.0"
+    },
+    {
+      "pattern": "^architecture/adr/ADR-[0-9]{3}-.*\\.md$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "adrs.file",
+          "pointer": "/properties/adrs/items/properties/file"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "architecture/adr/ADR-001-webqa-como-padrao-externo.md"
+    },
+    {
+      "pattern": "^harness/schemas/.*\\.json$",
+      "used_in": [
+        {
+          "file": "adr-index.schema.json",
+          "field": "assertion.file",
+          "pointer": "/$defs/assertion/properties/file"
+        },
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.laudo.schema",
+          "pointer": "/properties/suite/properties/laudo/properties/schema"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "harness/schemas/config-report.schema.json"
+    },
+    {
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "used_in": [
+        {
+          "file": "design-system.schema.json",
+          "field": "design_system.version",
+          "pointer": "/properties/design_system/properties/version"
+        }
+      ],
+      "group": "arquitetura",
+      "example": "0.1.0"
+    },
+    {
+      "pattern": "^IFC-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "interfaces.schema.json",
+          "field": "interfaces.id",
+          "pointer": "/properties/interfaces/items/properties/id"
+        }
+      ],
+      "group": "arquitetura"
+    },
+    {
+      "pattern": "^UI-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "ui_surfaces.id",
+          "pointer": "/properties/ui_surfaces/items/properties/id"
+        }
+      ],
+      "group": "arquitetura"
+    },
+    {
+      "pattern": "^ci/[a-z_]+\\.py::[a-z_]+$",
+      "used_in": [
+        {
+          "file": "suite-contract-manifest.schema.json",
+          "field": "contract.clauses.assertion",
+          "pointer": "/properties/contract/properties/clauses/items/properties/assertion"
+        }
+      ],
+      "group": "contrato de régua"
+    },
+    {
+      "pattern": "\\{origin\\}",
+      "used_in": [
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.install.spec",
+          "pointer": "/properties/suite/properties/install/allOf/0/then/properties/spec"
+        }
+      ],
+      "group": "contrato de régua"
+    },
+    {
+      "pattern": "\\{version\\}",
+      "used_in": [
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.install.spec",
+          "pointer": "/properties/suite/properties/install/properties/spec"
+        }
+      ],
+      "group": "contrato de régua"
+    },
+    {
+      "pattern": "^GAP-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.gaps.id",
+          "pointer": "/properties/suite/properties/gaps/items/properties/id"
+        }
+      ],
+      "group": "contrato de régua"
+    },
+    {
+      "pattern": "^[A-Z][A-Z0-9]*_$",
+      "used_in": [
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.env_prefix",
+          "pointer": "/properties/suite/properties/env_prefix"
+        }
+      ],
+      "group": "contrato de régua"
+    },
+    {
+      "pattern": "^[A-Za-z0-9_.][A-Za-z0-9_./-]*$",
+      "used_in": [
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.install.origin_source",
+          "pointer": "/properties/suite/properties/install/properties/origin_source"
+        },
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.pin_source",
+          "pointer": "/properties/suite/properties/pin_source"
+        }
+      ],
+      "group": "contrato de régua",
+      "example": "1.0"
+    },
+    {
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "used_in": [
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.nome",
+          "pointer": "/properties/suite/properties/nome"
+        }
+      ],
+      "group": "contrato de régua",
+      "example": "danzeroum-project-mixlirous"
+    },
+    {
+      "pattern": "^ING-[0-9]{2}-[A-Z0-9-]+$",
+      "used_in": [
+        {
+          "file": "ingest-pipeline.schema.json",
+          "field": "phases.id",
+          "pointer": "/properties/phases/items/properties/id"
+        }
+      ],
+      "group": "etapas",
+      "example": "ING-01-INVENTARIO"
+    },
+    {
+      "pattern": "(CAP|REQ|CMP|IFC|RULE|UI|MET|ADR|RISK)-[A-Z0-9]",
+      "used_in": [
+        {
+          "file": "stages.schema.json",
+          "field": "artifact",
+          "pointer": "/$defs/artifact/not"
+        }
+      ],
+      "group": "etapas"
+    },
+    {
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "used_in": [
+        {
+          "file": "harness.schema.json",
+          "field": "env_hygiene.env_denylist_exact",
+          "pointer": "/properties/env_hygiene/properties/env_denylist_exact/items"
+        }
+      ],
+      "group": "execução",
+      "example": "PIP_EXTRA_INDEX_URL"
+    },
+    {
+      "pattern": "^Art\\. [0-9]+",
+      "used_in": [
+        {
+          "file": "audit-report.schema.json",
+          "field": "findings.lgpd_article",
+          "pointer": "/properties/findings/items/properties/lgpd_article"
+        },
+        {
+          "file": "privacy-review.schema.json",
+          "field": "review.issues.lgpd_article",
+          "pointer": "/properties/review/properties/issues/items/properties/lgpd_article"
+        }
+      ],
+      "group": "governança"
+    },
+    {
+      "pattern": "^FIND-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "audit-report.schema.json",
+          "field": "findings.id",
+          "pointer": "/properties/findings/items/properties/id"
+        }
+      ],
+      "group": "governança"
+    },
+    {
+      "pattern": "^STAGE-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "audit-report.schema.json",
+          "field": "findings.stage",
+          "pointer": "/properties/findings/items/properties/stage"
+        },
+        {
+          "file": "audit-report.schema.json",
+          "field": "provenance.stages_covered",
+          "pointer": "/properties/provenance/properties/stages_covered/items"
+        },
+        {
+          "file": "stages.schema.json",
+          "field": "stages.id",
+          "pointer": "/properties/stages/items/properties/id"
+        }
+      ],
+      "group": "governança",
+      "example": "STAGE-CI-HARNESS"
+    },
+    {
+      "pattern": "^lgpd_",
+      "used_in": [
+        {
+          "file": "audit-report.schema.json",
+          "field": "findings.origin",
+          "pointer": "/properties/findings/items/allOf/0/if/properties/origin"
+        }
+      ],
+      "group": "governança"
+    },
+    {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "used_in": [
+        {
+          "file": "audit-report.schema.json",
+          "field": "provenance.scope_fingerprint",
+          "pointer": "/properties/provenance/properties/scope_fingerprint"
+        },
+        {
+          "file": "config-report.schema.json",
+          "field": "provenance.inputs_fingerprint",
+          "pointer": "/properties/provenance/properties/inputs_fingerprint"
+        },
+        {
+          "file": "conformance-review.schema.json",
+          "field": "review.scope_fingerprint",
+          "pointer": "/properties/review/properties/scope_fingerprint"
+        },
+        {
+          "file": "ledger.schema.json",
+          "field": "findings_digest",
+          "pointer": "/properties/findings_digest"
+        },
+        {
+          "file": "privacy-review.schema.json",
+          "field": "review.scope_fingerprint",
+          "pointer": "/properties/review/properties/scope_fingerprint"
+        },
+        {
+          "file": "protection-attestation.schema.json",
+          "field": "attestation.config_digest",
+          "pointer": "/properties/attestation/properties/config_digest"
+        },
+        {
+          "file": "provenance.schema.json",
+          "field": "attestation.predicate_digest",
+          "pointer": "/properties/attestation/properties/predicate_digest"
+        },
+        {
+          "file": "release-manifest.schema.json",
+          "field": "release.artifact_digest",
+          "pointer": "/properties/release/properties/artifact_digest"
+        }
+      ],
+      "group": "governança",
+      "example": "sha256:8bcc2d4be6e07ce9c3e0108c610e6fce51fb700b88df922d204bb7639a4453bb"
+    },
+    {
+      "pattern": "^(/[^/]*)*$",
+      "used_in": [
+        {
+          "file": "config-report.schema.json",
+          "field": "pointer",
+          "pointer": "/$defs/pointer"
+        }
+      ],
+      "group": "governança",
+      "example": "/properties/quality_standard/properties/version_source/const"
+    },
+    {
+      "pattern": "^[0-9a-f]{64}$",
+      "used_in": [
+        {
+          "file": "config-report.schema.json",
+          "field": "provenance.inputs.sha256",
+          "pointer": "/properties/provenance/properties/inputs/items/properties/sha256"
+        },
+        {
+          "file": "suite-contract-manifest.schema.json",
+          "field": "contract.files.sha256",
+          "pointer": "/properties/contract/properties/files/items/properties/sha256"
+        },
+        {
+          "file": "suite-registry.schema.json",
+          "field": "suite.release.manifest_sha",
+          "pointer": "/properties/suite/properties/release/properties/manifest_sha"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "mold_release.manifest_sha",
+          "pointer": "/properties/mold_release/properties/manifest_sha"
+        }
+      ],
+      "group": "governança",
+      "example": "ec405bc5bbff2c983351b09e6342f917569d0d1c24c2000a967b173a6c869a69"
+    },
+    {
+      "pattern": "^[A-Za-z0-9_.-]+\\.schema\\.json$",
+      "used_in": [
+        {
+          "file": "config-report.schema.json",
+          "field": "schema_file",
+          "pointer": "/$defs/schema_file"
+        }
+      ],
+      "group": "governança"
+    },
+    {
+      "pattern": "^CONF-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "conformance-review.schema.json",
+          "field": "review.findings.id",
+          "pointer": "/properties/review/properties/findings/items/properties/id"
+        }
+      ],
+      "group": "governança"
+    },
+    {
+      "pattern": "^(CAP|CMP|IFC|UI|REQ)-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "risk-register.schema.json",
+          "field": "risk_exemptions.ref",
+          "pointer": "/properties/risk_exemptions/items/properties/ref"
+        },
+        {
+          "file": "risk-register.schema.json",
+          "field": "risks.related",
+          "pointer": "/properties/risks/items/properties/related/items"
+        }
+      ],
+      "group": "governança"
+    },
+    {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "used_in": [
+        {
+          "file": "risk-register.schema.json",
+          "field": "risks.due",
+          "pointer": "/properties/risks/items/properties/due"
+        }
+      ],
+      "group": "governança",
+      "example": "2026-11-03"
+    },
+    {
+      "pattern": "^(CMP|IFC|UI|STAGE)-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "threat-model.schema.json",
+          "field": "threats.target",
+          "pointer": "/properties/threats/items/properties/target"
+        }
+      ],
+      "group": "governança",
+      "example": "STAGE-CI-HARNESS"
+    },
+    {
+      "pattern": "^THREAT-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "threat-model.schema.json",
+          "field": "threats.id",
+          "pointer": "/properties/threats/items/properties/id"
+        }
+      ],
+      "group": "governança",
+      "example": "THREAT-HARNESS-ELEVATION"
+    },
+    {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "project.schema.json",
+          "field": "project.id",
+          "pointer": "/properties/project/properties/id"
+        }
+      ],
+      "group": "identidade",
+      "example": "danzeroum-project-mixlirous"
+    },
+    {
+      "pattern": "^sha256:[0-9a-f]+$|^UNINSTALLED$",
+      "used_in": [
+        {
+          "file": "provenance.schema.json",
+          "field": "standard.sensitive_paths_hash",
+          "pointer": "/properties/standard/properties/sensitive_paths_hash"
+        }
+      ],
+      "group": "identidade",
+      "example": "sha256:8bcc2d4be6e07ce9c3e0108c610e6fce51fb700b88df922d204bb7639a4453bb"
+    },
+    {
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "used_in": [
+        {
+          "file": "release-manifest.schema.json",
+          "field": "release.tag",
+          "pointer": "/properties/release/properties/tag"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "mold_release.tag",
+          "pointer": "/properties/mold_release/properties/tag"
+        }
+      ],
+      "group": "identidade",
+      "example": "v1.0.0"
+    },
+    {
+      "pattern": "^harness/releases/v[0-9]+\\.[0-9]+\\.[0-9]+\\.manifest\\.json$",
+      "used_in": [
+        {
+          "file": "target-lock.schema.json",
+          "field": "mold_release.manifest_path",
+          "pointer": "/properties/mold_release/properties/manifest_path"
+        }
+      ],
+      "group": "identidade",
+      "example": "harness/releases/v1.0.0.manifest.json"
+    },
+    {
+      "pattern": "^CP-[0-9]{3,}$",
+      "used_in": [
+        {
+          "file": "change-proposal.schema.json",
+          "field": "proposal.id",
+          "pointer": "/properties/proposal/properties/id"
+        },
+        {
+          "file": "ledger.schema.json",
+          "field": "cp_id",
+          "pointer": "/properties/cp_id"
+        }
+      ],
+      "group": "mutação"
+    },
+    {
+      "pattern": "^(harness|docs)/[A-Za-z0-9_./-]+$",
+      "used_in": [
+        {
+          "file": "ledger.schema.json",
+          "field": "artifact_ref",
+          "pointer": "/properties/artifact_ref"
+        }
+      ],
+      "group": "mutação",
+      "example": "harness/releases/v1.0.0.manifest.json"
+    },
+    {
+      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+      "used_in": [
+        {
+          "file": "ledger.schema.json",
+          "field": "run_id",
+          "pointer": "/properties/run_id"
+        }
+      ],
+      "group": "mutação",
+      "example": "danzeroum-project-mixlirous"
+    },
+    {
+      "pattern": "^anon:[0-9a-f]{16}$",
+      "used_in": [
+        {
+          "file": "ledger.schema.json",
+          "field": "actor_ref",
+          "pointer": "/properties/actor_ref"
+        }
+      ],
+      "group": "mutação"
+    },
+    {
+      "pattern": "^ci/[a-z_]+\\.py$",
+      "used_in": [
+        {
+          "file": "ledger.schema.json",
+          "field": "fiscal",
+          "pointer": "/properties/fiscal"
+        }
+      ],
+      "group": "mutação",
+      "example": "ci/inventory_code.py"
+    },
+    {
+      "pattern": "^MET-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "used_in": [
+        {
+          "file": "backlog.schema.json",
+          "field": "items.metrics",
+          "pointer": "/properties/items/items/properties/metrics/items"
+        },
+        {
+          "file": "vision.schema.json",
+          "field": "product.success_metrics.id",
+          "pointer": "/properties/product/properties/success_metrics/items/properties/id"
+        }
+      ],
+      "group": "negócio",
+      "example": "MET-ACTIVATION"
+    },
+    {
+      "pattern": "^REQ-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "backlog.schema.json",
+          "field": "items.depends_on",
+          "pointer": "/properties/items/items/properties/depends_on/items"
+        },
+        {
+          "file": "backlog.schema.json",
+          "field": "items.id",
+          "pointer": "/properties/items/items/properties/id"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "components.implements",
+          "pointer": "/properties/components/items/properties/implements/items"
+        },
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "ui_surfaces.satisfies",
+          "pointer": "/properties/ui_surfaces/items/properties/satisfies/items"
+        }
+      ],
+      "group": "negócio"
+    },
+    {
+      "pattern": "^RULE-[A-Z0-9]+(-[A-Z0-9]+)*-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "backlog.schema.json",
+          "field": "items.governed_by",
+          "pointer": "/properties/items/items/properties/governed_by/items"
+        },
+        {
+          "file": "business-rules.schema.json",
+          "field": "rules.id",
+          "pointer": "/properties/rules/items/properties/id"
+        }
+      ],
+      "group": "negócio"
+    },
+    {
+      "pattern": "^[0-9a-f]{40}$",
+      "used_in": [
+        {
+          "file": "backlog.schema.json",
+          "field": "items.derived_from.sha",
+          "pointer": "/properties/items/items/properties/derived_from/properties/sha"
+        },
+        {
+          "file": "capabilities.schema.json",
+          "field": "capabilities.derived_from.sha",
+          "pointer": "/properties/capabilities/items/properties/derived_from/properties/sha"
+        },
+        {
+          "file": "change-proposal.schema.json",
+          "field": "proposal.executed_in.merge_commit_sha",
+          "pointer": "/properties/proposal/properties/executed_in/properties/merge_commit_sha"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "components.derived_from.sha",
+          "pointer": "/properties/components/items/properties/derived_from/properties/sha"
+        },
+        {
+          "file": "interfaces.schema.json",
+          "field": "interfaces.derived_from.sha",
+          "pointer": "/properties/interfaces/items/properties/derived_from/properties/sha"
+        },
+        {
+          "file": "ledger.schema.json",
+          "field": "commit_sha",
+          "pointer": "/properties/commit_sha"
+        },
+        {
+          "file": "release-manifest.schema.json",
+          "field": "release.commit_sha",
+          "pointer": "/properties/release/properties/commit_sha"
+        },
+        {
+          "file": "risk-register.schema.json",
+          "field": "risks.derived_from.sha",
+          "pointer": "/properties/risks/items/properties/derived_from/properties/sha"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "target_sha",
+          "pointer": "/allOf/0/then/properties/target_sha"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "mold_release.commit_sha",
+          "pointer": "/properties/mold_release/properties/commit_sha"
+        },
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "ui_surfaces.derived_from.sha",
+          "pointer": "/properties/ui_surfaces/items/properties/derived_from/properties/sha"
+        }
+      ],
+      "group": "negócio",
+      "example": "658a6d34407232e70b512d71732cfdb62868140c"
+    },
+    {
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+      "used_in": [
+        {
+          "file": "backlog.schema.json",
+          "field": "items.derived_from.repo",
+          "pointer": "/properties/items/items/properties/derived_from/properties/repo"
+        },
+        {
+          "file": "capabilities.schema.json",
+          "field": "capabilities.derived_from.repo",
+          "pointer": "/properties/capabilities/items/properties/derived_from/properties/repo"
+        },
+        {
+          "file": "components.schema.json",
+          "field": "components.derived_from.repo",
+          "pointer": "/properties/components/items/properties/derived_from/properties/repo"
+        },
+        {
+          "file": "interfaces.schema.json",
+          "field": "interfaces.derived_from.repo",
+          "pointer": "/properties/interfaces/items/properties/derived_from/properties/repo"
+        },
+        {
+          "file": "project.schema.json",
+          "field": "target.repo",
+          "pointer": "/properties/target/properties/repo"
+        },
+        {
+          "file": "protection-attestation.schema.json",
+          "field": "attestation.repository",
+          "pointer": "/properties/attestation/properties/repository"
+        },
+        {
+          "file": "release-manifest.schema.json",
+          "field": "release.repository",
+          "pointer": "/properties/release/properties/repository"
+        },
+        {
+          "file": "risk-register.schema.json",
+          "field": "risks.derived_from.repo",
+          "pointer": "/properties/risks/items/properties/derived_from/properties/repo"
+        },
+        {
+          "file": "target-lock.schema.json",
+          "field": "mold_release.repository",
+          "pointer": "/properties/mold_release/properties/repository"
+        },
+        {
+          "file": "ui-surfaces.schema.json",
+          "field": "ui_surfaces.derived_from.repo",
+          "pointer": "/properties/ui_surfaces/items/properties/derived_from/properties/repo"
+        }
+      ],
+      "group": "negócio",
+      "example": "danzeroum/mixlirous"
+    },
+    {
+      "pattern": "^PD-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "data-inventory.schema.json",
+          "field": "field.id",
+          "pointer": "/$defs/field/properties/id"
+        },
+        {
+          "file": "data-inventory.schema.json",
+          "field": "international_transfer.fields",
+          "pointer": "/properties/international_transfer/items/properties/fields/items"
+        }
+      ],
+      "group": "privacidade"
+    },
+    {
+      "pattern": "^PURP-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "data-inventory.schema.json",
+          "field": "field.purpose",
+          "pointer": "/$defs/field/properties/purpose"
+        },
+        {
+          "file": "data-inventory.schema.json",
+          "field": "purposes.id",
+          "pointer": "/properties/purposes/items/properties/id"
+        }
+      ],
+      "group": "privacidade"
+    },
+    {
+      "pattern": "^RISCO-[0-9]{3}$",
+      "used_in": [
+        {
+          "file": "privacy-review.schema.json",
+          "field": "review.issues.id",
+          "pointer": "/properties/review/properties/issues/items/properties/id"
+        }
+      ],
+      "group": "privacidade"
+    },
+    {
+      "pattern": "^governance/.*\\.md$",
+      "used_in": [
+        {
+          "file": "privacy-review.schema.json",
+          "field": "review.document",
+          "pointer": "/properties/review/properties/document"
+        }
+      ],
+      "group": "privacidade",
+      "example": "governance/ripd.md"
+    }
+  ],
+  "consts": [
+    {
+      "field": "schema_version",
+      "pointer": "/properties/schema_version",
+      "file": "audit-report.schema.json",
+      "value": "1.0"
+    },
+    {
+      "field": "proposal.change_mode",
+      "pointer": "/properties/proposal/properties/change_mode",
+      "file": "change-proposal.schema.json",
+      "value": "pull_request"
+    },
+    {
+      "field": "razao_declarada",
+      "pointer": "/$defs/razao_declarada",
+      "file": "config-report.schema.json",
+      "value": "declarado vazio"
+    },
+    {
+      "field": "razao_ilegivel",
+      "pointer": "/$defs/razao_ilegivel",
+      "file": "config-report.schema.json",
+      "value": "não consegui ler"
+    },
+    {
+      "field": "razao_nao_ingerido",
+      "pointer": "/$defs/razao_nao_ingerido",
+      "file": "config-report.schema.json",
+      "value": "ainda não ingerido"
+    },
+    {
+      "field": "source_of_truth",
+      "pointer": "/allOf/0/properties/source_of_truth",
+      "file": "config-report.schema.json",
+      "value": false
+    },
+    {
+      "field": "provenance.commit.embedded",
+      "pointer": "/properties/provenance/properties/commit/properties/embedded",
+      "file": "config-report.schema.json",
+      "value": false
+    },
+    {
+      "field": "provenance.standard.version_source",
+      "pointer": "/properties/provenance/properties/standard/properties/version_source",
+      "file": "config-report.schema.json",
+      "value": "requirements-qa.txt"
+    },
+    {
+      "field": "review.agent",
+      "pointer": "/properties/review/properties/agent",
+      "file": "conformance-review.schema.json",
+      "value": "conformance"
+    },
+    {
+      "field": "decision_policy.default",
+      "pointer": "/properties/decision_policy/properties/default",
+      "file": "harness.schema.json",
+      "value": "deny"
+    },
+    {
+      "field": "decision_policy.dependency_update",
+      "pointer": "/properties/decision_policy/properties/dependency_update",
+      "file": "harness.schema.json",
+      "value": "require_human_review"
+    },
+    {
+      "field": "decision_policy.missing_metadata",
+      "pointer": "/properties/decision_policy/properties/missing_metadata",
+      "file": "harness.schema.json",
+      "value": "stop_and_request_context"
+    },
+    {
+      "field": "decision_policy.protected_path_change",
+      "pointer": "/properties/decision_policy/properties/protected_path_change",
+      "file": "harness.schema.json",
+      "value": "require_human_review"
+    },
+    {
+      "field": "repository.stages_manifest",
+      "pointer": "/properties/repository/properties/stages_manifest",
+      "file": "harness.schema.json",
+      "value": "harness/stages.yaml"
+    },
+    {
+      "field": "review.skill",
+      "pointer": "/properties/review/properties/skill",
+      "file": "privacy-review.schema.json",
+      "value": "revisao-lgpd"
+    },
+    {
+      "field": "governance.default_change_mode",
+      "pointer": "/properties/governance/properties/default_change_mode",
+      "file": "project.schema.json",
+      "value": "pull_request"
+    },
+    {
+      "field": "quality_standard.name",
+      "pointer": "/properties/quality_standard/properties/name",
+      "file": "project.schema.json",
+      "value": "webqa-suite"
+    },
+    {
+      "field": "quality_standard.version_source",
+      "pointer": "/properties/quality_standard/properties/version_source",
+      "file": "project.schema.json",
+      "value": "requirements-qa.txt"
+    },
+    {
+      "field": "target.lock_source",
+      "pointer": "/properties/target/properties/lock_source",
+      "file": "project.schema.json",
+      "value": "target.lock"
+    },
+    {
+      "field": "release.validation.command",
+      "pointer": "/properties/release/properties/validation/properties/command",
+      "file": "release-manifest.schema.json",
+      "value": "python ci/validate_all.py"
+    },
+    {
+      "field": "risks.controls.standard",
+      "pointer": "/properties/risks/items/properties/controls/items/properties/standard",
+      "file": "risk-register.schema.json",
+      "value": "webqa-suite"
+    },
+    {
+      "field": "enforcer.version_source",
+      "pointer": "/$defs/enforcer/properties/version_source",
+      "file": "stages.schema.json",
+      "value": "requirements-qa.txt"
+    },
+    {
+      "field": "threats.mitigations.standard",
+      "pointer": "/properties/threats/items/properties/mitigations/items/properties/standard",
+      "file": "threat-model.schema.json",
+      "value": "webqa-suite"
+    },
+    {
+      "field": "threats.mitigations.version_source",
+      "pointer": "/properties/threats/items/properties/mitigations/items/properties/version_source",
+      "file": "threat-model.schema.json",
+      "value": "requirements-qa.txt"
+    }
+  ],
+  "header_invariant": {
+    "fields": [
+      "generated_from",
+      "source_of_truth"
+    ],
+    "present_in": [
+      "adr-index.schema.json",
+      "backlog.schema.json",
+      "business-rules.schema.json",
+      "capabilities.schema.json",
+      "change-proposal.schema.json",
+      "components.schema.json",
+      "config-report.schema.json",
+      "conformance-review.schema.json",
+      "data-inventory.schema.json",
+      "dependencies.schema.json",
+      "design-system.schema.json",
+      "ingest-pipeline.schema.json",
+      "interfaces.schema.json",
+      "privacy-review.schema.json",
+      "project.schema.json",
+      "protection-attestation.schema.json",
+      "release-manifest.schema.json",
+      "risk-register.schema.json",
+      "stages.schema.json",
+      "suite-registry.schema.json",
+      "target-lock.schema.json",
+      "threat-model.schema.json",
+      "ui-surfaces.schema.json",
+      "vision.schema.json"
+    ],
+    "absent_in": [
+      "audit-report.schema.json",
+      "bootstrap-report.schema.json",
+      "harness.schema.json",
+      "ledger.schema.json",
+      "provenance.schema.json",
+      "report.schema.json",
+      "suite-contract-manifest.schema.json"
+    ],
+    "why": "Os ADRs são prosa (markdown); o índice é a parte verificável: cada entrada aponta para um arquivo real, resolve suas referências (CAP/CMP/RISK/ADR) e declara ASSERÇÕES executáveis. A seção '## Fiscal' de cada ADR nomeia o fiscal em prosa; assertions[] é a mesma coisa numa forma que a máquina executa. Um ADR aceito sem asserção é, ele próprio, o que o ADR-002 proíbe."
+  },
+  "locks": [
+    {
+      "pointer": "/$defs/assertion/allOf/0",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE kind ∈ {path_absent, path_present} ENTÃO EXIGE paths",
+      "why": "Uma afirmação verificável sobre o repositório real. Tipada como os controls[] do risk-register: o kind determina quais campos são exigidos."
+    },
+    {
+      "pointer": "/$defs/assertion/allOf/1",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE kind ∈ {import_required, import_forbidden} ENTÃO EXIGE module_glob, symbols",
+      "why": "Uma afirmação verificável sobre o repositório real. Tipada como os controls[] do risk-register: o kind determina quais campos são exigidos."
+    },
+    {
+      "pointer": "/$defs/assertion/allOf/2",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE kind ∈ {file_matches, file_lacks} ENTÃO EXIGE files, pattern",
+      "why": "Uma afirmação verificável sobre o repositório real. Tipada como os controls[] do risk-register: o kind determina quais campos são exigidos."
+    },
+    {
+      "pointer": "/$defs/assertion/allOf/3",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE kind: schema_lock ENTÃO EXIGE file, pointer; EXATAMENTE UM DE (EXIGE expected | EXIGE contains)",
+      "why": "schema_lock prova que uma trava if/then continua no schema. Exige o alvo e exatamente uma forma de comparação."
+    },
+    {
+      "pointer": "/$defs/assertion/allOf/4",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE kind: manual ENTÃO EXIGE justification",
+      "why": "Uma afirmação verificável sobre o repositório real. Tipada como os controls[] do risk-register: o kind determina quais campos são exigidos."
+    },
+    {
+      "pointer": "/$defs/assertion/allOf/5",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE kind: dir_allowlist ENTÃO EXIGE dir, allow",
+      "why": "dir_allowlist enumera a lotação fechada de um diretório."
+    },
+    {
+      "pointer": "/$defs/assertion/properties/mutation/allOf/0",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE op: substituir_texto ENTÃO EXIGE de, para",
+      "why": "substituir_texto sem `de` seria KeyError no fiscal — exit 2, 'não foi possível provar'. O schema recusa antes: uma mutação que não sabe o que substituir não é mutação insuficiente, é declaração incompleta."
+    },
+    {
+      "pointer": "/properties/adrs/items/allOf/0",
+      "file": "adr-index.schema.json",
+      "group": "arquitetura",
+      "block_kind": "if/then",
+      "rule": "SE status: accepted ENTÃO EXIGE assertions",
+      "why": "Uma decisão aceita sem nenhuma asserção é markdown que não morde. O schema recusa antes de o fiscal precisar reclamar."
+    },
+    {
+      "pointer": "/properties/findings/items/allOf/0",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE origin casa /^lgpd_/ ENTÃO EXIGE lgpd_article, pbd_principle",
+      "why": "Regra inegociável da revisão de privacidade: toda afirmação de violação cita o artigo. Achado de LGPD sem artigo e sem princípio PbD é opinião, não parecer — e aqui isso é estrutural."
+    },
+    {
+      "pointer": "/properties/findings/items/allOf/1",
+      "file": "audit-report.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE origin: adr_assertion ENTÃO EXIGE adr, assertion",
+      "why": "Achado vindo de asserção de ADR nomeia o ADR e a asserção — senão não se sabe qual linha de index.yaml corrigir."
+    },
+    {
+      "pointer": "/allOf/0",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "block_kind": "if/then",
+      "rule": "SE proposal.risk_assessment.level ∈ {high, critical} ENTÃO EXIGE proposal.human_approval_required; proposal.human_approval_required: true",
+      "why": "Risco high/critical EXIGE aval humano — trava estrutural, não convenção."
+    },
+    {
+      "pointer": "/allOf/1",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "block_kind": "if/then",
+      "rule": "SE schema_version: 1.1 ENTÃO EXIGE proposal.id, proposal.title, proposal.status, proposal.paths_affected",
+      "why": "CICLO DE VIDA, e a NÃO-RETROATIVIDADE é parte da decisão (CP-022). Os campos de ciclo só existem a partir de schema_version 1.1; as propostas 1.0 continuam válidas como estão. Retroagir exigiria reescrever registro histórico — e registro que se reescreve para satisfazer fiscal novo deixa de ser registro."
+    },
+    {
+      "pointer": "/allOf/2",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "block_kind": "if/then",
+      "rule": "SE proposal.status: executed ENTÃO EXIGE proposal.executed_in",
+      "why": "A prova é exigida quando o fato existe, nunca antes. Uma proposta não pode declarar dentro do próprio PR o merge commit que ainda não existe nem o review que ainda não aconteceu — exigir isso produziria campos preenchidos com qualquer coisa. Declarar 'executed' é que passa a obrigar a prova de onde foi executada."
+    },
+    {
+      "pointer": "/allOf/3",
+      "file": "change-proposal.schema.json",
+      "group": "mutação",
+      "block_kind": "if/then",
+      "rule": "SE proposal.status: executed e proposal.risk_assessment.level ∈ {high, critical} ENTÃO EXIGE proposal.approved_by; EXIGE proposal.executed_in.merge_commit_sha",
+      "why": "Executada + risco alto ⇒ o aprovador é NOMEADO e resolvível. `human_approval_required: true` diz que aval era necessário; jamais que aval houve. Sem approved_by, a diferença entre as duas frases é todo o buraco."
+    },
+    {
+      "pointer": "/allOf/1",
+      "file": "config-report.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE  ENTÃO EXIGE empty_reasons",
+      "why": "Coleção vazia e coleção ilegível NÃO são o mesmo estado, e pintá-las igual é o modo de falha que o RISK-INCUBA-001 descreve: num derivado recém-criado o mapa e o defeito têm a mesma cor. Toda coleção que aparecer vazia PRECISA de uma razão declarada em empty_reasons — 'declarado vazio' é uma afirmação sobre o repositório, 'não consegui ler' é uma afirmação sobre o fiscal, e um zero solto não distingue as duas."
+    },
+    {
+      "pointer": "/properties/empty_reasons/additionalProperties",
+      "file": "config-report.schema.json",
+      "group": "governança",
+      "block_kind": "oneOf",
+      "rule": "EXATAMENTE UM DE ( |  | )",
+      "why": "Os três estados que NUNCA podem ser pintados iguais — um zero solto afirma o primeiro e pode ser qualquer um dos três. Cada estado é um $def NOMEADO em vez de uma posição num enum, e a diferença é operacional: o gerador lê o texto por JSON Pointer nomeado, então o texto existe uma vez só, no contrato, e trocá-lo aqui muda a tela sem que ninguém edite o gerador. Um enum obrigaria o gerador a saber a ORDEM dos valores, que é acoplamento a um detalhe que ninguém prometeu manter."
+    },
+    {
+      "pointer": "/properties/review/properties/findings/items/allOf/0",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE disposition: accepted ENTÃO EXIGE rationale",
+      "why": "Aceitar um achado é uma decisão, e decisão sem razão registrada é achado esquecido com outro nome."
+    },
+    {
+      "pointer": "/properties/review/properties/findings/items/allOf/1",
+      "file": "conformance-review.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE disposition ∈ {change_proposal, risk_entry} ENTÃO EXIGE consumed_by",
+      "why": "Encaminhar exige dizer PARA ONDE. Um achado encaminhado para o vazio e indistinguivel de um achado tratado, e a diferenca entre os dois e a unica coisa que o parecer produz."
+    },
+    {
+      "pointer": "/$defs/field/allOf/0",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "block_kind": "if/then/else",
+      "rule": "SE classification: sensivel ENTÃO EXIGE art_11_category, masked_at_rest; masked_at_rest: true; SENÃO PROÍBE art_11_category",
+      "why": "Art. 11: dado sensível exige a categoria e NÃO admite legítimo interesse nem proteção ao crédito. A trava é ESTRUTURAL — a violação não pode ser escrita, então não precisa ser detectada em runtime. Art. 46: sensível em repouso é mascarado."
+    },
+    {
+      "pointer": "/$defs/field/properties/retention/allOf/0",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "block_kind": "if/then",
+      "rule": "SE policy: prazo_definido ENTÃO EXIGE max_days",
+      "why": "Registro das operações de tratamento (Lei 13.709/2018, Art. 37): que dado pessoal existe, para qual finalidade, sob qual base legal, por quanto tempo e sob qual componente. Nasce vazio; a partir do primeiro campo o schema passa a exigir encarregado (Art. 41) e o fiscal passa a exigir RIPD completo (Art. 38)."
+    },
+    {
+      "pointer": "/$defs/field/properties/retention/allOf/1",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "block_kind": "if/then",
+      "rule": "SE policy: obrigacao_legal ENTÃO EXIGE legal_ref",
+      "why": "Retenção por obrigação legal precisa dizer QUAL obrigação — senão é retenção indefinida com outro nome."
+    },
+    {
+      "pointer": "/properties/controller/allOf/0",
+      "file": "data-inventory.schema.json",
+      "group": "privacidade",
+      "block_kind": "if/then",
+      "rule": "SE role ∈ {controller, operator, controller_and_operator} ENTÃO EXIGE dpo_contact",
+      "why": "Art. 41: quem trata dado pessoal indica encarregado. Papel declarado sem contato do encarregado é papel de fachada."
+    },
+    {
+      "pointer": "/properties/external_audit/allOf/0",
+      "file": "harness.schema.json",
+      "group": "execução",
+      "block_kind": "if/then",
+      "rule": "SE enabled: true ENTÃO EXIGE authorized_issuer",
+      "why": "LIGADA EXIGE EMISSOR DECLARADO. A combinação 'exijo atestado mas aceito qualquer um' é pior que a camada desligada, e o schema a torna inexpressável em vez de proibida."
+    },
+    {
+      "pointer": "/properties/review/properties/issues/items/allOf/0",
+      "file": "privacy-review.schema.json",
+      "group": "privacidade",
+      "block_kind": "if/then",
+      "rule": "SE severity ∈ {P0, P1} ENTÃO EXIGE risk",
+      "why": "Achados do julgamento, no formato da skill. P0/P1 exigem um RISK-* do registro — um issue crítico sem risco declarado é um risco não gerido."
+    },
+    {
+      "pointer": "/allOf/0",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then/else",
+      "rule": "SE project.kind: derived ENTÃO EXIGE target; SENÃO PROÍBE target",
+      "why": "Molde e derivado são papéis estruturalmente distintos, não convenção. O derivado EXIGE o bloco target — sem ele não se sabe o que ele governa, e o repositório vira um molde que finge ter alvo. O molde PROÍBE o bloco: um molde ancorado num alvo específico deixou de ser genérico, e a genericidade é o produto."
+    },
+    {
+      "pointer": "/properties/classification/allOf/0",
+      "file": "project.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then",
+      "rule": "SE lgpd_relevance ∈ {controller, operator, controller_and_operator} ENTÃO EXIGE dpo_contact",
+      "why": "Art. 41: quem trata dado pessoal indica encarregado. Papel declarado sem contato é papel de fachada."
+    },
+    {
+      "pointer": "/allOf/0",
+      "file": "provenance.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then",
+      "rule": "SE schema_version: 1.0 ENTÃO PROÍBE artifact",
+      "why": "Bump formalizado: schema_version 1.0 NÃO admite o bloco artifact."
+    },
+    {
+      "pointer": "/allOf/1",
+      "file": "provenance.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then",
+      "rule": "SE artifact presente ENTÃO schema_version: 1.1",
+      "why": "E a presença de artifact EXIGE schema_version 1.1 — o campo novo obriga o bump."
+    },
+    {
+      "pointer": "/allOf/2",
+      "file": "provenance.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then",
+      "rule": "SE schema_version: 1.2 ENTÃO EXIGE attestation",
+      "why": "Laudo que se declara 1.2 EXIGE atestacao. Nao-retroatividade deliberada: um laudo 1.1 continua valido sem o bloco, e nenhuma evidencia existente vira invalida por uma versao nova de schema."
+    },
+    {
+      "pointer": "/allOf/1",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE schema_version: 1.3 ENTÃO EXIGE verdict",
+      "why": "CLÁUSULA 3, o bump: schema_version 1.3 EXIGE verdict. Não-retroatividade deliberada, no mesmo idioma de provenance (1.1 adiciona artifact, 1.2 adiciona attestation) — um laudo 1.0 continua válido sem o campo, e nenhuma evidência existente vira inválida por uma versão nova de schema. É o que permite a qa-suite seguir emitindo 1.0 enquanto o gap `envelope` está aberto, sem que o contrato precise mentir sobre isso."
+    },
+    {
+      "pointer": "/allOf/2",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE verdict presente ENTÃO schema_version: 1.3",
+      "why": "E a direção inversa: o campo novo obriga o bump. Sem ela, um laudo 1.0 poderia carregar verdict sem se declarar 1.3, e a versão deixaria de dizer o que o laudo contém."
+    },
+    {
+      "pointer": "/allOf/3",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE result: suite_not_installed e verdict presente ENTÃO verdict: inconclusivo",
+      "why": "Suite não instalada é INCONCLUSIVO, jamais conforme. É a cláusula que pega o defeito concreto do consumo atual: hoje o passo emite ::warning:: e sai 0, e 'não consegui medir' sai com a mesma cor de 'medi e está bom'. A cor mais barata vence por hábito."
+    },
+    {
+      "pointer": "/allOf/4",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE result: error e verdict presente ENTÃO verdict: inconclusivo",
+      "why": "Erro também é inconclusivo — o 'fiscal não conseguiu fiscalizar' desta casa, que é exit 2 e nunca exit 0."
+    },
+    {
+      "pointer": "/allOf/5",
+      "file": "report.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE verdict: conforme ENTÃO result: ok",
+      "why": "E a trava que faltaria: 'ok' é o único result que pode ser conforme. Sem ela um laudo com achados poderia declarar-se conforme e o schema aceitaria — a trava valeria contra o descuido e nunca contra o gesto deliberado, que é a diferença entre uma regra e uma trava."
+    },
+    {
+      "pointer": "/properties/risks/items/allOf/0",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE status: open ENTÃO EXIGE due",
+      "why": "Risco aberto é mitigado ou anotado, nunca mudo. treatment e owner já são obrigatórios; o prazo é o que impede 'open' de virar estado permanente."
+    },
+    {
+      "pointer": "/properties/risks/items/properties/controls/items/allOf/0",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE kind ∈ {local_path, github_environment, branch_protection} ENTÃO PROÍBE PELO MENOS UM DE (EXIGE standard | EXIGE version_source | EXIGE dependency)",
+      "why": "Kinds locais nao admitem campos de ancoragem externa. standard_symbol e pinned_dependency os exigem, cada um os seus — as regras deles vem abaixo."
+    },
+    {
+      "pointer": "/properties/risks/items/properties/controls/items/allOf/1",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE kind: standard_symbol ENTÃO EXIGE standard, version_source; version_source: requirements-qa.txt",
+      "why": "standard_symbol EXIGE ancora de versao, e a dela e a fonte unica da regua."
+    },
+    {
+      "pointer": "/properties/risks/items/properties/controls/items/allOf/2",
+      "file": "risk-register.schema.json",
+      "group": "governança",
+      "block_kind": "if/then",
+      "rule": "SE kind: pinned_dependency ENTÃO EXIGE dependency, version_source",
+      "why": "pinned_dependency EXIGE o nome do pacote e onde o pin dele mora — mesma exigencia de ancoragem do standard_symbol, pela mesma razao: controle externo sem versao ancorada e controle que muda sozinho."
+    },
+    {
+      "pointer": "/$defs/artifact",
+      "file": "stages.schema.json",
+      "group": "etapas",
+      "block_kind": "not",
+      "rule": "PROÍBE  casa /(CAP|REQ|CMP|IFC|RULE|UI|MET|ADR|RISK)-[A-Z0-9]/",
+      "why": "Caminho ou glob relativo à raiz. Nunca um ID — IDs moram no arquivo dono."
+    },
+    {
+      "pointer": "/$defs/enforcer/allOf/0",
+      "file": "stages.schema.json",
+      "group": "etapas",
+      "block_kind": "if/then",
+      "rule": "SE kind: ci_script ENTÃO PROÍBE step, standard, justification",
+      "why": "Símbolo só faz sentido em script local."
+    },
+    {
+      "pointer": "/$defs/enforcer/allOf/1",
+      "file": "stages.schema.json",
+      "group": "etapas",
+      "block_kind": "if/then",
+      "rule": "SE kind: workflow_step ENTÃO EXIGE step",
+      "why": "workflow_step exige o nome do passo — âncora estável, ao contrário de regex posicional."
+    },
+    {
+      "pointer": "/$defs/enforcer/allOf/2",
+      "file": "stages.schema.json",
+      "group": "etapas",
+      "block_kind": "if/then",
+      "rule": "SE kind: external_standard ENTÃO EXIGE standard, version_source",
+      "why": "Idem risk-register: um controle no padrão externo ancora a versão localmente."
+    },
+    {
+      "pointer": "/$defs/enforcer/allOf/3",
+      "file": "stages.schema.json",
+      "group": "etapas",
+      "block_kind": "if/then",
+      "rule": "SE kind: none ENTÃO EXIGE justification",
+      "why": "Declarar que uma etapa NÃO tem fiscal é permitido — mas exige justificativa e vira achado no laudo. Silêncio, não."
+    },
+    {
+      "pointer": "/properties/suite/allOf/0",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE status: active ENTÃO EXIGE entrypoint, perfil_path, laudo, modes, install",
+      "why": "Suite ATIVA precisa das cinco coisas que só existem quando há consumo real. Uma ficha 'active' sem entrypoint declararia consumir uma régua que não sabe invocar — e ficaria assim para sempre, porque nenhum fiscal reprova o meio-termo. Mesma trava bidirecional de target-lock.schema.json:kind/target_sha. `install` entrou na lista pelo defeito que o expôs: a qa-suite era consumida por um pin que NÃO RESOLVIA — `webqa-suite==1.0.0` sem índice algum que o sirva —, e o único lugar onde o caminho real aparecia era um comentário de requirements-qa.txt. Comentário não é declaração: nada o valida, nada o executa, e ele envelhece sem ficar vermelho."
+    },
+    {
+      "pointer": "/properties/suite/allOf/1",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE status: planned ENTÃO EXIGE plan_ref; PROÍBE entrypoint",
+      "why": "Suite PLANEJADA exige plan_ref e PROÍBE entrypoint. Sem a proibição, 'planned' viraria o rótulo confortável de quem já consome sem declarar consumo — o estado que dura para sempre porque passa por pronto."
+    },
+    {
+      "pointer": "/properties/suite/allOf/2",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE release.anchored: true ENTÃO EXIGE release.manifest_path",
+      "why": "Ancorada EXIGE o caminho do manifesto; não-ancorada o PROÍBE. Declarar manifest_path com anchored:false seria afirmar uma âncora que ninguém confere."
+    },
+    {
+      "pointer": "/properties/suite/properties/install/allOf/0",
+      "file": "suite-registry.schema.json",
+      "group": "contrato de régua",
+      "block_kind": "if/then",
+      "rule": "SE method: direct-reference ENTÃO spec casa /\\{origin\\}/",
+      "why": "Referência direta EXIGE o placeholder da origem. Sem ele, o spec ou está incompleto (e o caminho não resolve) ou traz a URL literal — que é exatamente o que o ADR-008-A5 recusa neste diretório."
+    },
+    {
+      "pointer": "/allOf/0",
+      "file": "target-lock.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then/else",
+      "rule": "SE kind: derived ENTÃO target_sha casa /^[0-9a-f]{40}$/; SENÃO ",
+      "why": "Molde não ancora SHA algum, e derivado sem SHA não ancorou nada. O par kind/target_sha é travado nos dois sentidos para que não exista 'derivado quase pronto' — estado que dura para sempre porque nenhum fiscal o reprova."
+    },
+    {
+      "pointer": "/allOf/1",
+      "file": "target-lock.schema.json",
+      "group": "identidade",
+      "block_kind": "if/then/else",
+      "rule": "SE kind: derived ENTÃO EXIGE mold_release; SENÃO ",
+      "why": "A mesma trava nos dois sentidos, uma camada acima: derivado EXIGE mold_release e molde o PROÍBE. Derivado sem âncora de molde é a carcaça chegada por cópia num momento indeterminado, e 'este derivado está atrasado' vira frase que ninguém consegue avaliar. Molde com mold_release seria o molde declarando ter nascido de si mesmo."
+    },
+    {
+      "pointer": "/properties/threats/items/properties/mitigations/items/allOf/0",
+      "file": "threat-model.schema.json",
+      "group": "governança",
+      "block_kind": "if/then/else",
+      "rule": "SE kind: standard_symbol ENTÃO EXIGE standard, version_source; SENÃO PROÍBE PELO MENOS UM DE (EXIGE standard | EXIGE version_source)",
+      "why": "standard_symbol EXIGE âncora de versão; os demais kinds NÃO admitem esses campos."
+    }
+  ],
+  "schemas": [
+    {
+      "file": "adr-index.schema.json",
+      "bytes": 13010,
+      "group": "arquitetura",
+      "title": "architecture/adr/index.yaml — índice fiscalizável de ADRs"
+    },
+    {
+      "file": "audit-report.schema.json",
+      "bytes": 6869,
+      "group": "governança",
+      "title": "Laudo dos fiscais locais de conformidade e privacidade"
+    },
+    {
+      "file": "backlog.schema.json",
+      "bytes": 4807,
+      "group": "negócio",
+      "title": "business/requirements/backlog.yaml — requisitos ligados a capacidades"
+    },
+    {
+      "file": "bootstrap-report.schema.json",
+      "bytes": 2719,
+      "group": "etapas",
+      "title": "harness/state/bootstrap.json — laudo do cold start"
+    },
+    {
+      "file": "business-rules.schema.json",
+      "bytes": 1867,
+      "group": "negócio",
+      "title": "business/rules/*.yaml — regras de negócio de uma capacidade"
+    },
+    {
+      "file": "capabilities.schema.json",
+      "bytes": 5582,
+      "group": "negócio",
+      "title": "capabilities.yaml — capacidades de negócio com rastreabilidade física"
+    },
+    {
+      "file": "change-proposal.schema.json",
+      "bytes": 10278,
+      "group": "mutação",
+      "title": "change-proposal — a ponte entre metadado estático e execução agentic"
+    },
+    {
+      "file": "components.schema.json",
+      "bytes": 5408,
+      "group": "arquitetura",
+      "title": "components.yaml — componentes técnicos ligados a capacidades"
+    },
+    {
+      "file": "config-report.schema.json",
+      "bytes": 17721,
+      "group": "governança",
+      "title": "docs/configuracao/config.json — a camada de configuração do repositório, derivada dos contratos"
+    },
+    {
+      "file": "conformance-review.schema.json",
+      "bytes": 6508,
+      "group": "governança",
+      "title": "governance/conformance-review.yaml — registro tipado da VALIDAÇÃO semântica"
+    },
+    {
+      "file": "data-inventory.schema.json",
+      "bytes": 8790,
+      "group": "privacidade",
+      "title": "governance/data-inventory.yaml — inventário de dados pessoais"
+    },
+    {
+      "file": "dependencies.schema.json",
+      "bytes": 2798,
+      "group": "governança",
+      "title": "security/dependencies.yaml — inventário de dependências (SBOM leve)"
+    },
+    {
+      "file": "design-system.schema.json",
+      "bytes": 1376,
+      "group": "arquitetura",
+      "title": "design-system.yaml — identidade e metas do sistema de design"
+    },
+    {
+      "file": "harness.schema.json",
+      "bytes": 10644,
+      "group": "execução",
+      "title": "harness.yaml"
+    },
+    {
+      "file": "ingest-pipeline.schema.json",
+      "bytes": 3529,
+      "group": "etapas",
+      "title": "harness/pipeline/ingest.yaml — as fases da ingestão e seus fiscais"
+    },
+    {
+      "file": "interfaces.schema.json",
+      "bytes": 4092,
+      "group": "arquitetura",
+      "title": "architecture/interfaces.yaml — contratos de interface entre componentes"
+    },
+    {
+      "file": "ledger.schema.json",
+      "bytes": 3628,
+      "group": "mutação",
+      "title": "Uma linha de harness/state/ledger.jsonl — evidência durável, minimizada por construção"
+    },
+    {
+      "file": "privacy-review.schema.json",
+      "bytes": 6462,
+      "group": "privacidade",
+      "title": "governance/privacy-review.yaml — registro tipado do julgamento de privacidade"
+    },
+    {
+      "file": "project.schema.json",
+      "bytes": 7877,
+      "group": "identidade",
+      "title": "project.yaml — manifesto de identidade do projeto"
+    },
+    {
+      "file": "protection-attestation.schema.json",
+      "bytes": 3450,
+      "group": "governança",
+      "title": "Atestado de proteção — a camada externa da trava"
+    },
+    {
+      "file": "provenance.schema.json",
+      "bytes": 6044,
+      "group": "identidade",
+      "title": "Bloco de procedência do laudo"
+    },
+    {
+      "file": "release-manifest.schema.json",
+      "bytes": 3960,
+      "group": "identidade",
+      "title": "harness/releases/vX.Y.Z.manifest.json — a raiz de confiança de uma versão do molde"
+    },
+    {
+      "file": "report.schema.json",
+      "bytes": 4694,
+      "group": "contrato de régua",
+      "title": "Envelope do laudo"
+    },
+    {
+      "file": "risk-register.schema.json",
+      "bytes": 11648,
+      "group": "governança",
+      "title": "risk-register.yaml — registro de riscos que classifica a mudança antes de agir"
+    },
+    {
+      "file": "stages.schema.json",
+      "bytes": 5158,
+      "group": "etapas",
+      "title": "harness/stages.yaml — as etapas do projeto e seus fiscais"
+    },
+    {
+      "file": "suite-contract-manifest.schema.json",
+      "bytes": 6479,
+      "group": "contrato de régua",
+      "title": "Manifesto do Contrato de Régua — o que fecha uma versão do contrato"
+    },
+    {
+      "file": "suite-registry.schema.json",
+      "bytes": 16096,
+      "group": "contrato de régua",
+      "title": "Ficha de suite — como uma régua entra neste projeto"
+    },
+    {
+      "file": "target-lock.schema.json",
+      "bytes": 4497,
+      "group": "identidade",
+      "title": "target.lock — fonte única do SHA do alvo"
+    },
+    {
+      "file": "threat-model.schema.json",
+      "bytes": 6433,
+      "group": "governança",
+      "title": "security/threat-model.yaml — ameaças por componente e interface, com residual rastreável"
+    },
+    {
+      "file": "ui-surfaces.schema.json",
+      "bytes": 4468,
+      "group": "arquitetura",
+      "title": "ui-surfaces.yaml — superfícies de UI ligadas a capacidades"
+    },
+    {
+      "file": "vision.schema.json",
+      "bytes": 1833,
+      "group": "negócio",
+      "title": "business/vision.yaml — visão de produto e métricas de sucesso"
+    }
+  ],
+  "control": {
+    "standard": {
+      "package": "webqa-suite",
+      "requirements_file": "requirements-qa.txt"
+    },
+    "repository": {
+      "project_manifest": "project.yaml",
+      "stages_manifest": "harness/stages.yaml",
+      "protected_paths": [
+        ".github/",
+        "harness/",
+        "tests/qa/escopo-autorizado.yaml",
+        "requirements-qa.txt",
+        "ci/",
+        "governance/",
+        "CLAUDE.md",
+        ".claude/"
+      ]
+    },
+    "decision_policy": {
+      "default": "deny",
+      "missing_metadata": "stop_and_request_context",
+      "protected_path_change": "require_human_review",
+      "dependency_update": "require_human_review"
+    },
+    "execution_modes": {
+      "inventory": {
+        "network": false,
+        "requires_auth": false,
+        "agent_may_trigger": true,
+        "job": "inline",
+        "note": "Trabalho B — lê o código por AST, cataloga testes. O mais barato e o mais seguro."
+      },
+      "passive": {
+        "network": true,
+        "requires_auth": true,
+        "agent_may_trigger": true,
+        "job": "inline",
+        "note": "Trabalho A — GET normais contra alvo JÁ declarado. Agente só com alvo pré-configurado."
+      },
+      "load": {
+        "network": true,
+        "requires_auth": true,
+        "agent_may_trigger": false,
+        "job": "segregated",
+        "trigger": "human_only",
+        "note": "Rajada de requisições. Humano dispara em job segregado."
+      },
+      "active_discovery": {
+        "network": true,
+        "requires_auth": true,
+        "agent_may_trigger": false,
+        "job": "segregated",
+        "trigger": "human_only",
+        "requires_proof_of_possession": true,
+        "note": "Fase C — pede recursos não linkados. Humano dispara, com escopo e prova de posse."
+      }
+    },
+    "external_audit": {
+      "enabled": true,
+      "accepted_risk": "RISK-EXT-001",
+      "authorized_issuer": {
+        "identity": "harness-authority",
+        "kind": "github_app"
+      },
+      "attestation_path": "harness/state/protection-attestation.json",
+      "cadence": {
+        "interval_days": 3,
+        "tolerated_cycles": 2,
+        "margin_hours": 6
+      },
+      "justification": "Não há, hoje, identidade emissora com ruleset administrado fora deste repositório. Ligar a flag sem essa raiz administrativa produziria uma autoridade decorativa: quem pode mudar o workflow mudaria a exigência junto, e o atestado passaria a certificar a si mesmo. Ligar exige apontar o emissor e o ruleset — não escrever código novo, que já está aqui.\n"
+    },
+    "target_feedback": {
+      "open_issues_on_target": false,
+      "requires_human_approval": true
+    },
+    "paths": {
+      "runs": "harness/runs",
+      "reports": "harness/reports",
+      "state": "harness/state"
+    },
+    "env_hygiene": {
+      "allowlist": [
+        "PATH",
+        "HOME",
+        "LANG"
+      ],
+      "denylist_prefix_declarado": [],
+      "denylist_prefix_efetiva": [
+        "PRIVSUITE_",
+        "WEBQA_"
+      ],
+      "prefix_origem": [
+        {
+          "prefix": "PRIVSUITE_",
+          "from": "harness/suites/privacy-suite.yaml"
+        },
+        {
+          "prefix": "WEBQA_",
+          "from": "harness/suites/qa-suite.yaml"
+        }
+      ],
+      "familias": [
+        {
+          "family": "Sequestro de rede",
+          "why": "Sequestro de rede: reescrevem o destino de toda requisição do job, inclusive as do pip que baixam a régua cuja versão este repositório trava com tanto cuidado.",
+          "vars": [
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "ALL_PROXY",
+            "NO_PROXY"
+          ]
+        },
+        {
+          "family": "Sequestro de índice",
+          "why": "Sequestro de índice: o pin exato continua exato e passa a apontar para outro lugar.",
+          "vars": [
+            "PIP_INDEX_URL",
+            "PIP_EXTRA_INDEX_URL"
+          ]
+        },
+        {
+          "family": "Sequestro de import",
+          "why": "Sequestro de import: injetam código ANTES de qualquer linha deste repositório rodar. Um fiscal que importa harness_lib importaria o harness_lib de quem definiu a variável.",
+          "vars": [
+            "PYTHONPATH",
+            "PYTHONSTARTUP",
+            "NODE_OPTIONS"
+          ]
+        }
+      ],
+      "exceptions": [
+        {
+          "name": "PYTHONPATH",
+          "context": "mutation-tests",
+          "justification": "Rodar um fiscal contra uma CÓPIA MUTADA do repositório exige apontar o interpretador para aquela cópia. Dois lugares fazem isso, e são o mesmo gesto: os testes de mordida em subprocesso, e o passo negativo \"validate_all sem dependências\" do governance.yml, que injeta stubs de yaml/jsonschema por PYTHONPATH para provar que um validador sem dependências sai 2 e nunca 0. Sem a variável, os dois importariam o fiscal da árvore de trabalho e validariam o repositório errado — provando exatamente nada. A exceção é por COMANDO, nunca por job: nenhum job define PYTHONPATH no seu `env:`, e ci/env_guard.py (que roda no início do job) continua abortando se alguém o fizer.\n"
+        }
+      ],
+      "fail_on_denied_env": true
+    },
+    "stages": [
+      {
+        "id": "STAGE-VISION",
+        "order": 1,
+        "name": "Visão e métricas de sucesso",
+        "artifacts": [
+          "business/vision.yaml"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-CAPABILITIES",
+        "order": 2,
+        "name": "Capacidades de negócio",
+        "artifacts": [
+          "business/capabilities.yaml"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-RULES",
+        "order": 3,
+        "name": "Regras de negócio",
+        "artifacts": [
+          "business/rules"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-BACKLOG",
+        "order": 4,
+        "name": "Requisitos e backlog",
+        "artifacts": [
+          "business/requirements"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-ARCHITECTURE",
+        "order": 5,
+        "name": "Componentes e interfaces",
+        "artifacts": [
+          "architecture/components.yaml",
+          "architecture/interfaces.yaml"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-DECISIONS",
+        "order": 6,
+        "name": "Decisões de arquitetura (ADRs)",
+        "artifacts": [
+          "architecture/adr"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-DESIGN",
+        "order": 7,
+        "name": "Design system e superfícies de UI",
+        "artifacts": [
+          "design"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-CODE",
+        "order": 8,
+        "name": "Código do alvo",
+        "artifacts": [
+          "workspace"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-TESTS",
+        "order": 9,
+        "name": "Testes",
+        "artifacts": [
+          "workspace",
+          "tests/integration",
+          "tests/e2e",
+          "tests/governance"
+        ],
+        "enforced_by": 2
+      },
+      {
+        "id": "STAGE-QA-CONFIG",
+        "order": 10,
+        "name": "Configuração declarativa de QA",
+        "artifacts": [
+          "tests/qa",
+          "requirements-qa.txt",
+          "harness/suites"
+        ],
+        "enforced_by": 4
+      },
+      {
+        "id": "STAGE-GOVERNANCE",
+        "order": 11,
+        "name": "Governança: identidade, riscos, propostas e privacidade",
+        "artifacts": [
+          "project.yaml",
+          "target.lock",
+          "harness/pipeline",
+          "governance",
+          "harness/harness.yaml",
+          "harness/stages.yaml",
+          "harness/policies",
+          "harness/change-proposals",
+          "harness/agents",
+          "harness/prompts",
+          "harness/runs",
+          "harness/reports",
+          "harness/state",
+          "harness/releases"
+        ],
+        "enforced_by": 15
+      },
+      {
+        "id": "STAGE-SECURITY",
+        "order": 12,
+        "name": "Segurança: ameaças e dependências",
+        "artifacts": [
+          "security"
+        ],
+        "enforced_by": 4
+      },
+      {
+        "id": "STAGE-CI-HARNESS",
+        "order": 13,
+        "name": "Fiscais, schemas e entrega",
+        "artifacts": [
+          "ci",
+          ".github",
+          ".claude",
+          "CLAUDE.md",
+          "harness/schemas",
+          "pyproject.toml",
+          "requirements-ci.txt",
+          "harness/local_validate.sh",
+          "harness/suite-contract"
+        ],
+        "enforced_by": 5
+      },
+      {
+        "id": "STAGE-DOCS",
+        "order": 14,
+        "name": "Documentação",
+        "artifacts": [
+          "docs",
+          "README.md",
+          "BOOTSTRAP.md",
+          "WEBQA_CONSUMER_CONTRACT.md"
+        ],
+        "enforced_by": 3
+      }
+    ],
+    "ungoverned": [
+      {
+        "path": "LICENSE",
+        "justification": "Texto legal imutável de terceiro; não descreve nem governa o produto, e alterá-lo não muda comportamento algum do sistema."
+      },
+      {
+        "path": ".gitignore",
+        "justification": "Configuração de ferramenta; a evidência que ele exclui do versionamento já é declarada e fiscalizada em harness/harness.yaml:paths."
+      }
+    ],
+    "policies": [
+      "harness/policies/adocao.md",
+      "harness/policies/alinhamento.md",
+      "harness/policies/ancoragem-do-molde.md",
+      "harness/policies/cadeia-de-decisao.md",
+      "harness/policies/change-proposals.md",
+      "harness/policies/ciclo-de-vida-da-cp.md",
+      "harness/policies/code-metadata.md",
+      "harness/policies/conformance.md",
+      "harness/policies/conformidade-continua.md",
+      "harness/policies/contrato-de-regua.md",
+      "harness/policies/dependency-updates.md",
+      "harness/policies/env-hygiene.md",
+      "harness/policies/execution-modes.md",
+      "harness/policies/ingestao.md",
+      "harness/policies/lgpd.md",
+      "harness/policies/orientacao.md",
+      "harness/policies/painel-de-configuracao.md",
+      "harness/policies/paridade-local.md",
+      "harness/policies/prova-de-mutacao.md",
+      "harness/policies/provenance.md",
+      "harness/policies/seguranca.md",
+      "harness/policies/trava-externa.md",
+      "harness/policies/webqa.md"
+    ]
+  },
+  "fiscais": {
+    "aggregated": [
+      {
+        "step": "metadados",
+        "module": "validate_metadata",
+        "argv": [],
+        "bytes": 53250,
+        "doc": "Fiscal de metadados — LINTER de CI, não runner da harness."
+      },
+      {
+        "step": "grafo",
+        "module": "generate_graph",
+        "argv": [
+          "--check"
+        ],
+        "bytes": 9854,
+        "doc": "Gera o mapa de relacionamento dos metadados a partir dos IDs reais."
+      },
+      {
+        "step": "schema-docs",
+        "module": "generate_schema_docs",
+        "argv": [
+          "--check"
+        ],
+        "bytes": 5126,
+        "doc": "Documentação viva dos schemas — derivada deles, com --check bloqueante."
+      },
+      {
+        "step": "configuracao",
+        "module": "generate_config_report",
+        "argv": [
+          "--check"
+        ],
+        "bytes": 88338,
+        "doc": "Painel de CONFIGURAÇÃO do repositório — o que já está decidido antes de alguém chegar."
+      },
+      {
+        "step": "conformidade",
+        "module": "audit_governance",
+        "argv": [],
+        "bytes": 82522,
+        "doc": "Fiscal de conformidade — o repositório REAL faz o que as decisões DECLARAM?"
+      },
+      {
+        "step": "alinhamento",
+        "module": "alignment_report",
+        "argv": [
+          "--check"
+        ],
+        "bytes": 15354,
+        "doc": "Alinhamento entre departamentos e cobertura REVERSA de risco."
+      },
+      {
+        "step": "conformidade-continua",
+        "module": "audit_conformance",
+        "argv": [],
+        "bytes": 10862,
+        "doc": "Frescor da VALIDAÇÃO semântica, e o diff de ingestão contra o alvo."
+      },
+      {
+        "step": "lgpd",
+        "module": "audit_lgpd",
+        "argv": [],
+        "bytes": 26764,
+        "doc": "Fiscal determinístico de LGPD — roda sempre, sobre o projeto inteiro."
+      },
+      {
+        "step": "ledger",
+        "module": "audit_ledger",
+        "argv": [],
+        "bytes": 10092,
+        "doc": "Fiscal do ledger — evidência durável que não se reescreve."
+      },
+      {
+        "step": "suites",
+        "module": "audit_suites",
+        "argv": [],
+        "bytes": 30104,
+        "doc": "Fiscal genérico do Contrato de Régua — as cinco cláusulas, cobradas por ficha."
+      },
+      {
+        "step": "dependências",
+        "module": "check_dependency_conflict",
+        "argv": [],
+        "bytes": 5211,
+        "doc": "Complemento §10 — o mesmo pacote declarado com versões que se contradizem."
+      }
+    ],
+    "standalone": [
+      {
+        "module": "ci/adapters/__init__.py",
+        "bytes": 5236,
+        "doc": "Registro de adapters de linguagem — plugins, não um `if` que cresce."
+      },
+      {
+        "module": "ci/adapters/generico.py",
+        "bytes": 1684,
+        "doc": "Adapter genérico — o fallback que impede que ignorância vire silêncio verde."
+      },
+      {
+        "module": "ci/adapters/python.py",
+        "bytes": 4294,
+        "doc": "Adapter de Python — leitura semântica por AST."
+      },
+      {
+        "module": "ci/adapters/typescript.py",
+        "bytes": 9029,
+        "doc": "Adapter de TypeScript/JavaScript — imports relativos e aliases de workspace."
+      },
+      {
+        "module": "ci/adoption_status.py",
+        "bytes": 3229,
+        "doc": "Responde a pergunta do primeiro turno: este repositório é molde ou derivado, e o que falta."
+      },
+      {
+        "module": "ci/audit_friction.py",
+        "bytes": 8683,
+        "doc": "Fiscal de atrito, estágio 1 — o único fiscal desta casa que NUNCA reprova."
+      },
+      {
+        "module": "ci/audit_mutations.py",
+        "bytes": 8896,
+        "doc": "Prova de fogo 4 — toda regra bloqueante reprova a mutação canônica que a nega."
+      },
+      {
+        "module": "ci/automerge_gate.py",
+        "bytes": 8660,
+        "doc": "O portão do auto-merge: este PR é *só* o atestado, e veio *mesmo* da autoridade?"
+      },
+      {
+        "module": "ci/bootstrap.py",
+        "bytes": 11976,
+        "doc": "Cold start idempotente: leva um clone cru a um estado conhecido."
+      },
+      {
+        "module": "ci/env_guard.py",
+        "bytes": 10033,
+        "doc": "Higiene de ambiente — a denylist de harness.yaml aplicada ao ambiente REAL do processo."
+      },
+      {
+        "module": "ci/harness_lib.py",
+        "bytes": 29538,
+        "doc": "Base compartilhada dos fiscais de CI. Não é fiscal — é a ferramenta que eles usam."
+      },
+      {
+        "module": "ci/inventory_code.py",
+        "bytes": 7878,
+        "doc": "Inventário do código real — o insumo da invariante \"código sem metadado não existe\"."
+      },
+      {
+        "module": "ci/mold_release.py",
+        "bytes": 22975,
+        "doc": "Raiz de confiança do molde — construir, verificar e consumir uma release por versão."
+      },
+      {
+        "module": "ci/orient.py",
+        "bytes": 14853,
+        "doc": "Orientação DERIVADA: onde estou, o que muda junto, o que roda em cima disso."
+      },
+      {
+        "module": "ci/pr_checklist.py",
+        "bytes": 2927,
+        "doc": "Checklist de compliance do PR, DERIVADO de harness/stages.yaml."
+      },
+      {
+        "module": "ci/suite_conformance.py",
+        "bytes": 7376,
+        "doc": "Kit de conformidade — rodável dos DOIS lados do contrato."
+      },
+      {
+        "module": "ci/suite_runner.py",
+        "bytes": 14859,
+        "doc": "Runner genérico — executa uma régua A PARTIR DA FICHA, e traduz o veredito ao CI."
+      },
+      {
+        "module": "ci/validate_all.py",
+        "bytes": 5195,
+        "doc": "Validação total do projeto — um comando, um significado de \"validado\"."
+      },
+      {
+        "module": "ci/verify_approval.py",
+        "bytes": 9452,
+        "doc": "Aprovação de change-proposal `high` — provada contra o conteúdo que foi integrado."
+      },
+      {
+        "module": "ci/verify_protection.py",
+        "bytes": 16697,
+        "doc": "Camada local da trava externa — a proteção declarada está de fato ligada?"
+      }
+    ]
+  },
+  "environment": {
+    "python": "\">=3.11\"",
+    "testpaths": "[\"tests/unit\", \"tests/governance\"]",
+    "pythonpath": "[\"src\"]",
+    "pins": [
+      {
+        "file": "pyproject.toml",
+        "spec": "jsonschema>=4"
+      },
+      {
+        "file": "pyproject.toml",
+        "spec": "pytest>=8"
+      },
+      {
+        "file": "pyproject.toml",
+        "spec": "pyyaml>=6"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "attrs==26.1.0"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "iniconfig==2.3.0"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "jsonschema-specifications==2025.9.1"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "jsonschema==4.26.0"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "packaging==26.3"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "pluggy==1.6.0"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "pygments==2.20.0"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "pytest==9.1.1"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "pyyaml==6.0.3"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "referencing==0.37.0"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "rpds-py==2026.6.3"
+      },
+      {
+        "file": "requirements-ci.txt",
+        "spec": "typing-extensions==4.16.0"
+      }
+    ],
+    "version_source": "requirements-qa.txt",
+    "version_source_present": true,
+    "gitignore": [
+      "harness/runs/*",
+      "harness/reports/*",
+      "harness/state/*",
+      "!harness/runs/.gitkeep",
+      "!harness/reports/.gitkeep",
+      "!harness/state/.gitkeep",
+      "!harness/state/ledger.jsonl",
+      "workspace/*",
+      "!workspace/.gitkeep",
+      "__pycache__/",
+      "*.py[cod]",
+      "*.egg-info/",
+      ".eggs/",
+      "build/",
+      "dist/",
+      ".pytest_cache/",
+      ".ruff_cache/",
+      ".mypy_cache/",
+      ".coverage",
+      "htmlcov/",
+      ".venv/",
+      "venv/",
+      "env/",
+      "*.evidence",
+      "report/"
+    ],
+    "gitignore_excecoes": [
+      "!harness/runs/.gitkeep",
+      "!harness/reports/.gitkeep",
+      "!harness/state/.gitkeep",
+      "!harness/state/ledger.jsonl",
+      "!workspace/.gitkeep"
+    ],
+    "paridade_local": [
+      "python ci/validate_all.py"
+    ],
+    "hooks": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Edit|Write|MultiEdit",
+        "timeout": 10,
+        "command": "post_edit_guard.py\""
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash",
+        "timeout": 10,
+        "command": "pre_bash_env_hygiene.py\""
+      },
+      {
+        "event": "SessionStart",
+        "matcher": null,
+        "timeout": 20,
+        "command": "adoption_status.py\""
+      },
+      {
+        "event": "SessionStart",
+        "matcher": null,
+        "timeout": 60,
+        "command": "validate_all.py\" --summary"
+      },
+      {
+        "event": "Stop",
+        "matcher": null,
+        "timeout": 180,
+        "command": "validate_all.py\" --hook"
+      }
+    ],
+    "workflows": [
+      ".github/workflows/atestado-automerge.yml",
+      ".github/workflows/conformance.yml",
+      ".github/workflows/governance.yml",
+      ".github/workflows/qa.yml",
+      ".github/workflows/release.yml",
+      ".github/workflows/validate-metadata.yml"
+    ],
+    "codeowners": [
+      {
+        "path": "*",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/ci/",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/.github/",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/harness/",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/governance/",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/architecture/adr/",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/tests/qa/",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/requirements-qa.txt",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/CLAUDE.md",
+        "owners": [
+          "@danzeroum"
+        ]
+      },
+      {
+        "path": "/.claude/",
+        "owners": [
+          "@danzeroum"
+        ]
+      }
+    ]
+  },
+  "suites": {
+    "contract": {
+      "clauses": [
+        {
+          "assertion": "ci/audit_suites.py::check_clausula_pin",
+          "canonical_mutation": {
+            "alvo": "harness/suites/qa-suite.yaml",
+            "de": "  pin_source: requirements-qa.txt",
+            "espera_achado": "SUITE-QA-SUITE-PIN-INEXISTENTE",
+            "op": "substituir_texto",
+            "para": "  pin_source: nao-existe.txt"
+          },
+          "id": "pin-fonte-unica",
+          "titulo": "A versão mora num lugar só, e a ficha diz onde — nunca qual"
+        },
+        {
+          "assertion": "ci/audit_suites.py::check_clausula_release",
+          "canonical_mutation": {
+            "alvo": "harness/suites/qa-suite.yaml",
+            "de": "    anchored: true",
+            "espera_achado": "SUITE-QA-SUITE-RELEASE-SEM-GAP",
+            "op": "substituir_texto",
+            "para": "    anchored: false"
+          },
+          "id": "release-com-manifesto",
+          "titulo": "A régua publica versões ancoráveis, ou declara um gap com data"
+        },
+        {
+          "assertion": "ci/audit_suites.py::check_clausula_envelope",
+          "canonical_mutation": {
+            "alvo": "harness/schemas/report.schema.json",
+            "espera_achado": "SUITE-QA-SUITE-ENVELOPE-SEM-ESTADO",
+            "op": "quebrar_ponteiro",
+            "pointer": "/properties/verdict/enum"
+          },
+          "id": "envelope-com-3-estados",
+          "titulo": "O laudo declara conforme, nao_conforme ou inconclusivo"
+        },
+        {
+          "assertion": "ci/audit_suites.py::check_clausula_fingerprint",
+          "canonical_mutation": {
+            "alvo": "harness/suites/qa-suite.yaml",
+            "de": "  fingerprint_fields: [name, version, commit, catalog_hash, schema_version]",
+            "espera_achado": "SUITE-QA-SUITE-FINGERPRINT-INCOMPLETO",
+            "op": "substituir_texto",
+            "para": "  fingerprint_fields: [name, version]"
+          },
+          "id": "fingerprint",
+          "titulo": "Todo laudo carrega os cinco campos que dizem com o que é comparável"
+        },
+        {
+          "assertion": "ci/audit_suites.py::check_contrato",
+          "canonical_mutation": {
+            "alvo": "harness/suite-contract/contract-v1/contract-manifest.json",
+            "de": "\"id\": \"autoprova-de-mordida\"",
+            "espera_achado": "FISCAL-SEM-AUTOPROVA",
+            "op": "substituir_texto",
+            "para": "\"id\": \"fingerprint\""
+          },
+          "id": "autoprova-de-mordida",
+          "titulo": "Cada cláusula declara como seria negada, e o fiscal reprova a si mesmo sem isso"
+        }
+      ],
+      "files": [
+        {
+          "path": "harness/suite-contract/contract-v1/SUITE_CONTRACT.md",
+          "role": "contract-text",
+          "sha256": "57692e8ed98422f3341384f8c57d5baeb27a682da929400bdd0990be1c2a67e6"
+        },
+        {
+          "path": "harness/suite-contract/mutation-engine/mutation_engine.py",
+          "role": "engine",
+          "sha256": "72a369c20da5e76b20526c27821fd706bd776e140f89ed5e37591be04836fa17"
+        },
+        {
+          "path": "harness/schemas/suite-contract-manifest.schema.json",
+          "role": "schema",
+          "sha256": "ba8b18ebb19ab58c50f23983653348a33dbca2e5cf821c93a68f9a3a195680db"
+        },
+        {
+          "path": "harness/schemas/report.schema.json",
+          "role": "schema",
+          "sha256": "769e500dfd3d21ae1715fd5c4452ef9d29373b8957fc54c1ee648da235d0cd27"
+        }
+      ],
+      "released_at": "2026-08-06",
+      "version": "v1"
+    },
+    "registry": [
+      {
+        "nome": "privacy-suite",
+        "status": "planned",
+        "contract_version": "v1",
+        "pin_source": "requirements-privacy.txt",
+        "entrypoint": null,
+        "entrypoint_proibido": true,
+        "perfil_path": "governance/privacy-review.yaml",
+        "env_prefix": "PRIVSUITE_",
+        "modes": [],
+        "laudo": "harness/reports/privacy-report.json",
+        "file": "harness/suites/privacy-suite.yaml"
+      },
+      {
+        "nome": "qa-suite",
+        "status": "active",
+        "contract_version": "v1",
+        "pin_source": "requirements-qa.txt",
+        "entrypoint": "webqa",
+        "entrypoint_proibido": false,
+        "perfil_path": "tests/qa/config.yaml",
+        "env_prefix": "WEBQA_",
+        "modes": [
+          "inventory",
+          "passive"
+        ],
+        "laudo": "harness/reports/qa-report.json",
+        "file": "harness/suites/qa-suite.yaml"
+      }
+    ],
+    "gaps": [
+      {
+        "id": "GAP-PRIV-INEXISTENTE",
+        "clause": "release-com-manifesto",
+        "description": "A régua não existe: não há v0.1 publicada, portanto não há manifesto a ancorar. O gap cobre a cláusula 2 enquanto o consumo é inativo, e vence junto com os da qa-suite para que a decisão sobre as duas réguas seja tomada de uma vez, e não uma de cada vez.\n",
+        "declared_at": "2026-08-06",
+        "due": "2026-11-03",
+        "risk": "RISK-PRIV-001",
+        "suite": "privacy-suite"
+      },
+      {
+        "id": "GAP-PRIV-SEM-PIN",
+        "clause": "pin-fonte-unica",
+        "description": "`requirements-privacy.txt` ainda não existe: a ficha declara o LUGAR da versão antes de haver versão. É deliberado — decidir o lugar antes do conteúdo é o que impede a v0.1 de nascer com a versão espalhada, que é o GAP-QA-FONTE-UNICA da qa-suite. O gap existe para que 'planned' não vire o rótulo que dispensa a cláusula 1 para sempre.\n",
+        "declared_at": "2026-08-06",
+        "due": "2026-11-03",
+        "risk": "RISK-PRIV-001",
+        "suite": "privacy-suite"
+      },
+      {
+        "id": "GAP-QA-EXIT-ZERO",
+        "clause": "envelope-com-3-estados",
+        "description": "REAGENDADO, e o motivo mudou de lugar — o que é exatamente o que um gap datado existe para tornar visível. A metade da régua está PAGA: `webqa-veredicto` traduz os três estados em código de saída (0 · 10 · 20 · 30), o laudo carrega `verdict` e `inconclusivo` carimbados pela MESMA função que decide o exit, e o preflight virou sinal explícito de sessão. O que segura a tolerância agora é OUTRA COISA: a régua não expõe o entrypoint `webqa` com os subcomandos `inventario` e `auditar` que esta ficha declara, então `shutil.which(\"webqa\")` continua vazio e todo run deste consumidor mede `suite_not_installed`. O veredito é `inconclusivo` com razão declarada — e é honesto —, mas fechar o gap hoje reprovaria o CI por uma lacuna de ENTRYPOINT, não de envelope. O gap sai no dia em que `webqa` existir; até lá, avisa sem reprovar, e o estado fica no ledger.\n",
+        "declared_at": "2026-08-06",
+        "due": "2026-11-03",
+        "risk": "RISK-WEBQA-001",
+        "suite": "qa-suite"
+      },
+      {
+        "id": "GAP-QA-FONTE-UNICA",
+        "clause": "pin-fonte-unica",
+        "description": "A versão é espelhada em tests/qa/config.yaml:standard_version. O espelho é conferido por igualdade (I3), o que o torna tolerável e não correto: continuam existindo dois lugares onde a versão aparece, e a conferência é o que impede a deriva — não a estrutura.\n",
+        "declared_at": "2026-08-06",
+        "due": "2026-11-03",
+        "risk": "RISK-DEP-001",
+        "suite": "qa-suite"
+      }
+    ]
+  },
+  "inheritance": {
+    "kind": "derived",
+    "fixed": [
+      {
+        "o_que": "schema_version = 1.0",
+        "porque": "const no contrato",
+        "file": "audit-report.schema.json"
+      },
+      {
+        "o_que": "proposal.change_mode = pull_request",
+        "porque": "const no contrato",
+        "file": "change-proposal.schema.json"
+      },
+      {
+        "o_que": "razao_declarada = declarado vazio",
+        "porque": "const no contrato",
+        "file": "config-report.schema.json"
+      },
+      {
+        "o_que": "razao_ilegivel = não consegui ler",
+        "porque": "const no contrato",
+        "file": "config-report.schema.json"
+      },
+      {
+        "o_que": "razao_nao_ingerido = ainda não ingerido",
+        "porque": "const no contrato",
+        "file": "config-report.schema.json"
+      },
+      {
+        "o_que": "source_of_truth = false",
+        "porque": "const no contrato",
+        "file": "config-report.schema.json"
+      },
+      {
+        "o_que": "provenance.commit.embedded = false",
+        "porque": "const no contrato",
+        "file": "config-report.schema.json"
+      },
+      {
+        "o_que": "provenance.standard.version_source = requirements-qa.txt",
+        "porque": "const no contrato",
+        "file": "config-report.schema.json"
+      },
+      {
+        "o_que": "review.agent = conformance",
+        "porque": "const no contrato",
+        "file": "conformance-review.schema.json"
+      },
+      {
+        "o_que": "decision_policy.default = deny",
+        "porque": "const no contrato",
+        "file": "harness.schema.json"
+      },
+      {
+        "o_que": "decision_policy.dependency_update = require_human_review",
+        "porque": "const no contrato",
+        "file": "harness.schema.json"
+      },
+      {
+        "o_que": "decision_policy.missing_metadata = stop_and_request_context",
+        "porque": "const no contrato",
+        "file": "harness.schema.json"
+      },
+      {
+        "o_que": "decision_policy.protected_path_change = require_human_review",
+        "porque": "const no contrato",
+        "file": "harness.schema.json"
+      },
+      {
+        "o_que": "repository.stages_manifest = harness/stages.yaml",
+        "porque": "const no contrato",
+        "file": "harness.schema.json"
+      },
+      {
+        "o_que": "review.skill = revisao-lgpd",
+        "porque": "const no contrato",
+        "file": "privacy-review.schema.json"
+      },
+      {
+        "o_que": "governance.default_change_mode = pull_request",
+        "porque": "const no contrato",
+        "file": "project.schema.json"
+      },
+      {
+        "o_que": "quality_standard.name = webqa-suite",
+        "porque": "const no contrato",
+        "file": "project.schema.json"
+      },
+      {
+        "o_que": "quality_standard.version_source = requirements-qa.txt",
+        "porque": "const no contrato",
+        "file": "project.schema.json"
+      },
+      {
+        "o_que": "target.lock_source = target.lock",
+        "porque": "const no contrato",
+        "file": "project.schema.json"
+      },
+      {
+        "o_que": "release.validation.command = python ci/validate_all.py",
+        "porque": "const no contrato",
+        "file": "release-manifest.schema.json"
+      },
+      {
+        "o_que": "risks.controls.standard = webqa-suite",
+        "porque": "const no contrato",
+        "file": "risk-register.schema.json"
+      },
+      {
+        "o_que": "enforcer.version_source = requirements-qa.txt",
+        "porque": "const no contrato",
+        "file": "stages.schema.json"
+      },
+      {
+        "o_que": "threats.mitigations.standard = webqa-suite",
+        "porque": "const no contrato",
+        "file": "threat-model.schema.json"
+      },
+      {
+        "o_que": "threats.mitigations.version_source = requirements-qa.txt",
+        "porque": "const no contrato",
+        "file": "threat-model.schema.json"
+      },
+      {
+        "o_que": ".github/",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": "harness/",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": "tests/qa/escopo-autorizado.yaml",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": "requirements-qa.txt",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": "ci/",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": "governance/",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": "CLAUDE.md",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      },
+      {
+        "o_que": ".claude/",
+        "porque": "protected_path — muda só com revisão humana",
+        "file": "harness/harness.yaml"
+      }
+    ],
+    "fill": [
+      {
+        "artefato": "harness/state/code-inventory.json",
+        "quando": "ING-01-INVENTARIO",
+        "como": "Inventariar o código real do alvo"
+      },
+      {
+        "artefato": "harness/state/harvest.json",
+        "quando": "ING-02-COLHEITA",
+        "como": "Colher o que o alvo já documenta, com proveniência"
+      },
+      {
+        "artefato": "architecture/components.yaml",
+        "quando": "ING-03-CARTOGRAFIA",
+        "como": "Propor componentes e interfaces a partir do inventário"
+      },
+      {
+        "artefato": "architecture/interfaces.yaml",
+        "quando": "ING-03-CARTOGRAFIA",
+        "como": "Propor componentes e interfaces a partir do inventário"
+      },
+      {
+        "artefato": "business/capabilities.yaml",
+        "quando": "ING-04-NEGOCIO",
+        "como": "Propor capacidades, regras e requisitos"
+      },
+      {
+        "artefato": "business/requirements/backlog.yaml",
+        "quando": "ING-04-NEGOCIO",
+        "como": "Propor capacidades, regras e requisitos"
+      },
+      {
+        "artefato": "business/rules",
+        "quando": "ING-04-NEGOCIO",
+        "como": "Propor capacidades, regras e requisitos"
+      },
+      {
+        "artefato": "design/ui-surfaces.yaml",
+        "quando": "ING-05-DESIGN",
+        "como": "Ligar superfícies de interface às capacidades"
+      },
+      {
+        "artefato": "governance/data-inventory.yaml",
+        "quando": "ING-06-GOVERNANCA",
+        "como": "Lente de privacidade e risco sobre cada elemento novo"
+      },
+      {
+        "artefato": "governance/risk-register.yaml",
+        "quando": "ING-06-GOVERNANCA",
+        "como": "Lente de privacidade e risco sobre cada elemento novo"
+      },
+      {
+        "artefato": "business/capabilities.yaml",
+        "quando": "ING-07-PROMOCAO",
+        "como": "Substituir pending_judgment por julgamento humano"
+      },
+      {
+        "artefato": "governance/risk-register.yaml",
+        "quando": "ING-07-PROMOCAO",
+        "como": "Substituir pending_judgment por julgamento humano"
+      },
+      {
+        "artefato": "docs/metadata-graph.md",
+        "quando": "ING-08-INTERLIGACAO",
+        "como": "Fechar o ciclo: grafo derivado e validação total"
+      }
+    ]
+  },
+  "unreadable": [],
+  "empty_reasons": {},
+  "provenance": {
+    "repository": "danzeroum-project-mixlirous",
+    "standard": {
+      "name": "webqa-suite",
+      "version_source": "requirements-qa.txt"
+    },
+    "versions": {
+      "schema": "1.0",
+      "metadata": "1.1",
+      "harness": 1,
+      "contract": "v1"
+    },
+    "inputs": [
+      {
+        "path": ".claude/settings.json",
+        "sha256": "532732d0434b92e21100a3c58d1006839a20b55638b7bbb9160fc4ce71979c5c"
+      },
+      {
+        "path": ".github/CODEOWNERS",
+        "sha256": "41d864f4ef9a4d134e42c86dbdcae5e74d3343fa131ad644589faf6fe45c8696"
+      },
+      {
+        "path": ".gitignore",
+        "sha256": "3c3347c6637d4151e02b8a2b4916a6fbb7bca13b33076624455712efa2bd02c2"
+      },
+      {
+        "path": "architecture/adr/index.yaml",
+        "sha256": "fda0e0920d1a692cbc3b9d82aa025be320a86d026404cafc246b721eee3ecce3"
+      },
+      {
+        "path": "architecture/components.yaml",
+        "sha256": "7ba3b3064457bb3dc7560114356393a0547a8fa02f238f9762c7b0fe64bf6c90"
+      },
+      {
+        "path": "architecture/interfaces.yaml",
+        "sha256": "4e9adb3d6c1aa3cd82f002b20fc539f89901e3132f936ff2a98fce54f1da0fb7"
+      },
+      {
+        "path": "business/capabilities.yaml",
+        "sha256": "226332687102b9f3360e450ce47f5824b7e66961900533ee17472a3c475d3511"
+      },
+      {
+        "path": "business/requirements/backlog.yaml",
+        "sha256": "d3b4eead5bcd460c426d2730dd90d253e1a0e66ad7063b78093cd2f82226cf17"
+      },
+      {
+        "path": "business/vision.yaml",
+        "sha256": "6e4abb3072fca6442373fc8695caeb3b21941a5818cc9907aa1a695b1cb3dfd5"
+      },
+      {
+        "path": "ci/adapters/__init__.py",
+        "sha256": "58564d942c4cc3186760bc2ab8e6284c7efd121beaef64e94e4aed2d6765fedf"
+      },
+      {
+        "path": "ci/adapters/generico.py",
+        "sha256": "051ca32da48b03e7fefcfe57525a7a1741f638a83e9a1b6530177931a9436ede"
+      },
+      {
+        "path": "ci/adapters/python.py",
+        "sha256": "8dac9b97de59e0bdae95f072727ee5d1c9ee7c821e54236babd50641b692bbe2"
+      },
+      {
+        "path": "ci/adapters/typescript.py",
+        "sha256": "f7c5f845fbbac7be86f7cb8e0a46a9622ef8d6674adc260798409a689ec7a4c4"
+      },
+      {
+        "path": "ci/adoption_status.py",
+        "sha256": "aa4fa827e65d9e0b96974a203f0fb0a650b606a98c81f0796ff12a6275d274f4"
+      },
+      {
+        "path": "ci/alignment_report.py",
+        "sha256": "01740c8681e3e3379a7f3dafd107938fe89ee0a73bee04666ee1f2d4d9cdcb53"
+      },
+      {
+        "path": "ci/assets/organic.css",
+        "sha256": "5bef5d8c266ffa07629353902547d17f55268aee8cc5a8af4812e374a52dd560"
+      },
+      {
+        "path": "ci/audit_conformance.py",
+        "sha256": "6d8236eb7c0389adafb7e7fe532f0ea3475aeb1c408a0d4862e6c2a7e80d4990"
+      },
+      {
+        "path": "ci/audit_friction.py",
+        "sha256": "b290f6f65d04f0a21d6310bc5e04d5cbd6bd8d0bdde3216676723dd856709961"
+      },
+      {
+        "path": "ci/audit_governance.py",
+        "sha256": "d041c104f6172d00bf525b6f1056860bb92ba60721b9651ef19dcdd01a200794"
+      },
+      {
+        "path": "ci/audit_ledger.py",
+        "sha256": "c23a232e1a69df3e541835a65956be365868de8f3d6b31d3e0609ae0c32cf634"
+      },
+      {
+        "path": "ci/audit_lgpd.py",
+        "sha256": "78b14b0aedb1dccd5f060e92db98685a1f520486bf7d29185a02b3257159a49d"
+      },
+      {
+        "path": "ci/audit_mutations.py",
+        "sha256": "0e26b4387734f7347467a024f06f61eba3566ddda75e01af56c6a3bbf80b52d6"
+      },
+      {
+        "path": "ci/audit_suites.py",
+        "sha256": "10df251275b0df3de01bea1f5b5b2371a576b875170e2a9abbdf356364036bcf"
+      },
+      {
+        "path": "ci/automerge_gate.py",
+        "sha256": "abfcd0182f745c5a1c0ede80279d30563b2869833377b1196b46ab1ea0733964"
+      },
+      {
+        "path": "ci/bootstrap.py",
+        "sha256": "c891d3fa658520b12fc6fb9ffb26a70eb0125b38595e0560ed630bc6b8773ee3"
+      },
+      {
+        "path": "ci/check_dependency_conflict.py",
+        "sha256": "4dc4b15240336ff8c10e327698d174b7825a585737ed85354ce90d73ab234616"
+      },
+      {
+        "path": "ci/env_guard.py",
+        "sha256": "be777e4cd21d359262ff755ce8d01ccc90a4e339b0e9486a37a52fa010a66692"
+      },
+      {
+        "path": "ci/generate_config_report.py",
+        "sha256": "5448c6cc41940a3483db789cab061fc9785292ea645109e13ea456dc5f9f692d"
+      },
+      {
+        "path": "ci/generate_graph.py",
+        "sha256": "41b2005d9d911e332e817e111fd89fd0742b0a4dd94366fdac96ebd615039bee"
+      },
+      {
+        "path": "ci/generate_schema_docs.py",
+        "sha256": "0a2178253bb9116b1260ee81dd3ec0e6a2c02ba43e2680eedd615734d76fbf54"
+      },
+      {
+        "path": "ci/harness_lib.py",
+        "sha256": "7f74d4afad659c789cac6e37d32f633866bddf876d964e2645cad7c714942811"
+      },
+      {
+        "path": "ci/inventory_code.py",
+        "sha256": "680582799f216fbd2ccabf4d225dc0d4300d8854c1179ca53455acd18bbfa766"
+      },
+      {
+        "path": "ci/mold_release.py",
+        "sha256": "5c54ddaa2faf20be74ea2e4f9e306509383e5c348ed48d4ec10bfd3c9f46bd00"
+      },
+      {
+        "path": "ci/orient.py",
+        "sha256": "a5b0b045c47862477afda7861afea20e04b47677f6eefddab1c90b7141f3ba6f"
+      },
+      {
+        "path": "ci/pr_checklist.py",
+        "sha256": "a37b68cc3c5c3a2714baade9f67d46c70b7f019b553e41ecf13a70b457b01f47"
+      },
+      {
+        "path": "ci/suite_conformance.py",
+        "sha256": "14891d4fa77154abd18d7a9846d863c674211c012ea8c208ecd4e87eb82c3f38"
+      },
+      {
+        "path": "ci/suite_runner.py",
+        "sha256": "96ca0f35dc4eb958bff273bdc48b07641be54784779d6e80443113c846af0385"
+      },
+      {
+        "path": "ci/validate_all.py",
+        "sha256": "b83ac446c7a4019ef2f4116999923c600c98ad1d3f3e7576fd90cbe252e25193"
+      },
+      {
+        "path": "ci/validate_metadata.py",
+        "sha256": "7c85b04ad62056ba240ff5ab38a5fc95830e3413a8ab4d7140191418738148f1"
+      },
+      {
+        "path": "ci/verify_approval.py",
+        "sha256": "7e0daa9961de99d3ca2d666214c127bd16d58d6894b7682ebfe4ff7f3288b498"
+      },
+      {
+        "path": "ci/verify_protection.py",
+        "sha256": "3626c36a371f684be113c8f192d44a8d5ed35ff01626e64565e685b167f61812"
+      },
+      {
+        "path": "design/design-system.yaml",
+        "sha256": "a8675a155587cda1b046a11cdb1a8c04f4db38df6e9e7ec87a7dbb215f15f46f"
+      },
+      {
+        "path": "design/ui-surfaces.yaml",
+        "sha256": "e47e3eaa16830304105d30538b571a63aac7ae5beb2db775acb8525dbc947618"
+      },
+      {
+        "path": "governance/conformance-review.yaml",
+        "sha256": "4060db4d575d8ea69dbd1371d2d1d76521a87e25c8f2807114a05a264d98153a"
+      },
+      {
+        "path": "governance/data-inventory.yaml",
+        "sha256": "6451ce4723cb4eef4f33ac0b95649a50ecb27def6b63e810545bfe0f0792fb10"
+      },
+      {
+        "path": "governance/privacy-review.yaml",
+        "sha256": "665f2fcdadda40e5443ef496ce2317dba64af5826e522492ff61be3b45722f29"
+      },
+      {
+        "path": "governance/risk-register.yaml",
+        "sha256": "68f8dfd3710017828cfdb1dd00329b7675719e0ced1092e9cacdb79c4865c86d"
+      },
+      {
+        "path": "harness/harness.yaml",
+        "sha256": "5f8b440e3921bf6f4f08e2106e8242b44b812a4ea18bc2b4806f544caade10d4"
+      },
+      {
+        "path": "harness/local_validate.sh",
+        "sha256": "511d213a9b472b3c798eb7a6de8129cd4b6346f9bf8296df5ba47bb255178faf"
+      },
+      {
+        "path": "harness/pipeline/ingest.yaml",
+        "sha256": "1324fefd9ba8e3ee22d0a10670611abb2420407ce54c575247784a6629330b31"
+      },
+      {
+        "path": "harness/policies/adocao.md",
+        "sha256": "027276c30362fba47e3642e87a7af63fd2995bad52079f2bad280c964e5de223"
+      },
+      {
+        "path": "harness/policies/alinhamento.md",
+        "sha256": "36616f02770f66cf416a39192b7121afed6662ab910d325fb3b70a258856e6b2"
+      },
+      {
+        "path": "harness/policies/ancoragem-do-molde.md",
+        "sha256": "846c37e82d17f0183123e94ef3c22b50d807f14f611d408272dc121aad2dc7ba"
+      },
+      {
+        "path": "harness/policies/cadeia-de-decisao.md",
+        "sha256": "ac57d16f149e25ca7040a002834c233d97a4aad7359bb9d357b311c3267b652d"
+      },
+      {
+        "path": "harness/policies/change-proposals.md",
+        "sha256": "e31c96e343cb93461229ca1dc91d1f91f85884bf07540587debbae03c6349f20"
+      },
+      {
+        "path": "harness/policies/ciclo-de-vida-da-cp.md",
+        "sha256": "f5efe78860701b7eccf25733e6966d01e1e76d92ceaf65c97c16d21cc05d7c64"
+      },
+      {
+        "path": "harness/policies/code-metadata.md",
+        "sha256": "be6d0c849f05d6ef7e2aaf287a59eacf180f6ba303c21b4857b2bfdfcf5aa0b7"
+      },
+      {
+        "path": "harness/policies/conformance.md",
+        "sha256": "fd33ff242caa39230b3d638929f7219c2e62f4468ed38716989e7129f07a3b10"
+      },
+      {
+        "path": "harness/policies/conformidade-continua.md",
+        "sha256": "793714b91e5f34886180f3df0a6369fbcb38516e503802c271236621b0ce7ed3"
+      },
+      {
+        "path": "harness/policies/contrato-de-regua.md",
+        "sha256": "d934f43d817de55796893aae825338c9bd9d70e64e6c73b2a05220f2e900de73"
+      },
+      {
+        "path": "harness/policies/dependency-updates.md",
+        "sha256": "6f8f655b01aee761c09b2beae163879c7f3a4cecf835c35eae4a2670cf0c0feb"
+      },
+      {
+        "path": "harness/policies/env-hygiene.md",
+        "sha256": "574d311d6ee52b5afb3c651b5496d5d5b655af661c7ad90b514a460488e85d96"
+      },
+      {
+        "path": "harness/policies/execution-modes.md",
+        "sha256": "dfbd0caa79b8e6ed03d3b59736c6964870d2393c37acd7401be33bf2779af93c"
+      },
+      {
+        "path": "harness/policies/ingestao.md",
+        "sha256": "a1d61f65513b688cae0a1b3821bc34030d54865998177ccca5f577054545b316"
+      },
+      {
+        "path": "harness/policies/lgpd.md",
+        "sha256": "02bd94c5b74ce14bf33d94fc546b1658bdee9251e1eaadf60d261ef58f51afbc"
+      },
+      {
+        "path": "harness/policies/orientacao.md",
+        "sha256": "f9c04ab91345f28e81655ab911391f24179095ee16a173b945eace223726da1c"
+      },
+      {
+        "path": "harness/policies/painel-de-configuracao.md",
+        "sha256": "006d1205ae08554c8730f4e9350ef53147cee4044fc57af86eba30fa822fbd20"
+      },
+      {
+        "path": "harness/policies/paridade-local.md",
+        "sha256": "ffa46e73ea1dc67c6bcd7624717126d2075d6537015cdd4c4db9dd2edf4bb65a"
+      },
+      {
+        "path": "harness/policies/prova-de-mutacao.md",
+        "sha256": "669ba026406dd2ae3f06cd844ccb4317da8396fdaa1a55d88f5bce16de9cb4e9"
+      },
+      {
+        "path": "harness/policies/provenance.md",
+        "sha256": "3d24ac3a061b259472eaa74240000bb4f0431707957283ff5141131f9d18e101"
+      },
+      {
+        "path": "harness/policies/seguranca.md",
+        "sha256": "5cdacc5399b8dea169458235b388fb88c74d6e28a59fa894c0934bff62ce2458"
+      },
+      {
+        "path": "harness/policies/trava-externa.md",
+        "sha256": "833086adfeaf3882aed12ac6fb93dbd5ddbfc2cfc5059deb19d8636d44639220"
+      },
+      {
+        "path": "harness/policies/webqa.md",
+        "sha256": "b3c31279608f50c501fd1e7503165b539cfc600da42f8caabc6f8a17edab7040"
+      },
+      {
+        "path": "harness/schemas/adr-index.schema.json",
+        "sha256": "fe68b4277d7dd9c0918a81c8d595c27452c3bad7bf1d9c2d87eab8e75609beec"
+      },
+      {
+        "path": "harness/schemas/audit-report.schema.json",
+        "sha256": "44803936c47238ad3cf8544a4d561b0ef325395d508cef04736f902203555c83"
+      },
+      {
+        "path": "harness/schemas/backlog.schema.json",
+        "sha256": "b0da144ae8eb110b5352b255e7e85bfcdda4e13bcd99f339ea35201ea6c4569a"
+      },
+      {
+        "path": "harness/schemas/bootstrap-report.schema.json",
+        "sha256": "c9f413f01641ef128bee2d31f25f27fd7d47ef6a94ba8b78ac33fbc5e735aa23"
+      },
+      {
+        "path": "harness/schemas/business-rules.schema.json",
+        "sha256": "5623736ae7aa5d8445f87767cff7cc344927be26307bd8be74e91af5d07e8ace"
+      },
+      {
+        "path": "harness/schemas/capabilities.schema.json",
+        "sha256": "9cd3869bda30c85986b85c7af049983a09ae6a0292f619124873f82e90bbbf68"
+      },
+      {
+        "path": "harness/schemas/change-proposal.schema.json",
+        "sha256": "07d57b4b3e811ad98bd2c506a2647b73290f3f54be18757e2110bcf9b2abb7d0"
+      },
+      {
+        "path": "harness/schemas/components.schema.json",
+        "sha256": "e0b5368ecac191643d414de4aa1a85f898b45de189ef626b432644b71e9d6341"
+      },
+      {
+        "path": "harness/schemas/config-report.schema.json",
+        "sha256": "19adcfa0a77ced942f4cc283d9c580430cb71219c1c35676866744f3e4c7d346"
+      },
+      {
+        "path": "harness/schemas/conformance-review.schema.json",
+        "sha256": "a62cf397cb4cd8c252bf8cd02987fe9a6f53e2b856bae6c0dd028e0cb75fd4fb"
+      },
+      {
+        "path": "harness/schemas/data-inventory.schema.json",
+        "sha256": "8aa27cf81b1923b57c64a9635a85688c49ab17196fcf2f071eb72f438fe47764"
+      },
+      {
+        "path": "harness/schemas/dependencies.schema.json",
+        "sha256": "18c3a9ee8788b91eeafe69feeb863eb1681572585bcf573b38e6c93437b5ac18"
+      },
+      {
+        "path": "harness/schemas/design-system.schema.json",
+        "sha256": "244340c9f6d8ba25bc10d59258d434962650f522b4160a421682c293d57a7b7f"
+      },
+      {
+        "path": "harness/schemas/harness.schema.json",
+        "sha256": "cb48d21033f2edc4bc4d3d76e7b87dc0ffe616954491e68dd1e530b062a7f78e"
+      },
+      {
+        "path": "harness/schemas/ingest-pipeline.schema.json",
+        "sha256": "6330640ccf0058a4508cd0e1d529c776aa9ba169287e7a325dd25994dea2c42e"
+      },
+      {
+        "path": "harness/schemas/interfaces.schema.json",
+        "sha256": "a2fdf7edf40373d3696bc2f2c8ce7798b19fd4c38bcefc2ac315ec26cb3b9f8f"
+      },
+      {
+        "path": "harness/schemas/ledger.schema.json",
+        "sha256": "a4812d0626e8fb260a92df4a843e2939a1fa908d70b81852f10e038fbe8ec9ee"
+      },
+      {
+        "path": "harness/schemas/privacy-review.schema.json",
+        "sha256": "2d840f0c22eb819c289360d6ba604510277cde986835268fcadb64baf8827629"
+      },
+      {
+        "path": "harness/schemas/project.schema.json",
+        "sha256": "2a15130e3d94d8c7c4f8576355f53107deefacbe67147fa7138bdb32dcaaa430"
+      },
+      {
+        "path": "harness/schemas/protection-attestation.schema.json",
+        "sha256": "a83aa506a9a92757431fb067fe44015074cbb61334fbf7cefadb5e3764e692e7"
+      },
+      {
+        "path": "harness/schemas/provenance.schema.json",
+        "sha256": "c8cd768ce6319d43811ca169b6f034e6107bcd27de17a900c008fa85c45bd057"
+      },
+      {
+        "path": "harness/schemas/release-manifest.schema.json",
+        "sha256": "4473b7a0f02c27cda4d6fe7e04b919a563312bc9f4f344d2294c5d7504f16938"
+      },
+      {
+        "path": "harness/schemas/report.schema.json",
+        "sha256": "e6bc57b1e0050abfb22550e07f5e79b080f8d42f0b2c5be07bf96c4d1d770cf2"
+      },
+      {
+        "path": "harness/schemas/risk-register.schema.json",
+        "sha256": "7ff1c32292851e180a95850654fc55ad8da39e8657dc2acb7fa3647bf0885f75"
+      },
+      {
+        "path": "harness/schemas/stages.schema.json",
+        "sha256": "31d2dc98ce8e142f2e53eda794444e372a85ceea1ed844cd1cfc8b1e07b1c9b4"
+      },
+      {
+        "path": "harness/schemas/suite-contract-manifest.schema.json",
+        "sha256": "7ba67d01b5a77f94d6babebb34c96cf7277cdb6661067fb4b98ce8fd226eee64"
+      },
+      {
+        "path": "harness/schemas/suite-registry.schema.json",
+        "sha256": "b4864ce0b817fd4a86d3955a260ea9c6eb09d91496d9bd024bd67f78ec15de08"
+      },
+      {
+        "path": "harness/schemas/target-lock.schema.json",
+        "sha256": "095eedca5d814dd3690d55b17df91f648629bc7e02ab322fb23d8c515d0a6939"
+      },
+      {
+        "path": "harness/schemas/threat-model.schema.json",
+        "sha256": "c75bb96364e27ac25493176ac1e546d124a0f8c21dd8e345545bbef4bcc3431c"
+      },
+      {
+        "path": "harness/schemas/ui-surfaces.schema.json",
+        "sha256": "e85c4fe2065c564b5ba1bc12b7c2426846d06aad5d8d1aec209627ae1c0031d2"
+      },
+      {
+        "path": "harness/schemas/vision.schema.json",
+        "sha256": "87ed8e9f11aaf214f83bae2af6074b722322b23df3675e4ee836d155e58ee840"
+      },
+      {
+        "path": "harness/stages.yaml",
+        "sha256": "d47322183b74d6f65fd99bdf511cdf63f45910ed8e0fd34d906d83f8fe4c7dbd"
+      },
+      {
+        "path": "harness/suite-contract/contract-v1/contract-manifest.json",
+        "sha256": "42d1b33e35e3620b90d54b19c2813d7f2b1e51db6feafb0017d57de9e9424680"
+      },
+      {
+        "path": "harness/suites/privacy-suite.yaml",
+        "sha256": "874793fee568af3ea9bdc54955d0846fc365f6f3d542c9c132f7b1c6c87e4630"
+      },
+      {
+        "path": "harness/suites/qa-suite.yaml",
+        "sha256": "4d7e85719ea8ffaf170fd7d7e9a3481491dfde15724839ffc9a931607d98d0a5"
+      },
+      {
+        "path": "project.yaml",
+        "sha256": "11a0079abfb1885e0066ba7c679c03545079f7d4e83b19a4806b9080fdcc5b31"
+      },
+      {
+        "path": "pyproject.toml",
+        "sha256": "1c36608297791e47a188bbdc2e7e5e26097a47852b308c31336f3353d423e0aa"
+      },
+      {
+        "path": "requirements-ci.txt",
+        "sha256": "defc09ebb151773b6d2f4da38afb88b89986898570dddf4e2d31ca830183fb64"
+      },
+      {
+        "path": "requirements-qa.txt",
+        "sha256": "e7907cca840faf9ddfc8c54ce2b1b91d457c3fa1db79c825e0cfab5a3754186c"
+      },
+      {
+        "path": "security/dependencies.yaml",
+        "sha256": "4dc5673cd01cfdfb22914b88962cbcd043ac0ab7b1d5e3314f67e50fb48f865d"
+      },
+      {
+        "path": "security/threat-model.yaml",
+        "sha256": "e62de54ac6cd6a16dbed7204cda62236bf9c66a6400ddd5410cb67088a3f7cf5"
+      },
+      {
+        "path": "target.lock",
+        "sha256": "dd26eb233b6903e2e5058b0cd0c13cd3df0681fe8af61c481cb7e96727522474"
+      }
+    ],
+    "inputs_fingerprint": "sha256:1eedb52faa94eb2820f30adc84bcd503a6acb1b940869ffa9f599c7a0e19cad6",
+    "commit": {
+      "embedded": false,
+      "onde": "harness/reports/config-report.json"
+    }
+  }
+}

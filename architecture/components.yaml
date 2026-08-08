@@ -1,0 +1,10 @@
+﻿# Componentes técnicos ligados a capacidades. Fecha a rastreabilidade
+# capacidade → componente → código → teste.
+# Schema: harness/schemas/components.schema.json
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+components: []
+exemptions: []

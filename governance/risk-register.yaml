@@ -1,0 +1,571 @@
+# Registro de riscos: classifica quanto risco existe numa mudança antes de agir.
+# Schema: harness/schemas/risk-register.schema.json
+# controls[] são referências TIPADAS — nem todo controle é arquivo local.
+schema_version: "1.0"
+metadata_version: "1.0"
+source_of_truth: true
+generated_from: null
+
+risks:
+  - id: RISK-WEBQA-001
+    area: webqa
+    description: "Sondagem ativa realizada sem autorização externa."
+    likelihood: low
+    impact: high
+    treatment: prevent
+    owner: security_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: harness/policies/execution-modes.md
+      - kind: local_path
+        ref: .github/workflows/qa.yml
+      - kind: standard_symbol
+        standard: webqa-suite
+        version_source: requirements-qa.txt
+        ref: "webqa/gates.py::require_discovery"
+      - kind: github_environment
+        ref: production
+      - kind: local_path
+        ref: architecture/adr/ADR-001-webqa-como-padrao-externo.md
+
+  - id: RISK-DEP-001
+    area: dependencies
+    description: "Atualização automática altera a régua de auditoria sem revisão."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: requirements-qa.txt
+      - kind: local_path
+        ref: harness/policies/dependency-updates.md
+      - kind: local_path
+        ref: ci/env_guard.py
+      - kind: local_path
+        ref: ci/check_dependency_conflict.py
+      - kind: branch_protection
+        ref: "main:require_pull_request_reviews"
+      - kind: local_path
+        ref: architecture/adr/ADR-003-versao-em-fonte-unica.md
+
+  - id: RISK-META-001
+    area: governance
+    description: "Metadado declarado sem fiscal deriva do repositório real e mente em silêncio."
+    likelihood: medium
+    impact: medium
+    treatment: mitigate
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/validate_metadata.py
+      - kind: local_path
+        ref: .github/workflows/validate-metadata.yml
+      - kind: local_path
+        ref: architecture/adr/ADR-002-enforcement-nao-em-markdown.md
+      # CP-039. As duas mordidas que faltavam, e as duas nasceram de um consumidor real, não de
+      # teste deste repositório: o inventário que não enxergava referência direta PEP 508, e a
+      # isenção que só existia para o lado do código.
+      - kind: local_path
+        ref: tests/governance/test_vocabulario_do_consumidor_bites.py
+      # CP-050. Artefato derivado sem fiscal envelhece e mente em silêncio — e um painel envelhecido
+      # é pior que um documento envelhecido, porque continua parecendo cuidadoso. Fecha pelo --check
+      # e pela extensão de geradores_declarados a docs/**/*.html, que até aqui só via markdown.
+      - kind: local_path
+        ref: ci/generate_config_report.py
+      - kind: local_path
+        ref: harness/schemas/config-report.schema.json
+
+  - id: RISK-CHANGE-001
+    area: governance
+    description: "Agente aplica mudança de alto risco sem declaração de impacto nem aval humano."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: security_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: harness/schemas/change-proposal.schema.json
+      - kind: local_path
+        ref: ci/validate_metadata.py
+      - kind: local_path
+        ref: harness/policies/change-proposals.md
+      - kind: local_path
+        ref: architecture/adr/ADR-004-mudanca-proposta-declarada.md
+
+  # ------------------------------------------------------------------------------------
+  # Divergência entre governança e código, e privacidade. Os fiscais destes riscos são eles
+  # próprios controles local_path: remover um fiscal quebra check_risk_controls e o registro
+  # deixa de fechar. É assim que "divergência vira risco" sem que ferramenta alguma escreva
+  # num arquivo source_of_truth.
+  # ------------------------------------------------------------------------------------
+
+  - id: RISK-CONF-001
+    area: governance
+    description: "Código evolui e diverge de decisão arquitetural aceita; o ADR vira prosa e o CI não percebe."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/audit_governance.py
+      - kind: local_path
+        ref: architecture/adr/index.yaml
+      - kind: local_path
+        ref: harness/schemas/adr-index.schema.json
+      - kind: local_path
+        ref: harness/policies/conformance.md
+      - kind: local_path
+        ref: ci/audit_mutations.py
+      - kind: local_path
+        ref: harness/policies/prova-de-mutacao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-006-conformidade-como-assercao.md
+      - kind: branch_protection
+        ref: "main:require_pull_request_reviews"
+
+  - id: RISK-STAGE-001
+    area: governance
+    description: "Etapa do projeto sem fiscal resolvível: a cobertura é afirmada, nunca verificada."
+    likelihood: medium
+    impact: medium
+    treatment: mitigate
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: harness/stages.yaml
+      - kind: local_path
+        ref: harness/schemas/stages.schema.json
+      - kind: local_path
+        ref: ci/audit_governance.py
+      - kind: local_path
+        ref: .github/workflows/governance.yml
+
+  - id: RISK-DERIV-001
+    area: governance
+    description: "Derivado que não declara seu alvo, ou que o declara em dois lugares: o metadado descreve um alvo que já mudou e o drift fica invisível."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: target.lock
+      - kind: local_path
+        ref: harness/schemas/target-lock.schema.json
+      - kind: local_path
+        ref: harness/schemas/project.schema.json
+      - kind: local_path
+        ref: ci/validate_metadata.py
+      - kind: local_path
+        ref: ci/bootstrap.py
+      - kind: local_path
+        ref: harness/policies/adocao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-008-derivado-declara-o-alvo.md
+
+  - id: RISK-DERIV-002
+    area: governance
+    description: "Alvo específico cravado no molde: um nome, stack ou caminho em ci/ ou harness/ faz o molde funcionar para um repositório e falhar em silêncio nos outros."
+    likelihood: medium
+    impact: medium
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: architecture/adr/index.yaml
+      - kind: local_path
+        ref: ci/audit_governance.py
+      - kind: local_path
+        ref: harness/policies/adocao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-008-derivado-declara-o-alvo.md
+
+  - id: RISK-INGEST-001
+    area: governance
+    description: "Código sem metadado: implementação entra no repositório e nenhuma capacidade, componente ou decisão a reivindica — a governança afirma uma cobertura que nunca teve."
+    likelihood: high
+    impact: high
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/inventory_code.py
+      - kind: local_path
+        ref: ci/adapters/__init__.py
+      - kind: local_path
+        ref: ci/validate_metadata.py
+      - kind: local_path
+        ref: architecture/components.yaml
+      - kind: local_path
+        ref: harness/policies/code-metadata.md
+      - kind: local_path
+        ref: architecture/adr/ADR-009-codigo-sem-metadado-nao-existe.md
+
+  - id: RISK-INGEST-002
+    area: governance
+    description: "Metadado escrito por máquina passando por declarado: item sem proveniência conferível, ou julgamento que a ingestão preencheu sozinha, entra como se um humano tivesse decidido."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: harness/pipeline/ingest.yaml
+      - kind: local_path
+        ref: harness/schemas/ingest-pipeline.schema.json
+      - kind: local_path
+        ref: harness/agents/cartographer/AGENT.md
+      - kind: local_path
+        ref: ci/validate_metadata.py
+      - kind: local_path
+        ref: ci/audit_governance.py
+      - kind: local_path
+        ref: harness/policies/ingestao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-010-ingestao-com-proveniencia.md
+
+  - id: RISK-ALIGN-001
+    area: governance
+    description: "Cobertura de risco afirmada e nunca verificada na direção que importa: sabe-se que todo controle aponta para algo real, nunca que todo ativo é vigiado por alguém. Ativo de alto risco, superfície órfã e risco aberto sem prazo passam em silêncio."
+    likelihood: high
+    impact: high
+    treatment: prevent
+    owner: security_owner
+    status: mitigated
+    # Sem 'related': este é risco DA HARNESS, não das capacidades de negócio. Listá-las aqui
+    # faria a cobertura fechar por uma aresta falsa — exatamente o que R1 existe para impedir.
+    controls:
+      - kind: local_path
+        ref: ci/alignment_report.py
+      - kind: local_path
+        ref: docs/alignment.md
+      - kind: local_path
+        ref: harness/schemas/risk-register.schema.json
+      - kind: local_path
+        ref: harness/policies/alinhamento.md
+      - kind: local_path
+        ref: architecture/adr/ADR-011-alinhamento-medido.md
+
+  - id: RISK-CONF-002
+    area: governance
+    description: "Conformidade verificada e nunca validada: os fiscais confirmam que o repositório bate com o declarado, e ninguém pergunta se o declarado ainda é verdade. Descrição, ADR e risco mitigado envelhecem sem que nada reprove."
+    likelihood: high
+    impact: medium
+    treatment: mitigate
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/audit_conformance.py
+      - kind: local_path
+        ref: governance/conformance-review.yaml
+      - kind: local_path
+        ref: harness/agents/conformance/AGENT.md
+      - kind: local_path
+        ref: harness/schemas/conformance-review.schema.json
+      - kind: local_path
+        ref: .github/workflows/conformance.yml
+      - kind: local_path
+        ref: architecture/adr/ADR-012-conformidade-continua.md
+
+  - id: RISK-SEC-001
+    area: access
+    description: "Ameaça catalogada sem tratamento rastreável: o modelo de ameaças vira lista de preocurações que não obriga a nada, e a segurança volta a ser difusa — declarada num owner e em nenhum artefato."
+    likelihood: medium
+    impact: high
+    treatment: mitigate
+    owner: security_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: security/threat-model.yaml
+      - kind: local_path
+        ref: security/dependencies.yaml
+      - kind: local_path
+        ref: harness/schemas/threat-model.schema.json
+      - kind: local_path
+        ref: ci/validate_metadata.py
+      - kind: local_path
+        ref: harness/policies/seguranca.md
+      - kind: local_path
+        ref: architecture/adr/ADR-013-seguranca-como-departamento.md
+
+  - id: RISK-ORIENT-001
+    area: governance
+    description: "Orientação que enumera em vez de derivar: uma segunda descrição das etapas e das políticas deriva da primeira em silêncio, com a aparência de documentação cuidadosa — e passa a ensinar o repositório errado."
+    likelihood: high
+    impact: medium
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/orient.py
+      - kind: local_path
+        ref: .claude/skills/desenvolver/SKILL.md
+      - kind: local_path
+        ref: architecture/adr/index.yaml
+      - kind: local_path
+        ref: harness/policies/orientacao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-014-orientacao-derivada.md
+      # CP-050. A maior exposição a este risco que o repositório já teve: uma tela que ENUMERA o
+      # vocabulário fechado seria a segunda descrição na forma que não quebra. O controle não é a
+      # tela — é o gerador que a deriva e a autoauditoria que o obriga a provar isso a cada
+      # execução, lendo o próprio AST.
+      - kind: local_path
+        ref: ci/generate_config_report.py
+      - kind: local_path
+        ref: harness/policies/painel-de-configuracao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-031-painel-de-configuracao-derivado.md
+      - kind: local_path
+        ref: tests/governance/test_configuracao_bites.py
+
+  - id: RISK-META-002
+    area: access
+    description: "Fiscal editável pelo fiscalizado: alterar ci/ ou os léxicos desliga a trava em silêncio."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: security_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: harness/harness.yaml
+      - kind: local_path
+        ref: .github/CODEOWNERS
+      - kind: branch_protection
+        ref: "main:require_pull_request_reviews"
+
+  - id: RISK-PRIV-001
+    area: data
+    description: "Dado pessoal tratado fora do inventário: campo com forma de PII sem finalidade, base legal ou retenção declaradas."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: security_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/audit_lgpd.py
+      - kind: local_path
+        ref: governance/data-inventory.yaml
+      - kind: local_path
+        ref: harness/schemas/data-inventory.schema.json
+      - kind: local_path
+        ref: harness/policies/lgpd.md
+      - kind: local_path
+        ref: architecture/adr/ADR-007-lgpd-sempre-em-dois-niveis.md
+
+  - id: RISK-PRIV-002
+    area: data
+    description: "Julgamento de privacidade ausente ou desatualizado: RIPD/parecer que não cobre o estado atual do sistema."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: security_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: governance/privacy-review.yaml
+      - kind: local_path
+        ref: governance/ripd.md
+      - kind: local_path
+        ref: harness/schemas/privacy-review.schema.json
+      - kind: local_path
+        ref: harness/agents/privacy/AGENT.md
+      - kind: local_path
+        ref: harness/prompts/lgpd-task.md
+      - kind: local_path
+        ref: ci/audit_lgpd.py
+
+# Ativos que deliberadamente não precisam de risco associado. Isenção que não casa ativo algum é
+# ela própria um achado — sem isso a lista viraria o lugar onde a cobertura é fingida com uma linha.
+  - id: RISK-MOLD-001
+    area: governance
+    description: "Derivado consome o molde sem versão ancorada, ou ancora numa tag que foi movida depois."
+    likelihood: medium
+    impact: high
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/mold_release.py
+      - kind: local_path
+        ref: .github/workflows/release.yml
+      - kind: local_path
+        ref: harness/schemas/release-manifest.schema.json
+      - kind: local_path
+        ref: harness/policies/ancoragem-do-molde.md
+      - kind: local_path
+        ref: architecture/adr/ADR-015-molde-consumido-por-versao.md
+      - kind: branch_protection
+        ref: "refs/tags/v*:disallow_force_update"
+
+  - id: RISK-DECISION-001
+    area: governance
+    description: "Achado de parecer é encaminhado para um destino que não existe, e some com aparência de tratado."
+    likelihood: medium
+    impact: medium
+    treatment: prevent
+    owner: technical_owner
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/audit_governance.py
+      - kind: local_path
+        ref: harness/schemas/conformance-review.schema.json
+      - kind: local_path
+        ref: harness/policies/cadeia-de-decisao.md
+      - kind: local_path
+        ref: architecture/adr/ADR-017-parecer-sem-consumo-nao-fecha.md
+
+  - id: RISK-EXT-001
+    area: access
+    description: "Sem autoridade externa, a verificação de proteção mora no repositório fiscalizado: um PR privilegiado remove o passo e a asserção que o vigia no mesmo commit."
+    likelihood: low
+    impact: high
+    treatment: mitigate
+    owner: security_owner
+    # MITIGADO em 05/08/2026 (CP-036), e antes do prazo de 03/11 que a aceitação tinha marcado.
+    # O que fechou não foi código novo — o código estava escrito desde a CP-024. Foi a autoridade
+    # passar a EXISTIR, e a evidência é citável em vez de prometida:
+    #
+    #   - `danzeroum/harness-authority`: verificador em repositório que este aqui não alcança —
+    #     nenhum workflow, token ou PR deste lado o edita;
+    #   - GitHub App próprio (identidade emissora que não é o GITHUB_TOKEN deste repositório);
+    #   - ruleset de tags `tags-imoveis` ativo, com deletion + non_fast_forward + update e bypass
+    #     VAZIO, mais o ruleset da `main` — a configuração real do servidor, lida de fora;
+    #   - atestado real na árvore (`harness/state/protection-attestation.json`), com a validade
+    #     declarada em `harness.yaml:external_audit.cadence` e conferida contra ela: ciclos
+    #     perdidos além do tolerado fazem o carimbo EXPIRAR em vez de continuar valendo;
+    #   - `external_audit.enabled: true`, com `authorized_issuer` conferido a cada execução.
+    #
+    # `mitigate`, não `closed`: restam DOIS passos administrativos fora do alcance de qualquer PR
+    # deste repositório, e ambos são de admin no GitHub:
+    #
+    #   1. tornar o check da autoridade OBRIGATÓRIO no ruleset da `main` — é o que separa "o CI
+    #      reprova" de "o merge é impossível";
+    #   2. habilitar o auto-merge nativo (Settings → General → Pull Requests → Allow auto-merge),
+    #      sem o qual o PR diário do atestado permanece manual (CP-037/ADR-029). O fallback é o
+    #      estado anterior, não um pior: o passo falha com a instrução exata no log.
+    #
+    # Fechar o risco enquanto eles não existem seria carimbar a parte que falta. Sem `due` porque
+    # `mitigate` não é `open`: não há prazo a vencer, há um estado a melhorar — e os ADR-028 e
+    # ADR-029 dizem qual.
+    status: mitigated
+    controls:
+      - kind: local_path
+        ref: ci/verify_protection.py
+      - kind: local_path
+        ref: harness/schemas/protection-attestation.schema.json
+      - kind: local_path
+        ref: harness/state/protection-attestation.json
+      - kind: local_path
+        ref: harness/policies/trava-externa.md
+      - kind: local_path
+        ref: architecture/adr/ADR-020-camada-local-nao-equivale-a-externa.md
+      - kind: local_path
+        ref: architecture/adr/ADR-028-a-autoridade-externa-ligada.md
+      - kind: local_path
+        ref: ci/automerge_gate.py
+      - kind: local_path
+        ref: architecture/adr/ADR-029-o-atestado-e-o-unico-conteudo-auto-mergeavel.md
+      - kind: branch_protection
+        ref: "main:require_pull_request_reviews"
+      - kind: branch_protection
+        ref: "refs/tags/v*:tags-imoveis"
+
+  - id: RISK-CHANGE-002
+    area: governance
+    description: "Não há revisor humano independente: o único colaborador é também o autor de todas as change-proposals e dos PRs que as integram. `human_approval_required: true` declara que o aval era necessário, e ele não foi prestado por ninguém além de quem propôs."
+    likelihood: high
+    impact: medium
+    treatment: accept
+    owner: security_owner
+    status: open
+    # Mesma data do RISK-EXT-001, de propósito: as duas lacunas fazem a mesma pergunta — existe,
+    # fora deste repositório, uma autoridade que não seja quem é fiscalizado? Revisá-las juntas
+    # evita que a segunda seja esquecida por ter calendário próprio. Em 03/11/2026: ou existe
+    # revisor independente e as CPs fecham pelo caminho direto, ou o risco é RE-ACEITO com data
+    # nova. O schema exige `due` de risco `open`, então a data é trava e não convenção.
+    due: "2026-11-03"
+    controls:
+      - kind: local_path
+        ref: ci/verify_approval.py
+      - kind: local_path
+        ref: harness/policies/ciclo-de-vida-da-cp.md
+      - kind: local_path
+        ref: architecture/adr/ADR-027-aval-ausente-e-lacuna-declarada.md
+      - kind: branch_protection
+        ref: "main:require_pull_request_reviews"
+
+  - id: RISK-INCUBA-001
+    area: governance
+    description: "A promessa 'o vermelho é o mapa' (ADR-019) não tem mecanismo para um derivado em incubação. `lifecycle: incubating` só é consultado por `audit_governance.py::check_stage_coverage`; as invariantes de ingestão de `validate_metadata` (órfão, teste órfão, regra, REQ, I4, I5) e o `audit_lgpd` não o consultam. Enquanto a ingestão não termina, mapa e defeito têm exatamente a mesma cor, e cabe a cada derivado inventar a diferença."
+    likelihood: high
+    impact: medium
+    treatment: accept
+    owner: technical_owner
+    status: open
+    # Medido, não suposto: `danzeroum/projectCockpitDocker` virou o primeiro derivado a consumir a
+    # v1.0.0 e ficou com 299 achados — dos quais 209 são o mapa de componentes e testes que a
+    # ingestão ainda vai autorar. Ele resolveu por conta própria, com uma catraca que recusa SUBIDA
+    # e CATEGORIA NOVA contra um baseline versionado. Funciona; e uma promessa que cada derivado
+    # reimplementa não é do molde.
+    #
+    # Três respostas possíveis, com custos diferentes, e é por isso que esta CP declara em vez de
+    # decidir: (a) silenciar as invariantes durante a incubação, como check_stage_coverage faz —
+    # barato e amplo demais, esconderia regressão junto com dívida; (b) rebaixá-las a severidade
+    # não-bloqueante — mantém visível e perde o gate; (c) adotar a catraca como mecanismo do molde
+    # — a única que não afrouxa fiscal nenhum, e a mais cara.
+    #
+    # Mesma data do RISK-EXT-001 e do RISK-CHANGE-002, pela razão de sempre: calendário próprio é
+    # como um risco é esquecido sozinho.
+    due: "2026-11-03"
+    controls:
+      - kind: local_path
+        ref: architecture/adr/ADR-019-vermelho-durante-mudanca-e-mapa.md
+
+  - id: RISK-APPROVAL-001
+    area: governance
+    likelihood: high
+    impact: high
+    treatment: accept
+    status: open
+    due: "2026-11-03"
+    owner: security_owner
+    description: >
+      Uma proposta de risco alto declara `human_approval_required: true`, e no instante em que seu
+      PR mergeia ela está em status `approved`. `ci/verify_approval.py` só verifica propostas
+      `executed` — transição MANUAL feita depois do merge. O aval é exigido de um estado que só
+      existe quando já é tarde, e 21 propostas históricas mergearam assim.
+      A exigência real é `required_pull_request_reviews` com `require_code_owner_reviews` na branch
+      protection, que é configuração de ADMIN e não se liga por PR. Aceito COM DATA em vez de
+      silenciado: irmão da CP-024, mesma forma e mesma razão — o que se recusa não é a lacuna, é o
+      estado desconhecido sem lugar onde aparecer.
+    controls:
+      - kind: local_path
+        ref: ci/audit_governance.py
+      - kind: local_path
+        ref: ci/verify_approval.py
+      - kind: local_path
+        ref: ci/verify_protection.py
+      - kind: branch_protection
+        ref: required_pull_request_reviews
+
+risk_exemptions: []

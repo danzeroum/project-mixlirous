@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://danzeroum/project/harness/schemas/harness.schema.json",
+  "title": "harness.yaml",
+  "description": "Plano de controle da harness. Auto-validável: todo modo/runner/env que a harness declara é checado aqui.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "standard",
+    "execution_modes",
+    "env_hygiene",
+    "paths",
+    "repository",
+    "decision_policy",
+    "external_audit"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "project_manifest",
+        "stages_manifest",
+        "protected_paths"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "project_manifest": {
+          "type": "string"
+        },
+        "stages_manifest": {
+          "const": "harness/stages.yaml",
+          "description": "Manifesto das etapas do projeto: fonte única de quais etapas existem e quem as fiscaliza. ci/audit_governance.py exige que todo arquivo do repositório pertença a uma delas ou a uma isenção declarada."
+        },
+        "protected_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Caminhos que só mudam com revisão humana. Fiscal real: CODEOWNERS + branch protection + diff-check no CI."
+        }
+      }
+    },
+    "decision_policy": {
+      "type": "object",
+      "required": [
+        "default",
+        "missing_metadata",
+        "protected_path_change",
+        "dependency_update"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "const": "deny",
+          "description": "Se a harness não reconhece projeto, capacidade, risco ou modo, ela NÃO infere que pode agir."
+        },
+        "missing_metadata": {
+          "const": "stop_and_request_context"
+        },
+        "protected_path_change": {
+          "const": "require_human_review"
+        },
+        "dependency_update": {
+          "const": "require_human_review"
+        }
+      }
+    },
+    "standard": {
+      "type": "object",
+      "required": [
+        "package",
+        "requirements_file"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "package": {
+          "type": "string"
+        },
+        "requirements_file": {
+          "type": "string",
+          "description": "O pin exato vive aqui; harness.yaml apenas referencia."
+        }
+      }
+    },
+    "execution_modes": {
+      "type": "object",
+      "description": "Os quatro modos DEVEM estar todos presentes.",
+      "required": [
+        "inventory",
+        "passive",
+        "load",
+        "active_discovery"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "inventory": {
+          "$ref": "#/$defs/mode"
+        },
+        "passive": {
+          "$ref": "#/$defs/mode"
+        },
+        "load": {
+          "$ref": "#/$defs/mode"
+        },
+        "active_discovery": {
+          "$ref": "#/$defs/mode"
+        }
+      }
+    },
+    "env_hygiene": {
+      "type": "object",
+      "required": [
+        "env_allowlist",
+        "env_denylist_prefix",
+        "env_denylist_exact",
+        "fail_on_denied_env"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "env_allowlist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env_denylist_prefix": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fail_on_denied_env": {
+          "type": "boolean"
+        },
+        "env_denylist_exact": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Nomes EXATOS proibidos. Distinta de env_denylist_prefix porque a ameaça é outra: prefixo cobre a familia WEBQA_* (auto-autorizacao); estes nomes redirecionam de onde o processo busca o que executa. minItems 1 para que esvaziar a lista seja tao visivel quanto remover a chave.",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          }
+        },
+        "exceptions": {
+          "type": "array",
+          "description": "Excecao DECLARADA a denylist. Cada uma nomeia contexto e justificativa: excecao declarada e contestavel numa revisao; entrada removida da lista e excecao que ninguem mais ve.",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "context",
+              "justification"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "context": {
+                "type": "string"
+              },
+              "justification": {
+                "type": "string",
+                "minLength": 40
+              }
+            }
+          }
+        }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "required": [
+        "runs",
+        "reports",
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "runs": {
+          "type": "string"
+        },
+        "reports": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      }
+    },
+    "target_feedback": {
+      "type": "object",
+      "description": "Canal de retorno derivado -> alvo: a única capacidade que escreveria num repositório de terceiro. Ambos os campos nascem no lado fechado, coerentes com decision_policy.default: deny. O schema não força o valor — força a DECLARAÇÃO: quem ligar o canal escreve true num arquivo protegido, sob revisão, em vez de o comportamento aparecer por omissão.",
+      "required": [
+        "open_issues_on_target",
+        "requires_human_approval"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "open_issues_on_target": {
+          "type": "boolean"
+        },
+        "requires_human_approval": {
+          "type": "boolean"
+        }
+      }
+    },
+    "external_audit": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "accepted_risk",
+        "attestation_path",
+        "justification"
+      ],
+      "additionalProperties": false,
+      "description": "Camada externa da trava. DECLARADA mesmo desligada: sem este bloco, 'nao ha autoridade externa' seria um estado sem lugar onde aparecer, e uma lacuna que nao aparece nao e revisada.",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "accepted_risk": {
+          "type": "string",
+          "pattern": "^RISK-[A-Z0-9]+(-[0-9]{3})?$",
+          "description": "Enquanto enabled e false, o risco aceito COM DATA que cobre a janela. Sem este elo, desligar a camada externa nao custaria nada a ninguem."
+        },
+        "attestation_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "justification": {
+          "type": "string",
+          "minLength": 80
+        },
+        "authorized_issuer": {
+          "type": "object",
+          "required": [
+            "identity",
+            "kind"
+          ],
+          "additionalProperties": false,
+          "description": "QUEM pode atestar. Sem este bloco, `issuer` no atestado seria um campo exigido pelo schema e conferido por ninguém — 'alguém atestou' passando por 'quem devia atestou'. Quem tem direito de merge escreveria o JSON à mão e o molde aceitaria.",
+          "properties": {
+            "identity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "enum": [
+                "github_app",
+                "oidc_workload",
+                "external_service"
+              ]
+            }
+          }
+        },
+        "cadence": {
+          "type": "object",
+          "required": [
+            "interval_days",
+            "tolerated_cycles",
+            "margin_hours"
+          ],
+          "additionalProperties": false,
+          "description": "A cadência AUTORIZADA do auditor externo, e o único lugar onde ela é declarada. A validade tolerada é interval_days x tolerated_cycles + margin_hours; um atestado com janela maior que isso é a trava amolecendo em silêncio, que é o modo de falha que ninguém percebe.",
+          "properties": {
+            "interval_days": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "De quantos em quantos dias a autoridade renova."
+            },
+            "tolerated_cycles": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Quantos ciclos perdidos seguidos o atestado sobrevive. Abaixo de 1 um unico cron atrasado bloquearia, que e o ruido que a CP-046 existe para tirar."
+            },
+            "margin_hours": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Folga sobre os ciclos tolerados, calibrada contra o atraso real do agendador — nunca contra o intervalo nominal."
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "comment": "LIGADA EXIGE EMISSOR DECLARADO. A combinação 'exijo atestado mas aceito qualquer um' é pior que a camada desligada, e o schema a torna inexpressável em vez de proibida.",
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          },
+          "then": {
+            "required": [
+              "authorized_issuer"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "mode": {
+      "type": "object",
+      "required": [
+        "network",
+        "requires_auth",
+        "agent_may_trigger",
+        "job"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "network": {
+          "type": "boolean"
+        },
+        "requires_auth": {
+          "type": "boolean"
+        },
+        "agent_may_trigger": {
+          "type": "boolean"
+        },
+        "job": {
+          "type": "string",
+          "enum": [
+            "inline",
+            "segregated"
+          ]
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "human_only"
+          ]
+        },
+        "requires_proof_of_possession": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
