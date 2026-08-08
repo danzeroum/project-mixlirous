@@ -2030,7 +2030,7 @@
         }
       ],
       "group": "governança",
-      "example": "sha256:8bcc2d4be6e07ce9c3e0108c610e6fce51fb700b88df922d204bb7639a4453bb"
+      "example": "sha256:3ab948315259e5fac02ef5cd4c9ab32a4fbdce444d82bed4186fa812ab1090e5"
     },
     {
       "pattern": "^(/[^/]*)*$",
@@ -2168,7 +2168,7 @@
         }
       ],
       "group": "identidade",
-      "example": "sha256:8bcc2d4be6e07ce9c3e0108c610e6fce51fb700b88df922d204bb7639a4453bb"
+      "example": "sha256:3ab948315259e5fac02ef5cd4c9ab32a4fbdce444d82bed4186fa812ab1090e5"
     },
     {
       "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
@@ -2304,7 +2304,7 @@
         }
       ],
       "group": "negócio",
-      "example": "REQ-001"
+      "example": "REQ-002"
     },
     {
       "pattern": "^RULE-[A-Z0-9]+(-[A-Z0-9]+)*-[0-9]{3}$",
@@ -4432,7 +4432,7 @@
       },
       {
         "path": "architecture/components.yaml",
-        "sha256": "0782c3960d54607c3e4fafefae3e2bb8059060b62e188d80b7e1e79f652d6dd8"
+        "sha256": "3549476a3b86341ea0aa6489b0a810c7ec61d787dc82ab594828a8d508ffb21d"
       },
       {
         "path": "architecture/interfaces.yaml",
@@ -4588,7 +4588,7 @@
       },
       {
         "path": "governance/conformance-review.yaml",
-        "sha256": "4060db4d575d8ea69dbd1371d2d1d76521a87e25c8f2807114a05a264d98153a"
+        "sha256": "0897e15f9d5a6e3a5efb976f44b2355680163859c30481988245b067470280b0"
       },
       {
         "path": "governance/data-inventory.yaml",
@@ -4875,7 +4875,7 @@
         "sha256": "dd26eb233b6903e2e5058b0cd0c13cd3df0681fe8af61c481cb7e96727522474"
       }
     ],
-    "inputs_fingerprint": "sha256:0babf4a809cc2685b7214d553a4c221c612cff863a028da8fabf573e705aa71a",
+    "inputs_fingerprint": "sha256:90588088e76a5b90ea899b367bd3c2f324fe1a5e7c3bf9379564ce75347b3cd9",
     "commit": {
       "embedded": false,
       "onde": "harness/reports/config-report.json"

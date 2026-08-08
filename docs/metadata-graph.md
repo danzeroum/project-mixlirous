@@ -37,12 +37,18 @@ graph TD
   CMP_AUDIO_AGENT["CMP-AUDIO-AGENT<br/>Cargo.toml"]
   CMP_AUDIO_AGENT -->|realiza| CAP_AGENT_ORCHESTRATION
   CMP_AUDIO_AGENT -->|depende| CMP_AUDIO_CORE
+  CMP_AUDIO_AGENT -.->|implementa| REQ_001
   CMP_AUDIO_API["CMP-AUDIO-API<br/>Cargo.toml"]
   CMP_AUDIO_API -->|realiza| CAP_HTTP_TRANSPORT
   CMP_AUDIO_API -->|depende| CMP_AUDIO_AGENT
   CMP_AUDIO_API -->|depende| CMP_AUDIO_CORE
+  CMP_AUDIO_API -.->|implementa| REQ_005
+  CMP_AUDIO_API -.->|implementa| REQ_006
   CMP_AUDIO_CORE["CMP-AUDIO-CORE<br/>Cargo.toml"]
   CMP_AUDIO_CORE -->|realiza| CAP_DSP_ENGINE
+  CMP_AUDIO_CORE -.->|implementa| REQ_002
+  CMP_AUDIO_CORE -.->|implementa| REQ_003
+  CMP_AUDIO_CORE -.->|implementa| REQ_004
   CMP_AUDIO_CORE -.->|testa| TEST_workspace_target_crates_audio_core_tests_aliasing_rs
   CMP_AUDIO_CORE -.->|testa| TEST_workspace_target_crates_audio_core_tests_crossfade_properties_rs
   CMP_AUDIO_CORE -.->|testa| TEST_workspace_target_crates_audio_core_tests_dc_offset_proptest_regressions
@@ -57,6 +63,7 @@ graph TD
   CMP_UI["CMP-UI<br/>eslint.config.js"]
   CMP_UI -->|realiza| CAP_UI_PRESENTATION
   CMP_UI -->|depende| CMP_AUDIO_API
+  CMP_UI -.->|implementa| REQ_007
   IFC_API_HTTP(["IFC-API-HTTP<br/>API HTTP REST"])
   CMP_AUDIO_API -.->|provê| IFC_API_HTTP
   IFC_API_HTTP -.->|consome| CMP_UI
